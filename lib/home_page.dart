@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'book_provider.dart';
 import 'goto_song_form.dart';
+import 'search_song_page.dart';
 import 'settings_page.dart';
 import 'song_page.dart';
 import 'util.dart';
@@ -68,6 +69,22 @@ class _MyHomePageState extends State<MyHomePage> {
           appBar: AppBar(
             title: Text('Énekeskönyv (${provider.book})'),
             actions: [
+              IconButton(
+                onPressed: () {
+                  // @see https://www.youtube.com/watch?v=Xdt8TlwNRAM
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return MySearchSongPage(
+                          songs: _songs[provider.book],
+                          selectedBook: provider.book,
+                        );
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.search_outlined),
+              ),
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
