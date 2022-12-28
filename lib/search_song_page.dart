@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:enekeskonyv/util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'song_page.dart';
@@ -18,7 +19,9 @@ class SearchVerse {
 }
 
 class MySearchSongPage extends StatefulWidget {
-  const MySearchSongPage({Key? key, required this.songs, required this.selectedBook}) : super(key: key);
+  const MySearchSongPage(
+      {Key? key, required this.songs, required this.selectedBook})
+      : super(key: key);
 
   final LinkedHashMap songs;
   final Book selectedBook;
@@ -55,11 +58,8 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
       appBar: AppBar(
         // To save some screen estate, reuse the page title for the search
         // input field.
-        title: TextField(
-          decoration: const InputDecoration(
-            hintText: 'Keresendő szöveg (3+ betű)',
-          ),
-          autofocus: true,
+        title: PlatformAwareTextField(
+          hintText: "Keresendő szöveg (3+ betű)",
           onChanged: (searchText) {
             if (searchText.length >= 3) {
               // Update the list of found verses if there are at least 3
@@ -72,8 +72,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
               setState(() {
                 foundVerses = suggestions;
               });
-            }
-            else {
+            } else {
               // When less than 3 characters typed, empty the list.
               if (foundVerses.isNotEmpty) {
                 setState(() {
@@ -102,7 +101,9 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
                           return MySongPage(
                             songsInBook: widget.songs,
                             selectedBook: widget.selectedBook,
-                            songIndex: widget.songs.keys.toList().indexOf(tappedVerse.songKey),
+                            songIndex: widget.songs.keys
+                                .toList()
+                                .indexOf(tappedVerse.songKey),
                             verseIndex: tappedVerse.verseIndex,
                           );
                         },
@@ -116,5 +117,29 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         ],
       ),
     );
+  }
+}
+
+class PlatformAwareTextField extends StatelessWidget {
+  String hintText;
+  void Function(String)? onChanged;
+  PlatformAwareTextField({required this.hintText, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return isAndroid
+        ? TextField(
+            decoration: InputDecoration(
+              hintText: hintText,
+            ),
+            autofocus: true,
+            onChanged: onChanged)
+        : CupertinoTheme(
+            data: CupertinoThemeData(brightness: Brightness.dark),
+            child: CupertinoTextField(
+              placeholder: hintText,
+              autofocus: true,
+            ),
+          );
   }
 }

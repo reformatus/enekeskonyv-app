@@ -2,13 +2,16 @@
 import 'dart:collection';
 
 import 'package:enekeskonyv/util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'song_page.dart';
 
 class MyGotoSongForm extends StatefulWidget {
-  const MyGotoSongForm({Key? key, required this.songs, required this.selectedBook}) : super(key: key);
+  const MyGotoSongForm(
+      {Key? key, required this.songs, required this.selectedBook})
+      : super(key: key);
 
   final LinkedHashMap songs;
   final Book selectedBook;
@@ -36,12 +39,9 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
           padding: const EdgeInsets.all(30.0),
           child: Column(
             children: [
-              TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Ének száma:',
-                    helperText: '(1 és ${widget.songs.keys.last} között)',
-                  ),
-                  autofocus: true,
+              PlatformAwareTextFormField(
+                  labelText: 'Ének száma:',
+                  helperText: '(1 és ${widget.songs.keys.last} között)',
                   focusNode: _myFocusNode,
                   controller: controller,
                   onFieldSubmitted: (details) {
@@ -62,7 +62,8 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                               // number was entered (eg. for the 2021 book, we
                               // need the 198th song from the list when the user
                               // wants to navigate to song #201).
-                              songIndex: widget.songs.keys.toList().indexOf(details),
+                              songIndex:
+                                  widget.songs.keys.toList().indexOf(details),
                             );
                           },
                         ),
@@ -77,26 +78,91 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                     // - When we're returning from the song page.
                     _myFocusNode.requestFocus();
                   },
-                  // @see https://stackoverflow.com/q/49577781
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Hiányzó adat';
+                      return 'Írj be egy számot';
                     }
                     if (!widget.songs.containsKey(value)) {
-                      return 'Hibás adat';
+                      return 'Nincs ilyen ének!';
                     }
                     return null;
                   },
-                  key: const Key('_MyCustomFormState.TextFormField')
-              ),
+                  key: const Key('_MyCustomFormState.TextFormField')),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+class PlatformAwareTextFormField extends StatelessWidget {
+  String labelText;
+  String helperText;
+  FocusNode focusNode;
+  TextEditingController controller;
+  void Function(String) onFieldSubmitted;
+  String? Function(String?)? validator;
+  PlatformAwareTextFormField(
+      {required this.labelText,
+      required this.helperText,
+      required this.focusNode,
+      required this.controller,
+      required this.onFieldSubmitted,
+      required this.validator,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return isAndroid
+        ? TextFormField(
+            decoration: InputDecoration(
+              labelText: labelText,
+              helperText: helperText,
+            ),
+            focusNode: focusNode,
+            controller: controller,
+            onFieldSubmitted: onFieldSubmitted,
+            validator: validator,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+          )
+        : CupertinoTheme(
+            data: CupertinoThemeData(brightness: Brightness.dark),
+            child: Column(
+              children: [
+                CupertinoTextFormFieldRow(
+                  prefix: Text(labelText),
+                  placeholder: helperText,
+                  autofocus: true,
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  validator: validator,
+                  onFieldSubmitted: onFieldSubmitted,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 60),
+                  child: CupertinoButton(
+                    //Need a separate button on iOS; number keyboard doesn't have a Done button.
+                    onPressed: () {
+                      onFieldSubmitted(controller.text);
+                    },
+                    child: Icon(
+                      Icons.check,
+                      color: CupertinoTheme.of(context).primaryColor,
+                    ),
+                    color: CupertinoTheme.of(context).barBackgroundColor,
+                  ),
+                )
+              ],
+            ),
+          );
   }
 }
