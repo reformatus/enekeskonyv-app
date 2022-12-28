@@ -129,187 +129,196 @@ class _MySongPageState extends State<MySongPage> {
     return Scaffold(
       // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
       body: SafeArea(
-        child: Container(
-          color: Colors.white, //TODO make themable
-          child: Column(
-            //TODO make Row in landscape
-            children: [
-              Expanded(
-                child: NestedScrollView(
-                    headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                      return [
-                        SliverOverlapAbsorber(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context),
-                          sliver: SliverAppBar(
-                              title: Text(
-                            getSongTitle(widget.songsInBook[songKey]),
-                            style: TextStyle(fontSize: 18),
-                            maxLines: 2,
-                          )),
-                        )
-                      ];
-                    }),
-                    body: GestureDetector(
-                      onTapDown: (details) {
-                        tapDownPosition = details.globalPosition;
-                      },
-                      onTapUp: (details) {
-                        // Bail out early if tap ended more than 3.0 away from where it
-                        // started.
-                        if ((details.globalPosition - tapDownPosition)
-                                .distance >
-                            3.0) {
-                          return;
-                        }
-                        int originalVerse = _verse;
-                        int originalSong = _song;
-                        setState(() {
-                          if ((MediaQuery.of(context).size.width / 2) >
-                              details.globalPosition.dx) {
-                            // Go backward (to the previous verse).
-                            if (_verse > 0) {
-                              _verse--;
-                            } else if (_song > 0) {
-                              _song--;
-                              // This songKey must be recalculated to be able to fetch the
-                              // number of verses for the previous song.
-                              songKey =
-                                  widget.songsInBook.keys.elementAt(_song);
-                              _verse =
-                                  widget.songsInBook[songKey]['texts'].length -
-                                      1;
-                            }
-                          } else {
-                            // Go forward (to the next verse).
-                            if (_verse <
-                                widget.songsInBook[songKey]['texts'].length -
-                                    1) {
-                              _verse++;
-                            } else if (_song < widget.songsInBook.length - 1) {
-                              _song++;
-                              _verse = 0;
-                            }
-                          }
-                        });
-                        if (originalVerse != _verse) {
-                          if (originalSong != _song) {
-                            pageController.jumpToPage(_verse);
-                          } else {
-                            pageController.animateToPage(_verse,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
-                          }
-                        }
-                      },
-                      child: PageView(
-                        controller: pageController,
-                        onPageChanged: (i) {
-                          setState(() {
-                            _verse = i;
-                          });
+        child: OrientationBuilder(builder: (context, orientation) {
+          return Container(
+            color: Colors.white, //TODO make themable
+            child: Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: [
+                Expanded(
+                  child: NestedScrollView(
+                      headerSliverBuilder: ((context, innerBoxIsScrolled) {
+                        return [
+                          SliverOverlapAbsorber(
+                            handle:
+                                NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                    context),
+                            sliver: SliverAppBar(
+                                title: Text(
+                              getSongTitle(widget.songsInBook[songKey]),
+                              style: TextStyle(fontSize: 18),
+                              maxLines: 2,
+                            )),
+                          )
+                        ];
+                      }),
+                      body: GestureDetector(
+                        onTapDown: (details) {
+                          tapDownPosition = details.globalPosition;
                         },
-                        children: buildPages().map((pageContentList) {
-                          return Builder(builder: (BuildContext context) {
-                            return CustomScrollView(
-                              key: PageStorageKey(pageContentList),
-                              slivers: [
-                                SliverOverlapInjector(
-                                  handle: NestedScrollView
-                                      .sliverOverlapAbsorberHandleFor(context),
-                                ),
-                                SliverList(
-                                  delegate: SliverChildListDelegate.fixed(
-                                      pageContentList),
-                                )
-                              ],
-                            );
-                          });
-                        }).toList(),
-                      ),
-                    )),
-              ),
-              Container(
-                color: ThemeData.dark().highlightColor,
-                child: Row(
-                  //TODO make Column in landscape
-                  // Make the buttons "justified" (ie. use all the screen width).
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Switch to the previous verse (if exists).
-                    IconButton(
-                      onPressed: _verse == 0
-                          ? null
-                          : () {
-                              setState(() {
+                        onTapUp: (details) {
+                          // Bail out early if tap ended more than 3.0 away from where it
+                          // started.
+                          if ((details.globalPosition - tapDownPosition)
+                                  .distance >
+                              3.0) {
+                            return;
+                          }
+                          int originalVerse = _verse;
+                          int originalSong = _song;
+                          setState(() {
+                            if ((MediaQuery.of(context).size.width / 2) >
+                                details.globalPosition.dx) {
+                              // Go backward (to the previous verse).
+                              if (_verse > 0) {
                                 _verse--;
-                                pageController.animateToPage(_verse,
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut);
-                              });
-                            },
-                      icon: const Icon(Icons.arrow_circle_left_outlined),
-                      color: Colors.black,
-                      disabledColor: ThemeData.dark().highlightColor,
-                      key: const Key('_MySongPageState.IconButton.prevVerse'),
-                    ),
-                    // Switch to the previous song's first verse (if exists).
-                    IconButton(
-                      onPressed: _song == 0
-                          ? null
-                          : () {
-                              setState(() {
+                              } else if (_song > 0) {
                                 _song--;
-                                _verse = 0;
-                                pageController.jumpToPage(_verse);
-                              });
-                            },
-                      icon: const Icon(Icons.arrow_circle_up_outlined),
-                      color: Colors.black,
-                      disabledColor: ThemeData.dark().highlightColor,
-                      key: const Key('_MySongPageState.IconButton.prevSong'),
-                    ),
-                    // Switch to the next song's first verse (if exists).
-                    IconButton(
-                      onPressed: _song == widget.songsInBook.length - 1
-                          ? null
-                          : () {
-                              setState(() {
+                                // This songKey must be recalculated to be able to fetch the
+                                // number of verses for the previous song.
+                                songKey =
+                                    widget.songsInBook.keys.elementAt(_song);
+                                _verse = widget
+                                        .songsInBook[songKey]['texts'].length -
+                                    1;
+                              }
+                            } else {
+                              // Go forward (to the next verse).
+                              if (_verse <
+                                  widget.songsInBook[songKey]['texts'].length -
+                                      1) {
+                                _verse++;
+                              } else if (_song <
+                                  widget.songsInBook.length - 1) {
                                 _song++;
                                 _verse = 0;
-                                pageController.jumpToPage(_verse);
-                              });
-                            },
-                      icon: const Icon(Icons.arrow_circle_down_outlined),
-                      color: Colors.black,
-                      disabledColor: ThemeData.dark().highlightColor,
-                      key: const Key('_MySongPageState.IconButton.nextSong'),
-                    ),
-                    // Switch to the next verse (if exists).
-                    IconButton(
-                      onPressed: (_verse ==
-                              widget.songsInBook[songKey]['texts'].length - 1)
-                          ? null
-                          : () {
-                              setState(() {
-                                _verse++;
-                                pageController.animateToPage(_verse,
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut);
-                              });
-                            },
-                      icon: const Icon(Icons.arrow_circle_right_outlined),
-                      color: Colors.black,
-                      disabledColor: ThemeData.dark().highlightColor,
-                      key: const Key('_MySongPageState.IconButton.nextVerse'),
-                    ),
-                  ],
+                              }
+                            }
+                          });
+                          if (originalVerse != _verse) {
+                            if (originalSong != _song) {
+                              pageController.jumpToPage(_verse);
+                            } else {
+                              pageController.animateToPage(_verse,
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut);
+                            }
+                          }
+                        },
+                        child: PageView(
+                          controller: pageController,
+                          onPageChanged: (i) {
+                            setState(() {
+                              _verse = i;
+                            });
+                          },
+                          children: buildPages().map((pageContentList) {
+                            return Builder(builder: (BuildContext context) {
+                              return CustomScrollView(
+                                key: PageStorageKey(pageContentList),
+                                slivers: [
+                                  SliverOverlapInjector(
+                                    handle: NestedScrollView
+                                        .sliverOverlapAbsorberHandleFor(
+                                            context),
+                                  ),
+                                  SliverList(
+                                    delegate: SliverChildListDelegate.fixed(
+                                        pageContentList),
+                                  )
+                                ],
+                              );
+                            });
+                          }).toList(),
+                        ),
+                      )),
                 ),
-              ),
-            ],
-          ),
-        ),
+                Container(
+                  color: ThemeData.dark().highlightColor,
+                  child: Flex(
+                    direction: orientation == Orientation.portrait
+                        ? Axis.horizontal
+                        : Axis.vertical,
+                    //TODO make Column in landscape
+                    // Make the buttons "justified" (ie. use all the screen width).
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Switch to the previous verse (if exists).
+                      IconButton(
+                        onPressed: _verse == 0
+                            ? null
+                            : () {
+                                setState(() {
+                                  _verse--;
+                                  pageController.animateToPage(_verse,
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut);
+                                });
+                              },
+                        icon: const Icon(Icons.arrow_circle_left_outlined),
+                        color: Colors.black,
+                        disabledColor: ThemeData.dark().highlightColor,
+                        key: const Key('_MySongPageState.IconButton.prevVerse'),
+                      ),
+                      // Switch to the previous song's first verse (if exists).
+                      IconButton(
+                        onPressed: _song == 0
+                            ? null
+                            : () {
+                                setState(() {
+                                  _song--;
+                                  _verse = 0;
+                                  pageController.jumpToPage(_verse);
+                                });
+                              },
+                        icon: const Icon(Icons.arrow_circle_up_outlined),
+                        color: Colors.black,
+                        disabledColor: ThemeData.dark().highlightColor,
+                        key: const Key('_MySongPageState.IconButton.prevSong'),
+                      ),
+                      // Switch to the next song's first verse (if exists).
+                      IconButton(
+                        onPressed: _song == widget.songsInBook.length - 1
+                            ? null
+                            : () {
+                                setState(() {
+                                  _song++;
+                                  _verse = 0;
+                                  pageController.jumpToPage(_verse);
+                                });
+                              },
+                        icon: const Icon(Icons.arrow_circle_down_outlined),
+                        color: Colors.black,
+                        disabledColor: ThemeData.dark().highlightColor,
+                        key: const Key('_MySongPageState.IconButton.nextSong'),
+                      ),
+                      // Switch to the next verse (if exists).
+                      IconButton(
+                        onPressed: (_verse ==
+                                widget.songsInBook[songKey]['texts'].length - 1)
+                            ? null
+                            : () {
+                                setState(() {
+                                  _verse++;
+                                  pageController.animateToPage(_verse,
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut);
+                                });
+                              },
+                        icon: const Icon(Icons.arrow_circle_right_outlined),
+                        color: Colors.black,
+                        disabledColor: ThemeData.dark().highlightColor,
+                        key: const Key('_MySongPageState.IconButton.nextVerse'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
