@@ -74,8 +74,8 @@ class _MySongPageState extends State<MySongPage> {
     }
 
     // Builds the pages for the current song's verses.
-    List<Widget> buildPages() {
-      final pages = <Widget>[];
+    List<List<Widget>> buildPages() {
+      final List<List<Widget>> pages = [];
       for (var verseIndex = 0;
           verseIndex < widget.songsInBook[songKey]['texts'].length;
           verseIndex++) {
@@ -95,11 +95,7 @@ class _MySongPageState extends State<MySongPage> {
         final verseNumber =
             widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
         final fileName =
-            'assets/ref${getBookShortName(widget.selectedBook)}/ref${getBookShortName(widget.selectedBook)}-' +
-                songKey.padLeft(3, '0') +
-                '-' +
-                verseNumber.padLeft(3, '0') +
-                '.svg';
+            'assets/ref${getBookShortName(widget.selectedBook)}/ref${getBookShortName(widget.selectedBook)}-${songKey.padLeft(3, '0')}-${verseNumber.padLeft(3, '0')}.svg';
         children.add(SvgPicture.asset(
           fileName,
           // The score should utilize the full width of the screen, regardless
@@ -115,19 +111,9 @@ class _MySongPageState extends State<MySongPage> {
           children.add(blackText(widget.songsInBook[songKey]['poet']));
         }
 
-        pages.add(Scrollbar(
-          // As some scores are taller than the screen, it would be nice to have
-          // a tiny scrollbar always displayed. However, the PageView()
-          // conflicts with thumbVisibility: true, so this is the best we can
-          // do.
-          thickness: 3.0,
-          child: ListView(
-            // Let's add the same amount of padding (to avoid having the
-            // rightmost part of the score covered by the scrollbar).
-            padding: const EdgeInsets.all(3.0),
-            children: children,
-          ),
-        ));
+        pages.add(
+          children,
+        );
       }
       return pages;
     }
@@ -141,9 +127,195 @@ class _MySongPageState extends State<MySongPage> {
     Offset tapDownPosition = Offset.zero;
 
     return Scaffold(
+      // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+      body: SafeArea(
+        child: Container(
+          color: Colors.white, //TODO make themable
+          child: Column(
+            //TODO make Row in landscape
+            children: [
+              Expanded(
+                child: NestedScrollView(
+                    headerSliverBuilder: ((context, innerBoxIsScrolled) {
+                      return [
+                        SliverOverlapAbsorber(
+                          handle:
+                              NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                  context),
+                          sliver: SliverAppBar(
+                              title: Text(
+                            getSongTitle(widget.songsInBook[songKey]),
+                            style: TextStyle(fontSize: 18),
+                            maxLines: 2,
+                          )),
+                        )
+                      ];
+                    }),
+                    body: GestureDetector(
+                      onTapDown: (details) {
+                        tapDownPosition = details.globalPosition;
+                      },
+                      onTapUp: (details) {
+                        // Bail out early if tap ended more than 3.0 away from where it
+                        // started.
+                        if ((details.globalPosition - tapDownPosition)
+                                .distance >
+                            3.0) {
+                          return;
+                        }
+                        int originalVerse = _verse;
+                        int originalSong = _song;
+                        setState(() {
+                          if ((MediaQuery.of(context).size.width / 2) >
+                              details.globalPosition.dx) {
+                            // Go backward (to the previous verse).
+                            if (_verse > 0) {
+                              _verse--;
+                            } else if (_song > 0) {
+                              _song--;
+                              // This songKey must be recalculated to be able to fetch the
+                              // number of verses for the previous song.
+                              songKey =
+                                  widget.songsInBook.keys.elementAt(_song);
+                              _verse =
+                                  widget.songsInBook[songKey]['texts'].length -
+                                      1;
+                            }
+                          } else {
+                            // Go forward (to the next verse).
+                            if (_verse <
+                                widget.songsInBook[songKey]['texts'].length -
+                                    1) {
+                              _verse++;
+                            } else if (_song < widget.songsInBook.length - 1) {
+                              _song++;
+                              _verse = 0;
+                            }
+                          }
+                        });
+                        if (originalVerse != _verse) {
+                          if (originalSong != _song) {
+                            pageController.jumpToPage(_verse);
+                          } else {
+                            pageController.animateToPage(_verse,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut);
+                          }
+                        }
+                      },
+                      child: PageView(
+                        controller: pageController,
+                        onPageChanged: (i) {
+                          setState(() {
+                            _verse = i;
+                          });
+                        },
+                        children: buildPages().map((pageContentList) {
+                          return Builder(builder: (BuildContext context) {
+                            return CustomScrollView(
+                              key: PageStorageKey(pageContentList),
+                              slivers: [
+                                SliverOverlapInjector(
+                                  handle: NestedScrollView
+                                      .sliverOverlapAbsorberHandleFor(context),
+                                ),
+                                SliverList(
+                                  delegate: SliverChildListDelegate.fixed(
+                                      pageContentList),
+                                )
+                              ],
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    )),
+              ),
+              Container(
+                color: ThemeData.dark().highlightColor,
+                child: Row(
+                  //TODO make Column in landscape
+                  // Make the buttons "justified" (ie. use all the screen width).
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Switch to the previous verse (if exists).
+                    IconButton(
+                      onPressed: _verse == 0
+                          ? null
+                          : () {
+                              setState(() {
+                                _verse--;
+                                pageController.animateToPage(_verse,
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut);
+                              });
+                            },
+                      icon: const Icon(Icons.arrow_circle_left_outlined),
+                      color: Colors.black,
+                      disabledColor: ThemeData.dark().highlightColor,
+                      key: const Key('_MySongPageState.IconButton.prevVerse'),
+                    ),
+                    // Switch to the previous song's first verse (if exists).
+                    IconButton(
+                      onPressed: _song == 0
+                          ? null
+                          : () {
+                              setState(() {
+                                _song--;
+                                _verse = 0;
+                                pageController.jumpToPage(_verse);
+                              });
+                            },
+                      icon: const Icon(Icons.arrow_circle_up_outlined),
+                      color: Colors.black,
+                      disabledColor: ThemeData.dark().highlightColor,
+                      key: const Key('_MySongPageState.IconButton.prevSong'),
+                    ),
+                    // Switch to the next song's first verse (if exists).
+                    IconButton(
+                      onPressed: _song == widget.songsInBook.length - 1
+                          ? null
+                          : () {
+                              setState(() {
+                                _song++;
+                                _verse = 0;
+                                pageController.jumpToPage(_verse);
+                              });
+                            },
+                      icon: const Icon(Icons.arrow_circle_down_outlined),
+                      color: Colors.black,
+                      disabledColor: ThemeData.dark().highlightColor,
+                      key: const Key('_MySongPageState.IconButton.nextSong'),
+                    ),
+                    // Switch to the next verse (if exists).
+                    IconButton(
+                      onPressed: (_verse ==
+                              widget.songsInBook[songKey]['texts'].length - 1)
+                          ? null
+                          : () {
+                              setState(() {
+                                _verse++;
+                                pageController.animateToPage(_verse,
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut);
+                              });
+                            },
+                      icon: const Icon(Icons.arrow_circle_right_outlined),
+                      color: Colors.black,
+                      disabledColor: ThemeData.dark().highlightColor,
+                      key: const Key('_MySongPageState.IconButton.nextVerse'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    /*Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(Util.getSongTitle(widget.songsInBook[songKey])),
+        title: Text(getSongTitle(widget.songsInBook[songKey])),
       ),
       body: GestureDetector(
         onTapDown: (details) {
@@ -273,6 +445,6 @@ class _MySongPageState extends State<MySongPage> {
         ),
       ),
       key: const Key('_MySongPageState'),
-    );
+    );*/
   }
 }
