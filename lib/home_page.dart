@@ -94,18 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return MySettingsPage(provider: provider);
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.settings),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
                         return MyGotoSongForm(
                           songs: _songs[getBookShortName(provider.book)],
                           selectedBook: provider.book,
@@ -116,6 +104,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 icon: const Icon(Icons.apps),
                 key: const Key('_MyHomePageState.IconButton'),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return MySettingsPage(provider: provider);
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.menu_book),
               ),
             ],
           ),

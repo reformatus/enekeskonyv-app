@@ -53,6 +53,7 @@ class _MySongPageState extends State<MySongPage> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO refactor
     // To retrieve the song data, the key (the actual number of the song) is
     // needed, not the index (the position in the list).
     var songKey = widget.songsInBook.keys.elementAt(_song);
@@ -212,6 +213,7 @@ class _MySongPageState extends State<MySongPage> {
                               _verse = i;
                             });
                           },
+                          physics: isAndroid ? null : BouncingScrollPhysics(),
                           children:
                               buildPages(orientation).map((pageContentList) {
                             return Builder(builder: (BuildContext context) {
@@ -235,6 +237,7 @@ class _MySongPageState extends State<MySongPage> {
                       )),
                 ),
                 Container(
+                  //TODO refactor
                   color: ThemeData.dark().highlightColor,
                   child: Flex(
                     direction: orientation == Orientation.portrait
@@ -367,10 +370,11 @@ class TextIconButton extends StatelessWidget {
   }
 }
 
+//TODO refactor
 extension TryElementAt on Iterable {
   String? tryElementAt(int index) {
     try {
-      return this.elementAt(index);
+      return elementAt(index);
     } catch (_) {
       return null;
     }
