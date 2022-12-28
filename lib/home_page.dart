@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           body: CupertinoScrollbar(
             // Using CupertinoScrollbar on Android too (looks better and is interactive by default
             child: ListView.builder(
-              physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
+              physics: isAndroid ? null : const BouncingScrollPhysics(),
               itemCount: _songs[getBookShortName(provider.book)].length,
               itemBuilder: (context, i) {
                 return ListTile(

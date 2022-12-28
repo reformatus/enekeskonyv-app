@@ -139,6 +139,7 @@ class PlatformAwareTextField extends StatelessWidget {
             child: CupertinoTextField(
               placeholder: hintText,
               autofocus: true,
+              onChanged: onChanged,
             ),
           );
   }
