@@ -126,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemCount: _songs[getBookShortName(provider.book)].length,
               itemBuilder: (context, i) {
                 return ListTile(
-                  title: Text(Util.getSongTitle(
+                  title: Text(getSongTitle(
                       _songs[getBookShortName(provider.book)][
                           _songs[getBookShortName(provider.book)]
                               .keys
