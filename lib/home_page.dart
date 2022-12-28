@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(
                       builder: (context) {
                         return MySearchSongPage(
-                          songs: _songs[provider.book],
+                          songs: _songs[getBookShortName(provider.book)],
                           selectedBook: provider.book,
                         );
                       },
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(
                       builder: (context) {
                         return MyGotoSongForm(
-                          songs: _songs[provider.book],
+                          songs: _songs[getBookShortName(provider.book)],
                           selectedBook: provider.book,
                         );
                       },
@@ -123,17 +123,21 @@ class _MyHomePageState extends State<MyHomePage> {
             // Using CupertinoScrollbar on Android too (looks better and is interactive by default
             child: ListView.builder(
               physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
-              itemCount: _songs[provider.book].length,
+              itemCount: _songs[getBookShortName(provider.book)].length,
               itemBuilder: (context, i) {
                 return ListTile(
-                  title: Text(Util.getSongTitle(_songs[provider.book]
-                      [_songs[provider.book].keys.elementAt(i)])),
+                  title: Text(Util.getSongTitle(
+                      _songs[getBookShortName(provider.book)][
+                          _songs[getBookShortName(provider.book)]
+                              .keys
+                              .elementAt(i)])),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return MySongPage(
-                            songsInBook: _songs[provider.book],
+                            songsInBook:
+                                _songs[getBookShortName(provider.book)],
                             selectedBook: provider.book,
                             songIndex: i,
                           );

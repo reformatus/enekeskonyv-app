@@ -9,6 +9,6 @@ class Util {
 
 enum Book { fekete, kek }
 
-String bookName(Book book) =>
+String getBookName(Book book) =>
     (book == Book.fekete) ? "48-as (fekete)" : "21-es (kék)";
-String bookShortName(Book book) => (book == Book.fekete) ? "48" : "21";
+String getBookShortName(Book book) => (book == Book.fekete) ? "48" : "21";

@@ -95,7 +95,7 @@ class _MySongPageState extends State<MySongPage> {
         final verseNumber =
             widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
         final fileName =
-            'assets/ref${widget.selectedBook}/ref${widget.selectedBook}-' +
+            'assets/ref${getBookShortName(widget.selectedBook)}/ref${getBookShortName(widget.selectedBook)}-' +
                 songKey.padLeft(3, '0') +
                 '-' +
                 verseNumber.padLeft(3, '0') +
