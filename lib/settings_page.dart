@@ -1,3 +1,4 @@
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/material.dart';
 
 import 'book_provider.dart';
@@ -20,31 +21,38 @@ class _MySettingsPageState extends State<MySettingsPage> {
       ),
       body: Column(
         children: [
-          const Text('Énekeskönyv',
+          const Text(
+            'Énekeskönyv',
             style: TextStyle(
               fontSize: 20,
               height: 2,
             ),
           ),
-          RadioListTile<String> (
-            title: const Text('48-as énekeskönyv (fekete)'),
-            value: '48',
-            groupValue: widget.provider.book,
-            onChanged: (String? value) {
-              setState(() {
-                widget.provider.changeBook(value ?? BookProvider.defaultBook);
-              });
-            },
-          ),
-          RadioListTile<String> (
-            title: const Text('21-es énekeskönyv (kék)'),
-            value: '21',
-            groupValue: widget.provider.book,
-            onChanged: (String? value) {
-              setState(() {
-                widget.provider.changeBook(value ?? BookProvider.defaultBook);
-              });
-            },
+          Column(
+            children: [
+              RadioListTile<Book>(
+                title: const Text('48-as énekeskönyv (fekete)'),
+                value: Book.fekete,
+                groupValue: widget.provider.book,
+                onChanged: (Book? value) {
+                  setState(() {
+                    widget.provider
+                        .changeBook(value ?? BookProvider.defaultBook);
+                  });
+                },
+              ),
+              RadioListTile<Book>(
+                title: const Text('21-es énekeskönyv (kék)'),
+                value: Book.kek,
+                groupValue: widget.provider.book,
+                onChanged: (Book? value) {
+                  setState(() {
+                    widget.provider
+                        .changeBook(value ?? BookProvider.defaultBook);
+                  });
+                },
+              ),
+            ],
           ),
         ],
       ),

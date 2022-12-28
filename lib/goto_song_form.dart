@@ -1,6 +1,7 @@
 // @see https://docs.flutter.dev/cookbook/forms/validation
 import 'dart:collection';
 
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,7 +11,7 @@ class MyGotoSongForm extends StatefulWidget {
   const MyGotoSongForm({Key? key, required this.songs, required this.selectedBook}) : super(key: key);
 
   final LinkedHashMap songs;
-  final String selectedBook;
+  final Book selectedBook;
 
   @override
   State<MyGotoSongForm> createState() => _MyGotoSongFormState();

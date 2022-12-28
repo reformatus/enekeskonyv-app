@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/material.dart';
 
 import 'song_page.dart';
@@ -20,7 +21,7 @@ class MySearchSongPage extends StatefulWidget {
   const MySearchSongPage({Key? key, required this.songs, required this.selectedBook}) : super(key: key);
 
   final LinkedHashMap songs;
-  final String selectedBook;
+  final Book selectedBook;
 
   @override
   State<MySearchSongPage> createState() => _MySearchSongPageState();
