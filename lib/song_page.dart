@@ -29,6 +29,7 @@ class _MySongPageState extends State<MySongPage> {
   // no sense at all). Also, it's much easier to maintain these as state
   // variables than trying to retrieve the current verse number from the
   // pageController.
+  //TODO suggest using null instead of -1
   int _song = -1;
   int _verse = -1;
 
@@ -259,7 +260,8 @@ class _MySongPageState extends State<MySongPage> {
                         disabledColor: ThemeData.dark().highlightColor,
                       ),
                       // Switch to the previous song's first verse (if exists).
-                      IconButton(
+                      TextIconButton(
+                        text: widget.songsInBook.keys.tryElementAt(_song - 1),
                         onPressed: _song == 0
                             ? null
                             : () {
@@ -269,12 +271,15 @@ class _MySongPageState extends State<MySongPage> {
                                   pageController.jumpToPage(_verse);
                                 });
                               },
-                        icon: const Icon(Icons.arrow_circle_up_outlined),
+                        iconData: Icons.arrow_upward,
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
+                        alignment: Alignment.topRight,
+                        context: context,
                       ),
                       // Switch to the next song's first verse (if exists).
-                      IconButton(
+                      TextIconButton(
+                        text: widget.songsInBook.keys.tryElementAt(_song + 1),
                         onPressed: _song == widget.songsInBook.length - 1
                             ? null
                             : () {
@@ -284,9 +289,11 @@ class _MySongPageState extends State<MySongPage> {
                                   pageController.jumpToPage(_verse);
                                 });
                               },
-                        icon: const Icon(Icons.arrow_circle_down_outlined),
+                        iconData: Icons.arrow_downward,
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
+                        alignment: Alignment.bottomRight,
+                        context: context,
                       ),
                       // Switch to the next verse (if exists).
                       IconButton(
@@ -314,5 +321,58 @@ class _MySongPageState extends State<MySongPage> {
         }),
       ),
     );
+  }
+}
+
+class TextIconButton extends StatelessWidget {
+  void Function()? onPressed;
+  String? text;
+  IconData iconData;
+  Color color;
+  Color disabledColor;
+  BuildContext context;
+  Alignment alignment;
+  TextIconButton(
+      {required this.text,
+      required this.onPressed,
+      required this.iconData,
+      required this.color,
+      required this.disabledColor,
+      required this.alignment,
+      required this.context});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      width: 50,
+      child: Center(
+        child: Stack(
+          alignment: text != null ? alignment : Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 15, 10),
+              child: Text(
+                text ?? "",
+                style:
+                    TextStyle(color: onPressed != null ? color : disabledColor),
+              ),
+            ),
+            Icon(iconData, color: onPressed != null ? color : disabledColor),
+            InkWell(onTap: onPressed)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+extension TryElementAt on Iterable {
+  String? tryElementAt(int index) {
+    try {
+      return this.elementAt(index);
+    } catch (_) {
+      return null;
+    }
   }
 }
