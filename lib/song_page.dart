@@ -74,14 +74,12 @@ class _MySongPageState extends State<MySongPage> {
     }
 
     // Builds the pages for the current song's verses.
-    List<List<Widget>> buildPages() {
-      final List<List<Widget>> pages = [];
+    List<List<Widget>> buildPages(Orientation orientation) {
+      final List<List<Widget>> pages =
+          []; //Nested list; A page is just a list of widgets
       for (var verseIndex = 0;
           verseIndex < widget.songsInBook[songKey]['texts'].length;
           verseIndex++) {
-        // As the song page is basically a ListView (with a Scrollbar for songs
-        // taller than the screen), let's collect the list items for the current
-        // page (verse).
         final children = <Widget>[];
 
         // Only display the composer (if exists) above the first verse.
@@ -96,14 +94,13 @@ class _MySongPageState extends State<MySongPage> {
             widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
         final fileName =
             'assets/ref${getBookShortName(widget.selectedBook)}/ref${getBookShortName(widget.selectedBook)}-${songKey.padLeft(3, '0')}-${verseNumber.padLeft(3, '0')}.svg';
-        children.add(SvgPicture.asset(
-          fileName,
-          // The score should utilize the full width of the screen, regardless
-          // its size. This covers two cases:
-          // - rotating the device,
-          // - devices with different widths.
-          width: MediaQuery.of(context).size.width,
-        ));
+        children.add(SvgPicture.asset(fileName,
+            // The score should utilize the full width of the screen, regardless
+            // its size. This covers two cases:
+            // - rotating the device,
+            // - devices with different widths.
+            width: MediaQuery.of(context).size.width *
+                (orientation == Orientation.portrait ? 0.98 : 0.7)));
 
         // Only display the poet (if exists) below the last verse.
         if (verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
@@ -214,7 +211,8 @@ class _MySongPageState extends State<MySongPage> {
                               _verse = i;
                             });
                           },
-                          children: buildPages().map((pageContentList) {
+                          children:
+                              buildPages(orientation).map((pageContentList) {
                             return Builder(builder: (BuildContext context) {
                               return CustomScrollView(
                                 key: PageStorageKey(pageContentList),
@@ -241,7 +239,6 @@ class _MySongPageState extends State<MySongPage> {
                     direction: orientation == Orientation.portrait
                         ? Axis.horizontal
                         : Axis.vertical,
-                    //TODO make Column in landscape
                     // Make the buttons "justified" (ie. use all the screen width).
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -260,7 +257,6 @@ class _MySongPageState extends State<MySongPage> {
                         icon: const Icon(Icons.arrow_circle_left_outlined),
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.prevVerse'),
                       ),
                       // Switch to the previous song's first verse (if exists).
                       IconButton(
@@ -276,7 +272,6 @@ class _MySongPageState extends State<MySongPage> {
                         icon: const Icon(Icons.arrow_circle_up_outlined),
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.prevSong'),
                       ),
                       // Switch to the next song's first verse (if exists).
                       IconButton(
@@ -292,7 +287,6 @@ class _MySongPageState extends State<MySongPage> {
                         icon: const Icon(Icons.arrow_circle_down_outlined),
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.nextSong'),
                       ),
                       // Switch to the next verse (if exists).
                       IconButton(
@@ -310,7 +304,6 @@ class _MySongPageState extends State<MySongPage> {
                         icon: const Icon(Icons.arrow_circle_right_outlined),
                         color: Colors.black,
                         disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.nextVerse'),
                       ),
                     ],
                   ),
