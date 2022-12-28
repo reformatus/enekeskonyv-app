@@ -12,6 +12,9 @@ import 'settings_page.dart';
 import 'song_page.dart';
 import 'util.dart';
 
+import 'package:flutter/cupertino.dart';
+import 'dart:io';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -28,7 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> _readJson() async {
-    final String response = await rootBundle.loadString('assets/enekeskonyv.json');
+    final String response =
+        await rootBundle.loadString('assets/enekeskonyv.json');
     setState(() {
       _songs = json.decode(response);
     });
@@ -57,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Scaffold();
     }
 
-    return Consumer<BookProvider> (
+    return Consumer<BookProvider>(
       builder: (context, provider, child) {
         // Do not show the list before the provider is initialized to avoid
         // flicking the default book's list when the user already selected a
@@ -115,16 +119,15 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          body: Scrollbar(
-            // The scrollbar should be wide enough to be useful for a finger (to be
-            // able to scroll through the whole list which is quite long).
-            interactive: true,
-            thickness: 10.0,
+          body: CupertinoScrollbar(
+            // Using CupertinoScrollbar on Android too (looks better and is interactive by default
             child: ListView.builder(
+              physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
               itemCount: _songs[provider.book].length,
               itemBuilder: (context, i) {
                 return ListTile(
-                  title: Text(Util.getSongTitle(_songs[provider.book][_songs[provider.book].keys.elementAt(i)])),
+                  title: Text(Util.getSongTitle(_songs[provider.book]
+                      [_songs[provider.book].keys.elementAt(i)])),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
