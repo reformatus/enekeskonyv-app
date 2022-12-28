@@ -11,4 +11,4 @@ String getBookName(Book book) =>
     (book == Book.fekete) ? "48-as (fekete)" : "21-es (kék)";
 String getBookShortName(Book book) => (book == Book.fekete) ? "48" : "21";
 
-bool get isAndroid => false;//Platform.isAndroid;
+bool get isAndroid => Platform.isAndroid;
