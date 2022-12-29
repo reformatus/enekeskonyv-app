@@ -10,4 +10,4 @@ Nem gyűjt, nem fogad, nem tárol, nem kezel és nem továbbít:
 - sem az alkalmazás használatára vonatkozó adatot,
 - sem bármilyen egyéb adatot.
 
-A Google Play használatával való telepítés esetén annak irányelveit is figyelembe kell venni.
+A Google Play és Apple AppStore használatával való telepítés esetén annak irányelveit is figyelembe kell venni.
