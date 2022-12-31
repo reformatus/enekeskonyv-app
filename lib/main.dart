@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Énekeskönyv',
-      theme: ThemeData.dark(),
-      home: ChangeNotifierProvider<BookProvider> (
+      theme: ThemeData.dark(useMaterial3: true),
+      home: ChangeNotifierProvider<BookProvider>(
         create: (_) => BookProvider()..initialize(),
         child: const MyHomePage(),
       ),

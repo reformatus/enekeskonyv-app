@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'book_provider.dart';
@@ -19,33 +22,60 @@ class _MySettingsPageState extends State<MySettingsPage> {
         title: const Text('Beállítások'),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Énekeskönyv',
+          const Text(
+            'Énekeskönyv',
             style: TextStyle(
               fontSize: 20,
-              height: 2,
+              height: 3,
             ),
+            textAlign: TextAlign.center,
           ),
-          RadioListTile<String> (
-            title: const Text('48-as énekeskönyv (fekete)'),
-            value: '48',
-            groupValue: widget.provider.book,
-            onChanged: (String? value) {
-              setState(() {
-                widget.provider.changeBook(value ?? BookProvider.defaultBook);
-              });
-            },
-          ),
-          RadioListTile<String> (
-            title: const Text('21-es énekeskönyv (kék)'),
-            value: '21',
-            groupValue: widget.provider.book,
-            onChanged: (String? value) {
-              setState(() {
-                widget.provider.changeBook(value ?? BookProvider.defaultBook);
-              });
-            },
-          ),
+          Platform.isAndroid
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RadioListTile<Book>(
+                      title: Text(getBookName(Book.black)),
+                      value: Book.black,
+                      groupValue: widget.provider.book,
+                      onChanged: (Book? value) {
+                        setState(() {
+                          widget.provider
+                              .changeBook(value ?? BookProvider.defaultBook);
+                        });
+                      },
+                    ),
+                    RadioListTile<Book>(
+                      title: Text(getBookName(Book.blue)),
+                      value: Book.blue,
+                      groupValue: widget.provider.book,
+                      onChanged: (Book? value) {
+                        setState(() {
+                          widget.provider
+                              .changeBook(value ?? BookProvider.defaultBook);
+                        });
+                      },
+                    ),
+                  ],
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: CupertinoSlidingSegmentedControl<Book>(
+                    children: <Book, Widget>{
+                      Book.black: Text(getBookName(Book.black)),
+                      Book.blue: Text(getBookName(Book.blue))
+                    },
+                    groupValue: widget.provider.book,
+                    onValueChanged: (Book? value) {
+                      setState(() {
+                        widget.provider
+                            .changeBook(value ?? BookProvider.defaultBook);
+                      });
+                    },
+                  ),
+                ),
         ],
       ),
     );

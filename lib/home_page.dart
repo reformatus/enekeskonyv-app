@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'dart:convert' show json;
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +30,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> _readJson() async {
-    final String response = await rootBundle.loadString('assets/enekeskonyv.json');
+    final String response =
+        await rootBundle.loadString('assets/enekeskonyv.json');
     setState(() {
       _songs = json.decode(response);
     });
@@ -57,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Scaffold();
     }
 
-    return Consumer<BookProvider> (
+    return Consumer<BookProvider>(
       builder: (context, provider, child) {
         // Do not show the list before the provider is initialized to avoid
         // flicking the default book's list when the user already selected a
@@ -67,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         return Scaffold(
           appBar: AppBar(
-            title: Text('Énekeskönyv (${provider.book})'),
+            title: Text('Énekeskönyv (${provider.bookAsString})'),
             actions: [
               IconButton(
                 onPressed: () {
@@ -76,14 +79,31 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(
                       builder: (context) {
                         return MySearchSongPage(
-                          songs: _songs[provider.book],
-                          selectedBook: provider.book,
+                          songs: _songs[provider.bookAsString],
+                          selectedBook: provider.bookAsString,
                         );
                       },
                     ),
                   );
                 },
                 icon: const Icon(Icons.search_outlined),
+                key: const Key('_MyHomePageState.SearchSongButton'),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return MyGotoSongForm(
+                          songs: _songs[provider.bookAsString],
+                          selectedBook: provider.bookAsString,
+                        );
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.apps),
+                key: const Key('_MyHomePageState.GotoSongButton'),
               ),
               IconButton(
                 onPressed: () {
@@ -96,42 +116,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 icon: const Icon(Icons.settings),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return MyGotoSongForm(
-                          songs: _songs[provider.book],
-                          selectedBook: provider.book,
-                        );
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.apps),
-                key: const Key('_MyHomePageState.IconButton'),
+                key: const Key('_MyHomePageState.SettingsButton'),
               ),
             ],
           ),
-          body: Scrollbar(
-            // The scrollbar should be wide enough to be useful for a finger (to be
-            // able to scroll through the whole list which is quite long).
-            interactive: true,
+          body: CupertinoScrollbar(
+            // Using CupertinoScrollbar on Android too (looks better and is
+            // interactive by default). Also, it should be wide enough to be
+            // useful for a finger (to be able to scroll through the whole list
+            // which is quite long).
             thickness: 10.0,
             child: ListView.builder(
-              itemCount: _songs[provider.book].length,
+              physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
+              itemCount: _songs[provider.bookAsString].length,
               itemBuilder: (context, i) {
                 return ListTile(
-                  title: Text(Util.getSongTitle(_songs[provider.book][_songs[provider.book].keys.elementAt(i)])),
+                  title: Text(getSongTitle(_songs[provider.bookAsString]
+                      [_songs[provider.bookAsString].keys.elementAt(i)])),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return MySongPage(
-                            songsInBook: _songs[provider.book],
-                            selectedBook: provider.book,
+                            songsInBook: _songs[provider.bookAsString],
+                            selectedBook: provider.bookAsString,
                             songIndex: i,
                           );
                         },
