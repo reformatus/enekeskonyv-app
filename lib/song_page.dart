@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:enekeskonyv/book_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakelock/wakelock.dart';
@@ -11,13 +12,13 @@ class MySongPage extends StatefulWidget {
   const MySongPage(
       {Key? key,
       required this.songsInBook,
-      required this.selectedBook,
+      required this.bookProvider,
       required this.songIndex,
       this.verseIndex = 0})
       : super(key: key);
 
   final LinkedHashMap songsInBook;
-  final String selectedBook;
+  final BookProvider bookProvider;
   final int songIndex;
   final int verseIndex;
 
@@ -84,10 +85,44 @@ class _MySongPageState extends State<MySongPage> {
         // Let's collect the list items for the current page (verse).
         final children = <Widget>[];
 
-        // Only display the composer (if exists) above the first verse.
-        if (verseIndex == 0 &&
-            widget.songsInBook[songKey]['composer'] is String) {
-          children.add(blackText(widget.songsInBook[songKey]['composer']));
+        // Only display certain info above the first verse.
+        if (verseIndex == 0) {
+          switch (widget.bookProvider.book) {
+            // In case of the black book (48), the subtitle and the composer
+            // should be displayed.
+            case Book.black:
+              if (widget.songsInBook[songKey]['subtitle'] is String) {
+                children
+                    .add(blackText(widget.songsInBook[songKey]['subtitle']));
+              }
+              if (widget.songsInBook[songKey]['composer'] is String) {
+                children
+                    .add(blackText(widget.songsInBook[songKey]['composer']));
+              }
+              break;
+
+            // In case of the blue book (21), all the metadata should be
+            // displayed.
+            case Book.blue:
+            default:
+              final List<String> metadata = [];
+              if (widget.songsInBook[songKey]['subtitle'] is String) {
+                metadata.add(widget.songsInBook[songKey]['subtitle']);
+              }
+              if (widget.songsInBook[songKey]['poet'] is String) {
+                metadata.add('sz: ${widget.songsInBook[songKey]['poet']}');
+              }
+              if (widget.songsInBook[songKey]['translator'] is String) {
+                metadata.add('f: ${widget.songsInBook[songKey]['translator']}');
+              }
+              if (widget.songsInBook[songKey]['composer'] is String) {
+                metadata.add('d: ${widget.songsInBook[songKey]['composer']}');
+              }
+              if (metadata.isNotEmpty) {
+                children.add(blackText(metadata.join(' | ')));
+              }
+              break;
+          }
         }
 
         // The actual verse number is the number (well, any text) before the
@@ -95,7 +130,7 @@ class _MySongPageState extends State<MySongPage> {
         final verseNumber =
             widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
         final fileName =
-            'assets/ref${widget.selectedBook}/ref${widget.selectedBook}-' +
+            'assets/ref${widget.bookProvider.bookAsString}/ref${widget.bookProvider.bookAsString}-' +
                 songKey.padLeft(3, '0') +
                 '-' +
                 verseNumber.padLeft(3, '0') +
@@ -110,8 +145,10 @@ class _MySongPageState extends State<MySongPage> {
               ((orientation == Orientation.portrait) ? 1.0 : 0.7),
         ));
 
-        // Only display the poet (if exists) below the last verse.
-        if (verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
+        // Only display the poet (if exists) below the last verse, and only do
+        // it for the black (48) book.
+        if (widget.bookProvider.book == Book.black &&
+            verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
           children.add(blackText(widget.songsInBook[songKey]['poet']));
         }
