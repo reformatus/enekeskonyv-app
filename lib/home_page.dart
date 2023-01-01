@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) {
                         return MySearchSongPage(
                           songs: _songs[provider.bookAsString],
-                          selectedBook: provider.bookAsString,
+                          bookProvider: provider,
                         );
                       },
                     ),
@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) {
                         return MyGotoSongForm(
                           songs: _songs[provider.bookAsString],
-                          selectedBook: provider.bookAsString,
+                          bookProvider: provider,
                         );
                       },
                     ),
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (context) {
                           return MySongPage(
                             songsInBook: _songs[provider.bookAsString],
-                            selectedBook: provider.bookAsString,
+                            bookProvider: provider,
                             songIndex: i,
                           );
                         },
