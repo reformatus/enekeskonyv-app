@@ -284,94 +284,102 @@ class _MySongPageState extends State<MySongPage> {
                     ),
                   ),
                 ),
-                Container(
-                  color: ThemeData.dark().highlightColor,
-                  child: Flex(
-                    direction: orientation == Orientation.portrait
-                        ? Axis.horizontal
-                        : Axis.vertical,
-                    // Make the buttons "justified" (ie. use all the screen
-                    // width).
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Switch to the previous verse (if exists).
-                      IconButton(
-                        onPressed: _verse == 0
-                            ? null
-                            : () {
-                                setState(() {
-                                  _verse--;
-                                  pageController.animateToPage(
-                                    _verse,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                });
-                              },
-                        icon: const Icon(Icons.arrow_circle_left_outlined),
-                        color: Colors.black,
-                        disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.prevVerse'),
-                      ),
-                      // Switch to the previous song's first verse (if exists).
-                      TextIconButton(
-                        text: widget.songsInBook.keys.tryElementAt(_song - 1),
-                        onPressed: _song == 0
-                            ? null
-                            : () {
-                                setState(() {
-                                  _song--;
-                                  _verse = 0;
-                                  pageController.jumpToPage(_verse);
-                                });
-                              },
-                        iconData: Icons.arrow_upward,
-                        color: Colors.black,
-                        disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.prevSong'),
-                        alignment: Alignment.topRight,
-                        context: context,
-                      ),
-                      // Switch to the next song's first verse (if exists).
-                      TextIconButton(
-                        text: widget.songsInBook.keys.tryElementAt(_song + 1),
-                        onPressed: _song == widget.songsInBook.length - 1
-                            ? null
-                            : () {
-                                setState(() {
-                                  _song++;
-                                  _verse = 0;
-                                  pageController.jumpToPage(_verse);
-                                });
-                              },
-                        iconData: Icons.arrow_downward,
-                        color: Colors.black,
-                        disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.nextSong'),
-                        alignment: Alignment.bottomRight,
-                        context: context,
-                      ),
-                      // Switch to the next verse (if exists).
-                      IconButton(
-                        onPressed: (_verse ==
-                                widget.songsInBook[songKey]['texts'].length - 1)
-                            ? null
-                            : () {
-                                setState(() {
-                                  _verse++;
-                                  pageController.animateToPage(
-                                    _verse,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                });
-                              },
-                        icon: const Icon(Icons.arrow_circle_right_outlined),
-                        color: Colors.black,
-                        disabledColor: ThemeData.dark().highlightColor,
-                        key: const Key('_MySongPageState.IconButton.nextVerse'),
-                      ),
-                    ],
+                Theme(
+                  data: ThemeData(
+                      brightness: Brightness.light), // @todo make themable
+                  child: Material(
+                    // @see https://stackoverflow.com/a/58304632/6460986
+                    color: Theme.of(context).highlightColor,
+                    child: Flex(
+                      direction: orientation == Orientation.portrait
+                          ? Axis.horizontal
+                          : Axis.vertical,
+                      // Make the buttons "justified" (ie. use all the screen
+                      // width).
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Switch to the previous verse (if exists).
+                        IconButton(
+                          onPressed: _verse == 0
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _verse--;
+                                    pageController.animateToPage(
+                                      _verse,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  });
+                                },
+                          icon: const Icon(Icons.arrow_circle_left_outlined),
+                          disabledColor: ThemeData.dark().highlightColor,
+                          key: const Key(
+                              '_MySongPageState.IconButton.prevVerse'),
+                        ),
+                        // Switch to the previous song's first verse (if exists).
+                        TextIconButton(
+                          text: widget.songsInBook.keys.tryElementAt(_song - 1),
+                          onTap: _song == 0
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _song--;
+                                    _verse = 0;
+                                    pageController.jumpToPage(_verse);
+                                  });
+                                },
+                          iconData: Icons.arrow_upward,
+                          disabledColor: ThemeData.dark().highlightColor,
+                          key:
+                              const Key('_MySongPageState.IconButton.prevSong'),
+                          alignment: Alignment.topRight,
+                          context: context,
+                        ),
+                        // Switch to the next song's first verse (if exists).
+                        TextIconButton(
+                          text: widget.songsInBook.keys.tryElementAt(_song + 1),
+                          onTap: _song == widget.songsInBook.length - 1
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _song++;
+                                    _verse = 0;
+                                    pageController.jumpToPage(_verse);
+                                  });
+                                },
+                          iconData: Icons.arrow_downward,
+                          disabledColor: ThemeData.dark().highlightColor,
+                          key:
+                              const Key('_MySongPageState.IconButton.nextSong'),
+                          alignment: Alignment.bottomRight,
+                          context: context,
+                        ),
+                        // Switch to the next verse (if exists).
+                        IconButton(
+                          onPressed: (_verse ==
+                                  widget.songsInBook[songKey]['texts'].length -
+                                      1)
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _verse++;
+                                    pageController.animateToPage(
+                                      _verse,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  });
+                                },
+                          icon: const Icon(Icons.arrow_circle_right_outlined),
+                          disabledColor: ThemeData.dark().highlightColor,
+                          key: const Key(
+                              '_MySongPageState.IconButton.nextVerse'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -385,10 +393,9 @@ class _MySongPageState extends State<MySongPage> {
 }
 
 class TextIconButton extends StatelessWidget {
-  final void Function()? onPressed;
+  final void Function()? onTap;
   final String? text;
   final IconData iconData;
-  final Color color;
   final Color disabledColor;
   final BuildContext context;
   final Alignment alignment;
@@ -396,9 +403,8 @@ class TextIconButton extends StatelessWidget {
   const TextIconButton(
       {Key? key,
       required this.text,
-      required this.onPressed,
+      required this.onTap,
       required this.iconData,
-      required this.color,
       required this.disabledColor,
       required this.alignment,
       required this.context})
@@ -406,26 +412,31 @@ class TextIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      width: 50,
-      child: Center(
-        child: Stack(
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Stack(
           alignment: text != null ? alignment : Alignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 10, 15, 10),
+              padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
               child: Text(
                 text ?? '',
-                style:
-                    TextStyle(color: onPressed != null ? color : disabledColor),
+                style: TextStyle(color: onTap != null ? null : disabledColor),
               ),
             ),
-            Icon(iconData, color: onPressed != null ? color : disabledColor),
-            InkWell(onTap: onPressed)
+            Icon(iconData, color: onTap != null ? null : disabledColor),
           ],
         ),
-      ),
+        InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: const SizedBox(
+            width: 50,
+            height: 50,
+          ),
+        ),
+      ],
     );
   }
 }

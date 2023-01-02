@@ -54,8 +54,8 @@ void main() {
     expect(nextVerse, findsOneWidget);
     // ...but only the first two should be disabled.
     expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed, null);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap, null);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
     // Tapping the left half of the song page should switch to the previous
     // verse, even if it's the previous song's last verse - but only if there
@@ -68,16 +68,16 @@ void main() {
     await tester.pumpAndSettle();
     // So only the first two IconButtons should be disabled still.
     expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed, null);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap, null);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
     // Now let's navigate to the second verse.
     await tester.tap(nextVerse);
     await tester.pumpAndSettle();
     // Now the prevVerse IconButton should also be available.
     expect(tester.widget<IconButton>(prevVerse).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed, null);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap, null);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
     // Now let's navigate to the fourth verse.
     await tester.tap(nextVerse);
@@ -85,8 +85,8 @@ void main() {
     await tester.pumpAndSettle();
     // On the last verse the nextVerse IconButton should not be available.
     expect(tester.widget<IconButton>(prevVerse).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed, null);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap, null);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed, null);
     // Tapping on the right half of the song page should also switch to the
     // next verse, but even on the last verse of a song.
@@ -98,16 +98,16 @@ void main() {
     expect(
         find.textContaining(': Miért zúgolódnak a pogányok?'), findsOneWidget);
     expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
     // Go to the second verse.
     await tester.tap(nextVerse);
     await tester.pumpAndSettle();
     // Now the second song's second verse should be displayed.
     expect(tester.widget<IconButton>(prevVerse).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
 
     // Now let's test the form.
@@ -153,8 +153,8 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
     expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed != null, true);
+    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
+    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed, null);
 
     // Ensure the TextFormField is empty after returning from the song page.
@@ -168,8 +168,8 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
     expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onPressed != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onPressed, null);
+    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
+    expect(tester.widget<TextIconButton>(nextSong).onTap, null);
     expect(tester.widget<IconButton>(nextVerse).onPressed, null);
     // @todo Test settings (different books).
     // @todo Test search song function.
