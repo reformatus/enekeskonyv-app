@@ -285,8 +285,8 @@ class _MySongPageState extends State<MySongPage> {
                   ),
                 ),
                 Theme(
-                  data: ThemeData(
-                      brightness: Brightness.light), // TODO make themable
+                  // TODO make themable
+                  data: ThemeData(brightness: Brightness.light),
                   child: Material(
                     // @see https://stackoverflow.com/a/58304632/6460986
                     color: Theme.of(context).highlightColor,
