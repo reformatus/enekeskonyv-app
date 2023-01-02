@@ -32,8 +32,24 @@ class _MySettingsPageState extends State<MySettingsPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          Platform.isAndroid
-              ? Column(
+          Platform.isIOS
+              ? Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: CupertinoSlidingSegmentedControl<Book>(
+                    children: <Book, Widget>{
+                      Book.black: Text(getBookName(Book.black)),
+                      Book.blue: Text(getBookName(Book.blue))
+                    },
+                    groupValue: widget.provider.book,
+                    onValueChanged: (Book? value) {
+                      setState(() {
+                        widget.provider
+                            .changeBook(value ?? BookProvider.defaultBook);
+                      });
+                    },
+                  ),
+                )
+              : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     RadioListTile<Book>(
@@ -59,22 +75,6 @@ class _MySettingsPageState extends State<MySettingsPage> {
                       },
                     ),
                   ],
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: CupertinoSlidingSegmentedControl<Book>(
-                    children: <Book, Widget>{
-                      Book.black: Text(getBookName(Book.black)),
-                      Book.blue: Text(getBookName(Book.blue))
-                    },
-                    groupValue: widget.provider.book,
-                    onValueChanged: (Book? value) {
-                      setState(() {
-                        widget.provider
-                            .changeBook(value ?? BookProvider.defaultBook);
-                      });
-                    },
-                  ),
                 ),
         ],
       ),

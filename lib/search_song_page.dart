@@ -131,15 +131,8 @@ class PlatformAwareTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isAndroid
-        ? TextField(
-            decoration: InputDecoration(
-              hintText: hintText,
-            ),
-            autofocus: true,
-            onChanged: onChanged,
-          )
-        : CupertinoTheme(
+    return Platform.isIOS
+        ? CupertinoTheme(
             data: const CupertinoThemeData(
               brightness: Brightness.dark,
             ),
@@ -148,6 +141,13 @@ class PlatformAwareTextField extends StatelessWidget {
               autofocus: true,
               onChanged: onChanged,
             ),
+          )
+        : TextField(
+            decoration: InputDecoration(
+              hintText: hintText,
+            ),
+            autofocus: true,
+            onChanged: onChanged,
           );
   }
 }
