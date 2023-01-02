@@ -35,52 +35,54 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
       appBar: AppBar(
         title: const Text('Ugrás énekre'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
-                    child: PlatformAwareTextFormField(
-                      labelText: 'Ének száma:',
-                      helperText: '(1 és ${widget.songs.keys.last} között)',
-                      focusNode: _myFocusNode,
-                      controller: controller,
-                      onFieldSubmitted: onFieldSubmitted,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Írj be egy számot!';
-                        }
-                        if (!widget.songs.containsKey(value)) {
-                          return 'Nincs ilyen ének.';
-                        }
-                        return null;
-                      },
-                      key: const Key('_MyCustomFormState.TextFormField'),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+                      child: PlatformAwareTextFormField(
+                        labelText: 'Ének száma:',
+                        helperText: '(1 és ${widget.songs.keys.last} között)',
+                        focusNode: _myFocusNode,
+                        controller: controller,
+                        onFieldSubmitted: onFieldSubmitted,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Írj be egy számot!';
+                          }
+                          if (!widget.songs.containsKey(value)) {
+                            return 'Nincs ilyen ének.';
+                          }
+                          return null;
+                        },
+                        key: const Key('_MyCustomFormState.TextFormField'),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          if (Platform.isIOS)
-            Material(
-              color: Theme.of(context).bottomAppBarColor,
-              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                // @ todo future place of 'Tovább' button for entering verse number
-                SizedBox(
-                    width: 100,
-                    child: CupertinoDialogAction(
-                        child: const Text('Ugrás'),
-                        onPressed: () {
-                          onFieldSubmitted(controller.text);
-                        })),
-              ]),
-            )
-        ],
+            if (Platform.isIOS)
+              Material(
+                color: Theme.of(context).bottomAppBarColor,
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  // @ todo future place of 'Tovább' button for entering verse number
+                  SizedBox(
+                      width: 100,
+                      child: CupertinoDialogAction(
+                          child: const Text('Ugrás'),
+                          onPressed: () {
+                            onFieldSubmitted(controller.text);
+                          })),
+                ]),
+              )
+          ],
+        ),
       ),
     );
   }
