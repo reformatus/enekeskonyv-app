@@ -130,6 +130,7 @@ class _MySongPageState extends State<MySongPage> {
         final verseNumber =
             widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
         final fileName =
+            // ignore: prefer_interpolation_to_compose_strings
             'assets/ref${widget.bookProvider.bookAsString}/ref${widget.bookProvider.bookAsString}-' +
                 songKey.padLeft(3, '0') +
                 '-' +
