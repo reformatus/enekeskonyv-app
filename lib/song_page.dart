@@ -192,6 +192,9 @@ class _MySongPageState extends State<MySongPage> {
                               NestedScrollView.sliverOverlapAbsorberHandleFor(
                                   context),
                           sliver: SliverAppBar(
+                            pinned: orientation == Orientation.portrait,
+                            // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                            expandedHeight: 57,
                             title: Text(
                               getSongTitle(widget.songsInBook[songKey]),
                               style: const TextStyle(fontSize: 18),
