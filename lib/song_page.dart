@@ -34,6 +34,8 @@ class _MySongPageState extends State<MySongPage> {
   int _song = -1;
   int _verse = -1;
 
+  ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     // When coming from the list, these internal numbers are invalid - so let's
@@ -66,6 +68,7 @@ class _MySongPageState extends State<MySongPage> {
     );
 
     // An internal utility function.
+    // TODO instead change theme to light for the page
     Text blackText(String data) {
       return Text(
         data,
@@ -181,6 +184,7 @@ class _MySongPageState extends State<MySongPage> {
               children: [
                 Expanded(
                   child: NestedScrollView(
+                    controller: scrollController,
                     headerSliverBuilder: ((context, innerBoxIsScrolled) {
                       return [
                         SliverOverlapAbsorber(
@@ -328,6 +332,10 @@ class _MySongPageState extends State<MySongPage> {
                                     _song--;
                                     _verse = 0;
                                     pageController.jumpToPage(_verse);
+                                    scrollController.animateTo(0,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut);
                                   });
                                 },
                           iconData: Icons.arrow_upward,
@@ -347,6 +355,10 @@ class _MySongPageState extends State<MySongPage> {
                                     _song++;
                                     _verse = 0;
                                     pageController.jumpToPage(_verse);
+                                    scrollController.animateTo(0,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut);
                                   });
                                 },
                           iconData: Icons.arrow_downward,
