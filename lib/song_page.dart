@@ -172,7 +172,7 @@ class _MySongPageState extends State<MySongPage> {
       body: SafeArea(
         child: OrientationBuilder(builder: (context, orientation) {
           return Container(
-            // @todo Make themeable.
+            // TODO Make themeable.
             color: Colors.white,
             child: Flex(
               direction: orientation == Orientation.portrait
@@ -286,7 +286,7 @@ class _MySongPageState extends State<MySongPage> {
                 ),
                 Theme(
                   data: ThemeData(
-                      brightness: Brightness.light), // @todo make themable
+                      brightness: Brightness.light), // TODO make themable
                   child: Material(
                     // @see https://stackoverflow.com/a/58304632/6460986
                     color: Theme.of(context).highlightColor,

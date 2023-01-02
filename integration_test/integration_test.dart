@@ -171,7 +171,7 @@ void main() {
     expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
     expect(tester.widget<TextIconButton>(nextSong).onTap, null);
     expect(tester.widget<IconButton>(nextVerse).onPressed, null);
-    // @todo Test settings (different books).
-    // @todo Test search song function.
+    // TODO Test settings (different books).
+    // TODO Test search song function.
   });
 }
