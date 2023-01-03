@@ -247,9 +247,10 @@ class _MySongPageState extends State<MySongPage> {
                             }
                           }
                         });
-                        if (originalVerse != _verse) {
+                        if (originalVerse != _verse || originalSong != _song) {
                           if (originalSong != _song) {
                             pageController.jumpToPage(_verse);
+                            scrollController.jumpTo(0);
                           } else {
                             pageController.animateToPage(
                               _verse,
