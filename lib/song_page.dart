@@ -68,7 +68,7 @@ class _MySongPageState extends State<MySongPage> {
     );
 
     // An internal utility function.
-    // TODO instead change theme to light for the page
+    // TODO instead change theme to light for the page.
     Text blackText(String data) {
       return Text(
         data,
@@ -292,7 +292,7 @@ class _MySongPageState extends State<MySongPage> {
                   ),
                 ),
                 Theme(
-                  // TODO make themable
+                  // TODO Make themable.
                   data: ThemeData(brightness: Brightness.light),
                   child: Material(
                     // @see https://stackoverflow.com/a/58304632/6460986

@@ -71,7 +71,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               Material(
                 color: Theme.of(context).bottomAppBarColor,
                 child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  // TODO future place of 'Tovább' button for entering verse number
+                  // TODO future place of 'Tovább' button for entering verse number.
                   SizedBox(
                       width: 100,
                       child: CupertinoDialogAction(
