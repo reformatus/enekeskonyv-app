@@ -335,10 +335,7 @@ class _MySongPageState extends State<MySongPage> {
                                     _song--;
                                     _verse = 0;
                                     pageController.jumpToPage(_verse);
-                                    scrollController.animateTo(0,
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut);
+                                    scrollController.jumpTo(0);
                                   });
                                 },
                           iconData: Icons.arrow_upward,
@@ -358,10 +355,7 @@ class _MySongPageState extends State<MySongPage> {
                                     _song++;
                                     _verse = 0;
                                     pageController.jumpToPage(_verse);
-                                    scrollController.animateTo(0,
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut);
+                                    scrollController.jumpTo(0);
                                   });
                                 },
                           iconData: Icons.arrow_downward,
