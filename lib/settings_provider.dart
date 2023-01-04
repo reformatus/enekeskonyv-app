@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsProvider extends ChangeNotifier {
   static const Book defaultBook = Book.blue;
   static const ScoreDisplay defaultScoreDisplay = ScoreDisplay.all;
+  static const double defaultFontSize = 14.0;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
+  double _fontSize = defaultFontSize;
   bool _initialized = false;
 
   Book get book {
@@ -15,6 +17,10 @@ class SettingsProvider extends ChangeNotifier {
 
   ScoreDisplay get scoreDisplay {
     return _scoreDisplay;
+  }
+
+  double get fontSize {
+    return _fontSize;
   }
 
   String get bookAsString {
@@ -50,6 +56,15 @@ class SettingsProvider extends ChangeNotifier {
     _initialized = true;
   }
 
+  void changeFontSize(double value) async {
+    _fontSize = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('fontSize', value);
+    notifyListeners();
+    // TODO Is it possible that this gets called before .initialize()?
+    _initialized = true;
+  }
+
   void initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -71,6 +86,8 @@ class SettingsProvider extends ChangeNotifier {
 
     _scoreDisplay = ScoreDisplay
         .values[prefs.getInt('scoreDisplayEnum') ?? defaultScoreDisplay.index];
+
+    _fontSize = prefs.getDouble('fontSize') ?? defaultFontSize;
 
     notifyListeners();
     _initialized = true;
