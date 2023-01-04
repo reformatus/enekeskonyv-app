@@ -3,12 +3,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider extends ChangeNotifier {
   static const Book defaultBook = Book.blue;
+  static const ScoreDisplay defaultScoreDisplay = ScoreDisplay.all;
 
   Book _book = defaultBook;
+  ScoreDisplay _scoreDisplay = defaultScoreDisplay;
   bool _initialized = false;
 
   Book get book {
     return _book;
+  }
+
+  ScoreDisplay get scoreDisplay {
+    return _scoreDisplay;
   }
 
   String get bookAsString {
@@ -31,6 +37,16 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('bookEnum', value.index);
     notifyListeners();
+    // TODO Is it possible that this gets called before .initialize()?
+    _initialized = true;
+  }
+
+  void changeScoreDisplay(ScoreDisplay value) async {
+    _scoreDisplay = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('scoreDisplayEnum', value.index);
+    notifyListeners();
+    // TODO Is it possible that this gets called before .initialize()?
     _initialized = true;
   }
 
@@ -53,6 +69,9 @@ class SettingsProvider extends ChangeNotifier {
       _book = defaultBook;
     }
 
+    _scoreDisplay = ScoreDisplay
+        .values[prefs.getInt('scoreDisplayEnum') ?? defaultScoreDisplay.index];
+
     notifyListeners();
     _initialized = true;
   }
@@ -68,5 +87,21 @@ String getBookName(Book book) {
     case Book.blue:
     default:
       return '21-es (kék)';
+  }
+}
+
+enum ScoreDisplay { all, first, none }
+
+String getScoreDisplayName(ScoreDisplay scoreDisplay) {
+  switch (scoreDisplay) {
+    case ScoreDisplay.first:
+      return 'Első vers';
+
+    case ScoreDisplay.none:
+      return 'Nincs';
+
+    case ScoreDisplay.all:
+    default:
+      return 'Összes';
   }
 }
