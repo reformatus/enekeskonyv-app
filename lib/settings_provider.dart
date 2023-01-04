@@ -102,6 +102,6 @@ String getScoreDisplayName(ScoreDisplay scoreDisplay) {
 
     case ScoreDisplay.all:
     default:
-      return 'Összes';
+      return 'Minden vers';
   }
 }
