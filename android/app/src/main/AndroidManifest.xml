@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.reformatus.enekeskonyv">
    <application
-        android:label="Református énekeskönyv (48-as fekete és 21-es kék)"
+        android:label="Református énekeskönyv (21-es kék és 48-as fekete)"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
