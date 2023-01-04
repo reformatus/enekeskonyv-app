@@ -69,12 +69,13 @@ class _MySongPageState extends State<MySongPage> {
 
     // An internal utility function.
     // TODO instead change theme to light for the page.
-    Text blackText(String data) {
+    Text blackText(String data, [bool alignRight = false]) {
       return Text(
         data,
         style: const TextStyle(
           color: Colors.black,
         ),
+        textAlign: alignRight ? TextAlign.right : TextAlign.left,
       );
     }
 
@@ -90,7 +91,7 @@ class _MySongPageState extends State<MySongPage> {
           }
           if (widget.songsInBook[songKey]['composer'] is String) {
             firstVerseHeader
-                .add(blackText(widget.songsInBook[songKey]['composer']));
+                .add(blackText(widget.songsInBook[songKey]['composer'], true));
           }
           break;
 
@@ -170,7 +171,7 @@ class _MySongPageState extends State<MySongPage> {
         if (widget.settingsProvider.book == Book.black &&
             verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
-          page.add(blackText(widget.songsInBook[songKey]['poet']));
+          page.add(blackText(widget.songsInBook[songKey]['poet'], true));
         }
 
         // When all verses should have scores displayed, every verse should have
