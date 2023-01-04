@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'book_provider.dart';
+import 'settings_provider.dart';
 import 'goto_song_form.dart';
 import 'search_song_page.dart';
 import 'settings_page.dart';
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Scaffold();
     }
 
-    return Consumer<BookProvider>(
+    return Consumer<SettingsProvider>(
       builder: (context, provider, child) {
         // Do not show the list before the provider is initialized to avoid
         // flicking the default book's list when the user already selected a
@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) {
                         return MySearchSongPage(
                           songs: _songs[provider.bookAsString],
-                          bookProvider: provider,
+                          settingsProvider: provider,
                         );
                       },
                     ),
@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) {
                         return MyGotoSongForm(
                           songs: _songs[provider.bookAsString],
-                          bookProvider: provider,
+                          settingsProvider: provider,
                         );
                       },
                     ),
@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return MySettingsPage(provider: provider);
+                        return MySettingsPage(settingsProvider: provider);
                       },
                     ),
                   );
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (context) {
                           return MySongPage(
                             songsInBook: _songs[provider.bookAsString],
-                            bookProvider: provider,
+                            settingsProvider: provider,
                             songIndex: i,
                           );
                         },

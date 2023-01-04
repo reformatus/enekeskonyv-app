@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'book_provider.dart';
+import 'settings_provider.dart';
 
 class MySettingsPage extends StatefulWidget {
-  const MySettingsPage({Key? key, required this.provider}) : super(key: key);
+  const MySettingsPage({Key? key, required this.settingsProvider})
+      : super(key: key);
 
-  final BookProvider provider;
+  final SettingsProvider settingsProvider;
 
   @override
   State<MySettingsPage> createState() => _MySettingsPageState();
@@ -40,11 +41,11 @@ class _MySettingsPageState extends State<MySettingsPage> {
                       Book.black: Text(getBookName(Book.black)),
                       Book.blue: Text(getBookName(Book.blue))
                     },
-                    groupValue: widget.provider.book,
+                    groupValue: widget.settingsProvider.book,
                     onValueChanged: (Book? value) {
                       setState(() {
-                        widget.provider
-                            .changeBook(value ?? BookProvider.defaultBook);
+                        widget.settingsProvider
+                            .changeBook(value ?? SettingsProvider.defaultBook);
                       });
                     },
                   ),
@@ -55,22 +56,22 @@ class _MySettingsPageState extends State<MySettingsPage> {
                     RadioListTile<Book>(
                       title: Text(getBookName(Book.black)),
                       value: Book.black,
-                      groupValue: widget.provider.book,
+                      groupValue: widget.settingsProvider.book,
                       onChanged: (Book? value) {
                         setState(() {
-                          widget.provider
-                              .changeBook(value ?? BookProvider.defaultBook);
+                          widget.settingsProvider.changeBook(
+                              value ?? SettingsProvider.defaultBook);
                         });
                       },
                     ),
                     RadioListTile<Book>(
                       title: Text(getBookName(Book.blue)),
                       value: Book.blue,
-                      groupValue: widget.provider.book,
+                      groupValue: widget.settingsProvider.book,
                       onChanged: (Book? value) {
                         setState(() {
-                          widget.provider
-                              .changeBook(value ?? BookProvider.defaultBook);
+                          widget.settingsProvider.changeBook(
+                              value ?? SettingsProvider.defaultBook);
                         });
                       },
                     ),
