@@ -78,88 +78,160 @@ class _MySongPageState extends State<MySongPage> {
       );
     }
 
+    List<Widget> getFirstVerseHeader() {
+      final List<Widget> firstVerseHeader = [];
+      switch (widget.settingsProvider.book) {
+        // In case of the black book (48), the subtitle and the composer
+        // should be displayed.
+        case Book.black:
+          if (widget.songsInBook[songKey]['subtitle'] is String) {
+            firstVerseHeader
+                .add(blackText(widget.songsInBook[songKey]['subtitle']));
+          }
+          if (widget.songsInBook[songKey]['composer'] is String) {
+            firstVerseHeader
+                .add(blackText(widget.songsInBook[songKey]['composer']));
+          }
+          break;
+
+        // In case of the blue book (21), all the metadata should be
+        // displayed.
+        case Book.blue:
+        default:
+          final List<String> metadata = [];
+          if (widget.songsInBook[songKey]['subtitle'] is String) {
+            metadata.add(widget.songsInBook[songKey]['subtitle']);
+          }
+          if (widget.songsInBook[songKey]['poet'] is String) {
+            metadata.add('sz: ${widget.songsInBook[songKey]['poet']}');
+          }
+          if (widget.songsInBook[songKey]['translator'] is String) {
+            metadata.add('f: ${widget.songsInBook[songKey]['translator']}');
+          }
+          if (widget.songsInBook[songKey]['composer'] is String) {
+            metadata.add('d: ${widget.songsInBook[songKey]['composer']}');
+          }
+          if (metadata.isNotEmpty) {
+            firstVerseHeader.add(blackText(metadata.join(' | ')));
+          }
+          break;
+      }
+      return firstVerseHeader;
+    }
+
+    Widget getScore(Orientation orientation, int verseIndex) {
+      // The actual verse number is the number (well, any text) before the
+      // first dot of the verse text.
+      final verseNumber =
+          widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
+      final fileName =
+          // ignore: prefer_interpolation_to_compose_strings
+          'assets/ref${widget.settingsProvider.bookAsString}/ref${widget.settingsProvider.bookAsString}-' +
+              songKey.padLeft(3, '0') +
+              '-' +
+              verseNumber.padLeft(3, '0') +
+              '.svg';
+      return SvgPicture.asset(
+        fileName,
+        // The score should utilize the full width of the screen, regardless
+        // its size. This covers two cases:
+        // - rotating the device,
+        // - devices with different widths.
+        width: MediaQuery.of(context).size.width *
+            ((orientation == Orientation.portrait) ? 1.0 : 0.7),
+      );
+    }
+
     // Builds the pages for the current song's verses.
     List<List<Widget>> buildPages(Orientation orientation) {
       // Nested list; a page is just a list of widgets.
       final List<List<Widget>> pages = [];
+      // Let's collect the list items for the current page.
+      var page = <Widget>[];
       for (var verseIndex = 0;
           verseIndex < widget.songsInBook[songKey]['texts'].length;
           verseIndex++) {
-        // Let's collect the list items for the current page (verse).
-        final children = <Widget>[];
-
         // Only display certain info above the first verse.
         if (verseIndex == 0) {
-          switch (widget.settingsProvider.book) {
-            // In case of the black book (48), the subtitle and the composer
-            // should be displayed.
-            case Book.black:
-              if (widget.songsInBook[songKey]['subtitle'] is String) {
-                children
-                    .add(blackText(widget.songsInBook[songKey]['subtitle']));
-              }
-              if (widget.songsInBook[songKey]['composer'] is String) {
-                children
-                    .add(blackText(widget.songsInBook[songKey]['composer']));
-              }
-              break;
-
-            // In case of the blue book (21), all the metadata should be
-            // displayed.
-            case Book.blue:
-            default:
-              final List<String> metadata = [];
-              if (widget.songsInBook[songKey]['subtitle'] is String) {
-                metadata.add(widget.songsInBook[songKey]['subtitle']);
-              }
-              if (widget.songsInBook[songKey]['poet'] is String) {
-                metadata.add('sz: ${widget.songsInBook[songKey]['poet']}');
-              }
-              if (widget.songsInBook[songKey]['translator'] is String) {
-                metadata.add('f: ${widget.songsInBook[songKey]['translator']}');
-              }
-              if (widget.songsInBook[songKey]['composer'] is String) {
-                metadata.add('d: ${widget.songsInBook[songKey]['composer']}');
-              }
-              if (metadata.isNotEmpty) {
-                children.add(blackText(metadata.join(' | ')));
-              }
-              break;
-          }
+          page.addAll(getFirstVerseHeader());
         }
 
-        // The actual verse number is the number (well, any text) before the
-        // first dot of the verse text.
-        final verseNumber =
-            widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
-        final fileName =
-            // ignore: prefer_interpolation_to_compose_strings
-            'assets/ref${widget.settingsProvider.bookAsString}/ref${widget.settingsProvider.bookAsString}-' +
-                songKey.padLeft(3, '0') +
-                '-' +
-                verseNumber.padLeft(3, '0') +
-                '.svg';
-        children.add(SvgPicture.asset(
-          fileName,
-          // The score should utilize the full width of the screen, regardless
-          // its size. This covers two cases:
-          // - rotating the device,
-          // - devices with different widths.
-          width: MediaQuery.of(context).size.width *
-              ((orientation == Orientation.portrait) ? 1.0 : 0.7),
-        ));
+        // Add either the score or the text of the current verse, as needed.
+        if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all ||
+            (widget.settingsProvider.scoreDisplay == ScoreDisplay.first &&
+                verseIndex == 0)) {
+          page.add(getScore(orientation, verseIndex));
+        } else {
+          page.add(blackText(widget.songsInBook[songKey]['texts'][verseIndex]));
+        }
 
         // Only display the poet (if exists) below the last verse, and only do
         // it for the black (48) book.
         if (widget.settingsProvider.book == Book.black &&
             verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
-          children.add(blackText(widget.songsInBook[songKey]['poet']));
+          page.add(blackText(widget.songsInBook[songKey]['poet']));
         }
 
-        pages.add(children);
+        // When all verses should have scores displayed, every verse should have
+        // its own page, and a new page should start (for the next verse, if
+        // any).
+        if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
+          pages.add(page);
+          page = <Widget>[];
+        }
+      }
+      if (widget.settingsProvider.scoreDisplay != ScoreDisplay.all) {
+        pages.add(page);
       }
       return pages;
+    }
+
+    void switchVerse(bool next) {
+      int originalVerse = _verse;
+      int originalSong = _song;
+      if (next) {
+        // Only allow switching to the next verse when all verses should have
+        // scores (and there _is_ a next verse).
+        if ((widget.settingsProvider.scoreDisplay == ScoreDisplay.all) &&
+            _verse < widget.songsInBook[songKey]['texts'].length - 1) {
+          _verse++;
+        } else if (_song < widget.songsInBook.length - 1) {
+          _song++;
+          _verse = 0;
+        }
+      } else {
+        // Only allow switching to the previous verse when all verses should
+        // have scores (and there _is_ a previous verse).
+        if ((widget.settingsProvider.scoreDisplay == ScoreDisplay.all) &&
+            _verse > 0) {
+          _verse--;
+        } else if (_song > 0) {
+          _song--;
+          if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
+            // This songKey must be recalculated to be able to fetch the number of
+            // verses for the previous song.
+            songKey = widget.songsInBook.keys.elementAt(_song);
+            _verse = widget.songsInBook[songKey]['texts'].length - 1;
+          } else {
+            // When not all verses should have their scores displayed,
+            // technically always their first verse is displayed.
+            _verse = 0;
+          }
+        }
+      }
+      if (originalVerse != _verse || originalSong != _song) {
+        if (originalSong != _song) {
+          pageController.jumpToPage(_verse);
+          scrollController.jumpTo(0);
+        } else {
+          pageController.animateToPage(
+            _verse,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      }
     }
 
     // When the NestedScrollView-covered area (the whole screen/page without the
@@ -169,6 +241,66 @@ class _MySongPageState extends State<MySongPage> {
     // But the NestedScrollView might affect this badly, so let's only consider
     // those taps that ended up at (nearly) the same place they started at.
     Offset tapDownPosition = Offset.zero;
+
+    List<Widget> controllerButtons = [];
+    if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
+      // Switch to the previous verse (if exists).
+      controllerButtons.add(IconButton(
+        onPressed: _verse == 0 ? null : () => switchVerse(false),
+        icon: const Icon(Icons.arrow_circle_left_outlined),
+        disabledColor: ThemeData.dark().highlightColor,
+        key: const Key('_MySongPageState.IconButton.prevVerse'),
+      ));
+    }
+    // Switch to the previous song's first verse (if exists).
+    controllerButtons.add(TextIconButton(
+      text: widget.songsInBook.keys.tryElementAt(_song - 1),
+      onTap: _song == 0
+          ? null
+          : () {
+              setState(() {
+                _song--;
+                _verse = 0;
+                pageController.jumpToPage(_verse);
+                scrollController.jumpTo(0);
+              });
+            },
+      iconData: Icons.arrow_upward,
+      disabledColor: ThemeData.dark().highlightColor,
+      key: const Key('_MySongPageState.IconButton.prevSong'),
+      alignment: Alignment.topRight,
+      context: context,
+    ));
+    // Switch to the next song's first verse (if exists).
+    controllerButtons.add(TextIconButton(
+      text: widget.songsInBook.keys.tryElementAt(_song + 1),
+      onTap: _song == widget.songsInBook.length - 1
+          ? null
+          : () {
+              setState(() {
+                _song++;
+                _verse = 0;
+                pageController.jumpToPage(_verse);
+                scrollController.jumpTo(0);
+              });
+            },
+      iconData: Icons.arrow_downward,
+      disabledColor: ThemeData.dark().highlightColor,
+      key: const Key('_MySongPageState.IconButton.nextSong'),
+      alignment: Alignment.bottomRight,
+      context: context,
+    ));
+    if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
+      // Switch to the next verse (if exists).
+      controllerButtons.add(IconButton(
+        onPressed: (_verse == widget.songsInBook[songKey]['texts'].length - 1)
+            ? null
+            : () => switchVerse(true),
+        icon: const Icon(Icons.arrow_circle_right_outlined),
+        disabledColor: ThemeData.dark().highlightColor,
+        key: const Key('_MySongPageState.IconButton.nextVerse'),
+      ));
+    }
 
     return Scaffold(
       // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
@@ -216,49 +348,16 @@ class _MySongPageState extends State<MySongPage> {
                             3.0) {
                           return;
                         }
-                        int originalVerse = _verse;
-                        int originalSong = _song;
                         setState(() {
                           if ((MediaQuery.of(context).size.width / 2) >
                               details.globalPosition.dx) {
                             // Go backward (to the previous verse).
-                            if (_verse > 0) {
-                              _verse--;
-                            } else if (_song > 0) {
-                              _song--;
-                              // This songKey must be recalculated to be able to
-                              // fetch the number of verses for the previous
-                              // song.
-                              songKey =
-                                  widget.songsInBook.keys.elementAt(_song);
-                              _verse =
-                                  widget.songsInBook[songKey]['texts'].length -
-                                      1;
-                            }
+                            switchVerse(false);
                           } else {
                             // Go forward (to the next verse).
-                            if (_verse <
-                                widget.songsInBook[songKey]['texts'].length -
-                                    1) {
-                              _verse++;
-                            } else if (_song < widget.songsInBook.length - 1) {
-                              _song++;
-                              _verse = 0;
-                            }
+                            switchVerse(true);
                           }
                         });
-                        if (originalVerse != _verse || originalSong != _song) {
-                          if (originalSong != _song) {
-                            pageController.jumpToPage(_verse);
-                            scrollController.jumpTo(0);
-                          } else {
-                            pageController.animateToPage(
-                              _verse,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        }
                       },
                       child: PageView(
                         controller: pageController,
@@ -305,90 +404,7 @@ class _MySongPageState extends State<MySongPage> {
                       // Make the buttons "justified" (ie. use all the screen
                       // width).
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Switch to the previous verse (if exists).
-                        IconButton(
-                          onPressed: _verse == 0
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _verse--;
-                                    pageController.animateToPage(
-                                      _verse,
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  });
-                                },
-                          icon: const Icon(Icons.arrow_circle_left_outlined),
-                          disabledColor: ThemeData.dark().highlightColor,
-                          key: const Key(
-                              '_MySongPageState.IconButton.prevVerse'),
-                        ),
-                        // Switch to the previous song's first verse (if exists).
-                        TextIconButton(
-                          text: widget.songsInBook.keys.tryElementAt(_song - 1),
-                          onTap: _song == 0
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _song--;
-                                    _verse = 0;
-                                    pageController.jumpToPage(_verse);
-                                    scrollController.jumpTo(0);
-                                  });
-                                },
-                          iconData: Icons.arrow_upward,
-                          disabledColor: ThemeData.dark().highlightColor,
-                          key:
-                              const Key('_MySongPageState.IconButton.prevSong'),
-                          alignment: Alignment.topRight,
-                          context: context,
-                        ),
-                        // Switch to the next song's first verse (if exists).
-                        TextIconButton(
-                          text: widget.songsInBook.keys.tryElementAt(_song + 1),
-                          onTap: _song == widget.songsInBook.length - 1
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _song++;
-                                    _verse = 0;
-                                    pageController.jumpToPage(_verse);
-                                    scrollController.jumpTo(0);
-                                  });
-                                },
-                          iconData: Icons.arrow_downward,
-                          disabledColor: ThemeData.dark().highlightColor,
-                          key:
-                              const Key('_MySongPageState.IconButton.nextSong'),
-                          alignment: Alignment.bottomRight,
-                          context: context,
-                        ),
-                        // Switch to the next verse (if exists).
-                        IconButton(
-                          onPressed: (_verse ==
-                                  widget.songsInBook[songKey]['texts'].length -
-                                      1)
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _verse++;
-                                    pageController.animateToPage(
-                                      _verse,
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  });
-                                },
-                          icon: const Icon(Icons.arrow_circle_right_outlined),
-                          disabledColor: ThemeData.dark().highlightColor,
-                          key: const Key(
-                              '_MySongPageState.IconButton.nextVerse'),
-                        ),
-                      ],
+                      children: controllerButtons,
                     ),
                   ),
                 ),
