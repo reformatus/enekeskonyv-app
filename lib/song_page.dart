@@ -69,11 +69,13 @@ class _MySongPageState extends State<MySongPage> {
 
     // An internal utility function.
     // TODO instead change theme to light for the page.
-    Text blackText(String data, [bool alignRight = false]) {
+    Text blackText(String data,
+        {bool alignRight = false, double fontSize = 14.0}) {
       return Text(
         data,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.black,
+          fontSize: fontSize,
         ),
         textAlign: alignRight ? TextAlign.right : TextAlign.left,
       );
@@ -90,8 +92,9 @@ class _MySongPageState extends State<MySongPage> {
                 .add(blackText(widget.songsInBook[songKey]['subtitle']));
           }
           if (widget.songsInBook[songKey]['composer'] is String) {
-            firstVerseHeader
-                .add(blackText(widget.songsInBook[songKey]['composer'], true));
+            firstVerseHeader.add(blackText(
+                widget.songsInBook[songKey]['composer'],
+                alignRight: true));
           }
           break;
 
@@ -163,7 +166,8 @@ class _MySongPageState extends State<MySongPage> {
                 verseIndex == 0)) {
           page.add(getScore(orientation, verseIndex));
         } else {
-          page.add(blackText(widget.songsInBook[songKey]['texts'][verseIndex]));
+          page.add(blackText(widget.songsInBook[songKey]['texts'][verseIndex],
+              fontSize: widget.settingsProvider.fontSize));
         }
 
         // Only display the poet (if exists) below the last verse, and only do
@@ -171,7 +175,8 @@ class _MySongPageState extends State<MySongPage> {
         if (widget.settingsProvider.book == Book.black &&
             verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
-          page.add(blackText(widget.songsInBook[songKey]['poet'], true));
+          page.add(
+              blackText(widget.songsInBook[songKey]['poet'], alignRight: true));
         }
 
         // When all verses should have scores displayed, every verse should have
@@ -272,6 +277,35 @@ class _MySongPageState extends State<MySongPage> {
       alignment: Alignment.topRight,
       context: context,
     ));
+    if (widget.settingsProvider.scoreDisplay != ScoreDisplay.all) {
+      // Change font size.
+      controllerButtons.add(IconButton(
+        onPressed: widget.settingsProvider.fontSize < 40.0
+            ? () => {
+                  setState(() {
+                    widget.settingsProvider
+                        .changeFontSize(widget.settingsProvider.fontSize + 1.0);
+                  })
+                }
+            : null,
+        icon: const Icon(Icons.text_increase),
+        disabledColor: ThemeData.dark().highlightColor,
+        key: const Key('_MySongPageState.IconButton.textIncrease'),
+      ));
+      controllerButtons.add(IconButton(
+        onPressed: widget.settingsProvider.fontSize > 10.0
+            ? () => {
+                  setState(() {
+                    widget.settingsProvider
+                        .changeFontSize(widget.settingsProvider.fontSize - 1.0);
+                  })
+                }
+            : null,
+        icon: const Icon(Icons.text_decrease),
+        disabledColor: ThemeData.dark().highlightColor,
+        key: const Key('_MySongPageState.IconButton.textDecrease'),
+      ));
+    }
     // Switch to the next song's first verse (if exists).
     controllerButtons.add(TextIconButton(
       text: widget.songsInBook.keys.tryElementAt(_song + 1),
