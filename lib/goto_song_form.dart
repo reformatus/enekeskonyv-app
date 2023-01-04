@@ -2,20 +2,20 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/book_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'settings_provider.dart';
 import 'song_page.dart';
 
 class MyGotoSongForm extends StatefulWidget {
   const MyGotoSongForm(
-      {Key? key, required this.songs, required this.bookProvider})
+      {Key? key, required this.songs, required this.settingsProvider})
       : super(key: key);
 
   final LinkedHashMap songs;
-  final BookProvider bookProvider;
+  final SettingsProvider settingsProvider;
 
   @override
   State<MyGotoSongForm> createState() => _MyGotoSongFormState();
@@ -25,6 +25,7 @@ class MyGotoSongForm extends StatefulWidget {
 class _MyGotoSongFormState extends State<MyGotoSongForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController controller;
+
   // @see https://stackoverflow.com/q/63492002
   final _myFocusNode = FocusNode();
 
@@ -97,7 +98,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
           builder: (context) {
             return MySongPage(
               songsInBook: widget.songs,
-              bookProvider: widget.bookProvider,
+              settingsProvider: widget.settingsProvider,
               // As we want to be able to turn page by page (ie.
               // verse by verse), we need to go to the Nth song
               // in the book (from the ListView the user sees).

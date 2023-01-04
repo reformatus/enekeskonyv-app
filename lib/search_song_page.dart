@@ -1,10 +1,10 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/book_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'settings_provider.dart';
 import 'song_page.dart';
 
 class SearchVerse {
@@ -21,11 +21,11 @@ class SearchVerse {
 
 class MySearchSongPage extends StatefulWidget {
   const MySearchSongPage(
-      {Key? key, required this.songs, required this.bookProvider})
+      {Key? key, required this.songs, required this.settingsProvider})
       : super(key: key);
 
   final LinkedHashMap songs;
-  final BookProvider bookProvider;
+  final SettingsProvider settingsProvider;
 
   @override
   State<MySearchSongPage> createState() => _MySearchSongPageState();
@@ -101,7 +101,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
                         builder: (context) {
                           return MySongPage(
                             songsInBook: widget.songs,
-                            bookProvider: widget.bookProvider,
+                            settingsProvider: widget.settingsProvider,
                             songIndex: widget.songs.keys
                                 .toList()
                                 .indexOf(tappedVerse.songKey),

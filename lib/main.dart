@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'book_provider.dart';
+import 'settings_provider.dart';
 import 'home_page.dart';
 
 void main() async {
@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Énekeskönyv',
       theme: ThemeData.dark(useMaterial3: true),
-      home: ChangeNotifierProvider<BookProvider>(
-        create: (_) => BookProvider()..initialize(),
+      home: ChangeNotifierProvider<SettingsProvider>(
+        create: (_) => SettingsProvider()..initialize(),
         child: const MyHomePage(),
       ),
     );
