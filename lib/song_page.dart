@@ -344,6 +344,10 @@ class _MySongPageState extends State<MySongPage> {
           return Container(
             // TODO Make themeable.
             color: Colors.white,
+            // Some physical devices (like Xiaomi Mi A2) display a one-pixel
+            // high white line above the song title for some weird reason. Let's
+            // hide that with this very small top margin.
+            margin: const EdgeInsets.fromLTRB(0, 0.01, 0, 0),
             child: Flex(
               direction: orientation == Orientation.portrait
                   ? Axis.vertical
