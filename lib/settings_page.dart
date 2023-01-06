@@ -184,11 +184,10 @@ class SettingsSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 15),
+      padding: const EdgeInsets.only(top: 18, left: 15, bottom: 5),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleLarge,
-        textAlign: TextAlign.center,
       ),
     );
   }
