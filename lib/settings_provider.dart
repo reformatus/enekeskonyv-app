@@ -73,7 +73,7 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   void changeSheetBrightnessSetting(BrightnessSetting value) async {
-    _appBrightnessSetting = value;
+    _sheetBrightnessSetting = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('sheetBrightness', value.index);
     notifyListeners();
