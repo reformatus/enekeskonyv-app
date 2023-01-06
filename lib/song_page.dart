@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'settings_provider.dart';
@@ -67,20 +68,6 @@ class _MySongPageState extends State<MySongPage> {
       initialPage: _verse,
     );
 
-    // An internal utility function.
-    // TODO instead change theme to light for the page.
-    Text blackText(String data,
-        {bool alignRight = false, double fontSize = 14.0}) {
-      return Text(
-        data,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: fontSize,
-        ),
-        textAlign: alignRight ? TextAlign.right : TextAlign.left,
-      );
-    }
-
     List<Widget> getFirstVerseHeader() {
       final List<Widget> firstVerseHeader = [];
       switch (widget.settingsProvider.book) {
@@ -88,13 +75,13 @@ class _MySongPageState extends State<MySongPage> {
         // should be displayed.
         case Book.black:
           if (widget.songsInBook[songKey]['subtitle'] is String) {
-            firstVerseHeader
-                .add(blackText(widget.songsInBook[songKey]['subtitle']));
+            firstVerseHeader.add(Text(widget.songsInBook[songKey]['subtitle']));
           }
           if (widget.songsInBook[songKey]['composer'] is String) {
-            firstVerseHeader.add(blackText(
-                widget.songsInBook[songKey]['composer'],
-                alignRight: true));
+            firstVerseHeader.add(Text(
+              widget.songsInBook[songKey]['composer'],
+              textAlign: TextAlign.right,
+            ));
           }
           break;
 
@@ -116,14 +103,15 @@ class _MySongPageState extends State<MySongPage> {
             metadata.add('d: ${widget.songsInBook[songKey]['composer']}');
           }
           if (metadata.isNotEmpty) {
-            firstVerseHeader.add(blackText(metadata.join(' | ')));
+            firstVerseHeader.add(Text(metadata.join(' | ')));
           }
           break;
       }
       return firstVerseHeader;
     }
 
-    Widget getScore(Orientation orientation, int verseIndex) {
+    Widget getScore(
+        Orientation orientation, int verseIndex, BuildContext context) {
       // The actual verse number is the number (well, any text) before the
       // first dot of the verse text.
       final verseNumber =
@@ -143,11 +131,13 @@ class _MySongPageState extends State<MySongPage> {
         // - devices with different widths.
         width: MediaQuery.of(context).size.width *
             ((orientation == Orientation.portrait) ? 1.0 : 0.7),
+        color: Theme.of(context).textTheme.titleSmall!.color,
       );
     }
 
     // Builds the pages for the current song's verses.
-    List<List<Widget>> buildPages(Orientation orientation) {
+    List<List<Widget>> buildPages(
+        Orientation orientation, BuildContext context) {
       // Nested list; a page is just a list of widgets.
       final List<List<Widget>> pages = [];
       // Let's collect the list items for the current page.
@@ -164,10 +154,10 @@ class _MySongPageState extends State<MySongPage> {
         if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all ||
             (widget.settingsProvider.scoreDisplay == ScoreDisplay.first &&
                 verseIndex == 0)) {
-          page.add(getScore(orientation, verseIndex));
+          page.add(getScore(orientation, verseIndex, context));
         } else {
-          page.add(blackText(widget.songsInBook[songKey]['texts'][verseIndex],
-              fontSize: widget.settingsProvider.fontSize));
+          page.add(Text(widget.songsInBook[songKey]['texts'][verseIndex],
+              style: TextStyle(fontSize: widget.settingsProvider.fontSize)));
         }
 
         // Only display the poet (if exists) below the last verse, and only do
@@ -175,8 +165,10 @@ class _MySongPageState extends State<MySongPage> {
         if (widget.settingsProvider.book == Book.black &&
             verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
-          page.add(
-              blackText(widget.songsInBook[songKey]['poet'], alignRight: true));
+          page.add(Text(
+            widget.songsInBook[songKey]['poet'],
+            textAlign: TextAlign.right,
+          ));
         }
 
         // When all verses should have scores displayed, every verse should have
@@ -337,123 +329,127 @@ class _MySongPageState extends State<MySongPage> {
       ));
     }
 
-    return Scaffold(
-      // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-      body: SafeArea(
-        child: OrientationBuilder(builder: (context, orientation) {
-          return Container(
-            // TODO Make themeable.
-            color: Colors.white,
-            // Some physical devices (like Xiaomi Mi A2) display a one-pixel
-            // high white line above the song title for some weird reason. Let's
-            // hide that with this very small top margin.
-            margin: const EdgeInsets.fromLTRB(0, 0.01, 0, 0),
-            child: Flex(
-              direction: orientation == Orientation.portrait
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              children: [
-                Expanded(
-                  child: NestedScrollView(
-                    controller: scrollController,
-                    headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                      return [
-                        SliverOverlapAbsorber(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context),
-                          sliver: SliverAppBar(
-                            pinned: orientation == Orientation.portrait,
-                            // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                            expandedHeight: 57,
-                            title: Text(
-                              getSongTitle(widget.songsInBook[songKey]),
-                              style: const TextStyle(fontSize: 18),
-                              maxLines: 2,
-                            ),
+    return Consumer<SettingsProvider>(builder: (context, provider, child) {
+      return Scaffold(
+        // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+        body: OrientationBuilder(builder: (context, orientation) {
+          return Flex(
+            direction: orientation == Orientation.portrait
+                ? Axis.vertical
+                : Axis.horizontal,
+            children: [
+              Expanded(
+                child: NestedScrollView(
+                  controller: scrollController,
+                  headerSliverBuilder: ((context, innerBoxIsScrolled) {
+                    return [
+                      SliverOverlapAbsorber(
+                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                            context),
+                        sliver: SliverAppBar(
+                          pinned: orientation == Orientation.portrait,
+                          // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                          expandedHeight: 57,
+                          title: Text(
+                            getSongTitle(widget.songsInBook[songKey]),
+                            style: const TextStyle(fontSize: 18),
+                            maxLines: 2,
                           ),
                         ),
-                      ];
-                    }),
-                    body: GestureDetector(
-                      onTapDown: (details) {
-                        tapDownPosition = details.globalPosition;
-                      },
-                      onTapUp: (details) {
-                        // Bail out early if tap ended more than 3.0 away from
-                        // where it started.
-                        if ((details.globalPosition - tapDownPosition)
-                                .distance >
-                            3.0) {
-                          return;
-                        }
-                        setState(() {
-                          if ((MediaQuery.of(context).size.width / 2) >
-                              details.globalPosition.dx) {
-                            // Go backward (to the previous verse).
-                            switchVerse(false);
-                          } else {
-                            // Go forward (to the next verse).
-                            switchVerse(true);
-                          }
-                        });
-                      },
-                      child: PageView(
-                        controller: pageController,
-                        onPageChanged: (i) {
-                          setState(() {
-                            _verse = i;
-                          });
-                        },
-                        physics: Platform.isIOS
-                            ? const BouncingScrollPhysics()
-                            : null,
-                        children:
-                            buildPages(orientation).map((pageContentList) {
-                          return Builder(builder: (BuildContext context) {
-                            return CustomScrollView(
-                              key: PageStorageKey(pageContentList),
-                              slivers: [
-                                SliverOverlapInjector(
-                                  handle: NestedScrollView
-                                      .sliverOverlapAbsorberHandleFor(context),
-                                ),
-                                SliverList(
-                                  delegate: SliverChildListDelegate.fixed(
-                                      pageContentList),
-                                )
-                              ],
-                            );
-                          });
-                        }).toList(),
                       ),
-                    ),
+                    ];
+                  }),
+                  body: Theme(
+                    data: ThemeData(
+                        useMaterial3: true,
+                        brightness:
+                            provider.getCurrentSheetBrightness(context)),
+                    // Needs a separate [Material] and [Builder] for
+                    // providing a new BuildContext to children properly.
+                    child: Builder(builder: (BuildContext context) {
+                      return Material(
+                        child: GestureDetector(
+                          onTapDown: (details) {
+                            tapDownPosition = details.globalPosition;
+                          },
+                          onTapUp: (details) {
+                            // Bail out early if tap ended more than 3.0 away from
+                            // where it started.
+                            if ((details.globalPosition - tapDownPosition)
+                                    .distance >
+                                3.0) {
+                              return;
+                            }
+                            setState(() {
+                              if ((MediaQuery.of(context).size.width / 2) >
+                                  details.globalPosition.dx) {
+                                // Go backward (to the previous verse).
+                                switchVerse(false);
+                              } else {
+                                // Go forward (to the next verse).
+                                switchVerse(true);
+                              }
+                            });
+                          },
+                          child: PageView(
+                            controller: pageController,
+                            onPageChanged: (i) {
+                              setState(() {
+                                _verse = i;
+                              });
+                            },
+                            physics: Platform.isIOS
+                                ? const BouncingScrollPhysics()
+                                : null,
+                            children: buildPages(orientation, context)
+                                .map((pageContentList) {
+                              return Builder(builder: (BuildContext context) {
+                                return CustomScrollView(
+                                  key: PageStorageKey(pageContentList),
+                                  slivers: [
+                                    SliverOverlapInjector(
+                                      handle: NestedScrollView
+                                          .sliverOverlapAbsorberHandleFor(
+                                              context),
+                                    ),
+                                    SliverList(
+                                      delegate: SliverChildListDelegate.fixed(
+                                          pageContentList),
+                                    )
+                                  ],
+                                );
+                              });
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
-                Theme(
-                  // TODO Make themable.
-                  data: ThemeData(brightness: Brightness.light),
-                  child: Material(
-                    // @see https://stackoverflow.com/a/58304632/6460986
-                    color: Theme.of(context).highlightColor,
-                    child: Flex(
-                      direction: orientation == Orientation.portrait
-                          ? Axis.horizontal
-                          : Axis.vertical,
-                      // Make the buttons "justified" (ie. use all the screen
-                      // width).
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: controllerButtons,
-                    ),
+              ),
+              Theme(
+                data: ThemeData(
+                    useMaterial3: true,
+                    brightness: provider.getCurrentSheetBrightness(context)),
+                child: Material(
+                  elevation: 15,
+                  child: Flex(
+                    direction: orientation == Orientation.portrait
+                        ? Axis.horizontal
+                        : Axis.vertical,
+                    // Make the buttons "justified" (ie. use all the screen
+                    // width).
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: controllerButtons,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         }),
-      ),
-      key: const Key('_MySongPageState'),
-    );
+        key: const Key('_MySongPageState'),
+      );
+    });
   }
 }
 
