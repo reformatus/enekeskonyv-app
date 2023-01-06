@@ -14,13 +14,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Énekeskönyv',
-      theme: ThemeData.dark(useMaterial3: true),
-      home: ChangeNotifierProvider<SettingsProvider>(
-        create: (_) => SettingsProvider()..initialize(),
-        child: const MyHomePage(),
+    return ChangeNotifierProvider<SettingsProvider>(
+      create: (_) => SettingsProvider()..initialize(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Énekeskönyv',
+        theme: ThemeData.dark(useMaterial3: true),
+        home: const MyHomePage(),
       ),
     );
   }
