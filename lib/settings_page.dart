@@ -131,6 +131,42 @@ class _MySettingsPageState extends State<MySettingsPage> {
                       ),
                     ],
                   ),
+            const SettingsSectionTitle('Színek'),
+            ListTile(
+              title: const Text('Alkalmazás témája'),
+              trailing: DropdownButton<BrightnessSetting>(
+                value: widget.settingsProvider.appBrightnessSetting,
+                items: BrightnessSetting.values
+                    .map((brightnessSetting) => DropdownMenuItem(
+                        value: brightnessSetting,
+                        child: Text(getBrightnessName(brightnessSetting))))
+                    .toList(),
+                onChanged: ((value) {
+                  setState(() {
+                    widget.settingsProvider.changeAppBrightnessSetting(
+                        value ?? SettingsProvider.defaultAppBrightnessSetting);
+                  });
+                }),
+              ),
+            ),
+            ListTile(
+              title: const Text('Kotta témája'),
+              trailing: DropdownButton<BrightnessSetting>(
+                value: widget.settingsProvider.sheetBrightnessSetting,
+                items: BrightnessSetting.values
+                    .map((brightnessSetting) => DropdownMenuItem(
+                        value: brightnessSetting,
+                        child: Text(getBrightnessName(brightnessSetting))))
+                    .toList(),
+                onChanged: ((value) {
+                  setState(() {
+                    widget.settingsProvider.changeSheetBrightnessSetting(
+                        value ??
+                            SettingsProvider.defaultSheetBrightnessSetting);
+                  });
+                }),
+              ),
+            ),
           ],
         ),
       ),
