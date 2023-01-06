@@ -26,14 +26,7 @@ class _MySettingsPageState extends State<MySettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Énekeskönyv',
-              style: TextStyle(
-                fontSize: 20,
-                height: 3,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            const SettingsSectionTitle("Énekeskönyv"),
             Platform.isIOS
                 ? Padding(
                     padding: const EdgeInsets.all(8),
@@ -45,8 +38,8 @@ class _MySettingsPageState extends State<MySettingsPage> {
                       groupValue: widget.settingsProvider.book,
                       onValueChanged: (Book? value) {
                         setState(() {
-                          widget.settingsProvider
-                              .changeBook(value ?? SettingsProvider.defaultBook);
+                          widget.settingsProvider.changeBook(
+                              value ?? SettingsProvider.defaultBook);
                         });
                       },
                     ),
@@ -78,14 +71,7 @@ class _MySettingsPageState extends State<MySettingsPage> {
                       ),
                     ],
                   ),
-            const Text(
-              'Kotta',
-              style: TextStyle(
-                fontSize: 20,
-                height: 3,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            const SettingsSectionTitle('Kotta'),
             Platform.isIOS
                 ? Padding(
                     padding: const EdgeInsets.all(8),
@@ -147,6 +133,26 @@ class _MySettingsPageState extends State<MySettingsPage> {
                   ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class SettingsSectionTitle extends StatelessWidget {
+  final String title;
+  const SettingsSectionTitle(
+    this.title, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 15),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
       ),
     );
   }
