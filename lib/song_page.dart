@@ -328,11 +328,11 @@ class _MySongPageState extends State<MySongPage> {
       ));
     }
 
-    return SafeArea(
-      child: Scaffold(
-        // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-        body: OrientationBuilder(builder: (context, orientation) {
-          return Flex(
+    return Scaffold(
+      // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+      body: OrientationBuilder(builder: (context, orientation) {
+        return SafeArea(
+          child: Flex(
             direction: orientation == Orientation.portrait
                 ? Axis.vertical
                 : Axis.horizontal,
@@ -445,10 +445,10 @@ class _MySongPageState extends State<MySongPage> {
                 ),
               ),
             ],
-          );
-        }),
-        key: const Key('_MySongPageState'),
-      ),
+          ),
+        );
+      }),
+      key: const Key('_MySongPageState'),
     );
   }
 }
