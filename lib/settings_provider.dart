@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider extends ChangeNotifier {
@@ -31,6 +32,17 @@ class SettingsProvider extends ChangeNotifier {
       case Book.blue:
       default:
         return '21';
+    }
+  }
+
+  ThemeMode get appThemeMode {
+    switch (_appBrightnessSetting) {
+      case BrightnessSetting.system:
+        return ThemeMode.system;
+      case BrightnessSetting.dark:
+        return ThemeMode.dark;
+      case BrightnessSetting.light:
+        return ThemeMode.light;
     }
   }
 

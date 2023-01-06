@@ -16,12 +16,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SettingsProvider>(
       create: (_) => SettingsProvider()..initialize(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Énekeskönyv',
-        theme: ThemeData.dark(useMaterial3: true),
-        home: const MyHomePage(),
-      ),
+      child: Consumer<SettingsProvider>(builder: (context, provider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Énekeskönyv',
+          themeMode: provider.appThemeMode,
+          theme: ThemeData(useMaterial3: true),
+          darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+          home: const MyHomePage(),
+        );
+      }),
     );
   }
 }
