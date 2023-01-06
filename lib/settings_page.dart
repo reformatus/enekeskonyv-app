@@ -134,35 +134,34 @@ class _MySettingsPageState extends State<MySettingsPage> {
             const SettingsSectionTitle('Színek'),
             ListTile(
               title: const Text('Alkalmazás témája'),
-              trailing: DropdownButton<BrightnessSetting>(
-                value: widget.settingsProvider.appBrightnessSetting,
-                items: BrightnessSetting.values
+              trailing: DropdownButton<ThemeMode>(
+                value: widget.settingsProvider.appThemeMode,
+                items: ThemeMode.values
                     .map((brightnessSetting) => DropdownMenuItem(
                         value: brightnessSetting,
-                        child: Text(getBrightnessName(brightnessSetting))))
+                        child: Text(getThemeModeName(brightnessSetting))))
                     .toList(),
                 onChanged: ((value) {
                   setState(() {
                     widget.settingsProvider.changeAppBrightnessSetting(
-                        value ?? SettingsProvider.defaultAppBrightnessSetting);
+                        value ?? SettingsProvider.defaultAppThemeMode);
                   });
                 }),
               ),
             ),
             ListTile(
               title: const Text('Kotta témája'),
-              trailing: DropdownButton<BrightnessSetting>(
-                value: widget.settingsProvider.sheetBrightnessSetting,
-                items: BrightnessSetting.values
+              trailing: DropdownButton<ThemeMode>(
+                value: widget.settingsProvider.sheetThemeMode,
+                items: ThemeMode.values
                     .map((brightnessSetting) => DropdownMenuItem(
                         value: brightnessSetting,
-                        child: Text(getBrightnessName(brightnessSetting))))
+                        child: Text(getThemeModeName(brightnessSetting))))
                     .toList(),
                 onChanged: ((value) {
                   setState(() {
                     widget.settingsProvider.changeSheetBrightnessSetting(
-                        value ??
-                            SettingsProvider.defaultSheetBrightnessSetting);
+                        value ?? SettingsProvider.defaultSheetThemeMode);
                   });
                 }),
               ),

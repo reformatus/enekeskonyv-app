@@ -6,23 +6,21 @@ class SettingsProvider extends ChangeNotifier {
   static const Book defaultBook = Book.blue;
   static const ScoreDisplay defaultScoreDisplay = ScoreDisplay.all;
   static const double defaultFontSize = 14.0;
-  static const BrightnessSetting defaultAppBrightnessSetting =
-      BrightnessSetting.system;
-  static const BrightnessSetting defaultSheetBrightnessSetting =
-      BrightnessSetting.light;
+  static const ThemeMode defaultAppThemeMode = ThemeMode.system;
+  static const ThemeMode defaultSheetThemeMode = ThemeMode.light;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
   double _fontSize = defaultFontSize;
-  BrightnessSetting _appBrightnessSetting = defaultAppBrightnessSetting;
-  BrightnessSetting _sheetBrightnessSetting = defaultSheetBrightnessSetting;
+  ThemeMode _appThemeMode = defaultAppThemeMode;
+  ThemeMode _sheetThemeMode = defaultSheetThemeMode;
   bool _initialized = false;
 
   Book get book => _book;
   ScoreDisplay get scoreDisplay => _scoreDisplay;
   double get fontSize => _fontSize;
-  BrightnessSetting get appBrightnessSetting => _appBrightnessSetting;
-  BrightnessSetting get sheetBrightnessSetting => _sheetBrightnessSetting;
+  ThemeMode get appThemeMode => _appThemeMode;
+  ThemeMode get sheetThemeMode => _sheetThemeMode;
 
   String get bookAsString {
     switch (_book) {
@@ -32,17 +30,6 @@ class SettingsProvider extends ChangeNotifier {
       case Book.blue:
       default:
         return '21';
-    }
-  }
-
-  ThemeMode get appThemeMode {
-    switch (_appBrightnessSetting) {
-      case BrightnessSetting.system:
-        return ThemeMode.system;
-      case BrightnessSetting.dark:
-        return ThemeMode.dark;
-      case BrightnessSetting.light:
-        return ThemeMode.light;
     }
   }
 
@@ -75,8 +62,8 @@ class SettingsProvider extends ChangeNotifier {
     _initialized = true;
   }
 
-  void changeAppBrightnessSetting(BrightnessSetting value) async {
-    _appBrightnessSetting = value;
+  void changeAppBrightnessSetting(ThemeMode value) async {
+    _appThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('appBrightness', value.index);
     notifyListeners();
@@ -84,8 +71,8 @@ class SettingsProvider extends ChangeNotifier {
     //? Other values have not been loaded yet. (-RedyAu)
   }
 
-  void changeSheetBrightnessSetting(BrightnessSetting value) async {
-    _sheetBrightnessSetting = value;
+  void changeSheetBrightnessSetting(ThemeMode value) async {
+    _sheetThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('sheetBrightness', value.index);
     notifyListeners();
@@ -115,19 +102,18 @@ class SettingsProvider extends ChangeNotifier {
       _fontSize = prefs.getDouble('fontSize') ?? defaultFontSize;
 
       //! Brightness
-      _appBrightnessSetting = BrightnessSetting.values[
-          prefs.getInt('appBrightness') ?? defaultAppBrightnessSetting.index];
+      _appThemeMode = ThemeMode.values[
+          prefs.getInt('appThemeMode') ?? defaultAppThemeMode.index];
 
-      _sheetBrightnessSetting = BrightnessSetting.values[
-          prefs.getInt('sheetBrightness') ??
-              defaultSheetBrightnessSetting.index];
+      _sheetThemeMode = ThemeMode.values[
+          prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
     } catch (e) {
       // On any unexpected error, use default settings
       _book = defaultBook;
       _scoreDisplay = defaultScoreDisplay;
       _fontSize = defaultFontSize;
-      _appBrightnessSetting = defaultAppBrightnessSetting;
-      _sheetBrightnessSetting = defaultSheetBrightnessSetting;
+      _appThemeMode = defaultAppThemeMode;
+      _sheetThemeMode = defaultSheetThemeMode;
     }
 
     notifyListeners();
@@ -164,16 +150,13 @@ String getScoreDisplayName(ScoreDisplay scoreDisplay) {
   }
 }
 
-enum BrightnessSetting { system, dark, light }
-
-String getBrightnessName(BrightnessSetting brightness) {
-  switch (brightness) {
-    case BrightnessSetting.system:
+String getThemeModeName(ThemeMode themeMode) {
+  switch (themeMode) {
+    case ThemeMode.system:
       return "Rendszer";
-    case BrightnessSetting.dark:
+    case ThemeMode.dark:
       return "Sötét";
-    case BrightnessSetting.light:
-    default:
+    case ThemeMode.light:
       return "Világos";
   }
 }
