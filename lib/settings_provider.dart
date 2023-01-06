@@ -33,6 +33,28 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
+  Brightness getCurrentAppBrightness(BuildContext context) {
+    switch (appThemeMode) {
+      case ThemeMode.system:
+        return MediaQuery.platformBrightnessOf(context);
+      case ThemeMode.dark:
+        return Brightness.dark;
+      case ThemeMode.light:
+        return Brightness.light;
+    }
+  }
+
+  Brightness getCurrentSheetBrightness(BuildContext context) {
+    switch (sheetThemeMode) {
+      case ThemeMode.system:
+        return MediaQuery.platformBrightnessOf(context);
+      case ThemeMode.dark:
+        return Brightness.dark;
+      case ThemeMode.light:
+        return Brightness.light;
+    }
+  }
+
   bool get initialized => _initialized;
 
   void changeBook(Book value) async {
@@ -102,8 +124,8 @@ class SettingsProvider extends ChangeNotifier {
       _fontSize = prefs.getDouble('fontSize') ?? defaultFontSize;
 
       //! Brightness
-      _appThemeMode = ThemeMode.values[
-          prefs.getInt('appThemeMode') ?? defaultAppThemeMode.index];
+      _appThemeMode = ThemeMode
+          .values[prefs.getInt('appThemeMode') ?? defaultAppThemeMode.index];
 
       _sheetThemeMode = ThemeMode.values[
           prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
