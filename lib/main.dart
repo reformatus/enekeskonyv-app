@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
-          themeMode: provider.appThemeMode,
+          themeMode: provider.appThemeMode, // TODO Does this work on iOS?
           theme: ThemeData(useMaterial3: true),
           darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
           home: const MyHomePage(),
