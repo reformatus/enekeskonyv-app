@@ -86,7 +86,7 @@ class SettingsProvider extends ChangeNotifier {
   void changeAppBrightnessSetting(ThemeMode value) async {
     _appThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('appBrightness', value.index);
+    await prefs.setInt('appThemeMode', value.index);
     notifyListeners();
     //? I don't think seting _initialized to true is appropriate here.
     //? Other values have not been loaded yet. (-RedyAu)
@@ -95,7 +95,7 @@ class SettingsProvider extends ChangeNotifier {
   void changeSheetBrightnessSetting(ThemeMode value) async {
     _sheetThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('sheetBrightness', value.index);
+    await prefs.setInt('sheetThemeMode', value.index);
     notifyListeners();
   }
 
