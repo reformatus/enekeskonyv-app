@@ -332,119 +332,123 @@ class _MySongPageState extends State<MySongPage> {
       // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
       body: OrientationBuilder(builder: (context, orientation) {
         return SafeArea(
-          child: Flex(
-            direction: orientation == Orientation.portrait
-                ? Axis.vertical
-                : Axis.horizontal,
-            children: [
-              Expanded(
-                child: NestedScrollView(
-                  controller: scrollController,
-                  headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                    return [
-                      SliverOverlapAbsorber(
-                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                            context),
-                        sliver: SliverAppBar(
-                          pinned: orientation == Orientation.portrait,
-                          // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                          expandedHeight: 57,
-                          title: Text(
-                            getSongTitle(widget.songsInBook[songKey]),
-                            style: const TextStyle(fontSize: 18),
-                            maxLines: 2,
+          child: Container(
+            margin: EdgeInsets.only(top: 0.01),
+            child: Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: [
+                Expanded(
+                  child: NestedScrollView(
+                    controller: scrollController,
+                    headerSliverBuilder: ((context, innerBoxIsScrolled) {
+                      return [
+                        SliverOverlapAbsorber(
+                          handle:
+                              NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                  context),
+                          sliver: SliverAppBar(
+                            pinned: orientation == Orientation.portrait,
+                            // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                            expandedHeight: 57,
+                            title: Text(
+                              getSongTitle(widget.songsInBook[songKey]),
+                              style: const TextStyle(fontSize: 18),
+                              maxLines: 2,
+                            ),
                           ),
                         ),
-                      ),
-                    ];
-                  }),
-                  body: Theme(
-                    data: ThemeData(
-                        useMaterial3: true,
-                        brightness: widget.settingsProvider
-                            .getCurrentSheetBrightness(context)),
-                    // Needs a separate [Material] and [Builder] for
-                    // providing a new BuildContext to children properly.
-                    child: Builder(builder: (BuildContext context) {
-                      return Material(
-                        child: GestureDetector(
-                          onTapDown: (details) {
-                            tapDownPosition = details.globalPosition;
-                          },
-                          onTapUp: (details) {
-                            // Bail out early if tap ended more than 3.0 away from
-                            // where it started.
-                            if ((details.globalPosition - tapDownPosition)
-                                    .distance >
-                                3.0) {
-                              return;
-                            }
-                            setState(() {
-                              if ((MediaQuery.of(context).size.width / 2) >
-                                  details.globalPosition.dx) {
-                                // Go backward (to the previous verse).
-                                switchVerse(false);
-                              } else {
-                                // Go forward (to the next verse).
-                                switchVerse(true);
+                      ];
+                    }),
+                    body: Theme(
+                      data: ThemeData(
+                          useMaterial3: true,
+                          brightness: widget.settingsProvider
+                              .getCurrentSheetBrightness(context)),
+                      // Needs a separate [Material] and [Builder] for
+                      // providing a new BuildContext to children properly.
+                      child: Builder(builder: (BuildContext context) {
+                        return Material(
+                          child: GestureDetector(
+                            onTapDown: (details) {
+                              tapDownPosition = details.globalPosition;
+                            },
+                            onTapUp: (details) {
+                              // Bail out early if tap ended more than 3.0 away from
+                              // where it started.
+                              if ((details.globalPosition - tapDownPosition)
+                                      .distance >
+                                  3.0) {
+                                return;
                               }
-                            });
-                          },
-                          child: PageView(
-                            controller: pageController,
-                            onPageChanged: (i) {
                               setState(() {
-                                _verse = i;
+                                if ((MediaQuery.of(context).size.width / 2) >
+                                    details.globalPosition.dx) {
+                                  // Go backward (to the previous verse).
+                                  switchVerse(false);
+                                } else {
+                                  // Go forward (to the next verse).
+                                  switchVerse(true);
+                                }
                               });
                             },
-                            physics: Platform.isIOS
-                                ? const BouncingScrollPhysics()
-                                : null,
-                            children: buildPages(orientation, context)
-                                .map((pageContentList) {
-                              return Builder(builder: (BuildContext context) {
-                                return CustomScrollView(
-                                  key: PageStorageKey(pageContentList),
-                                  slivers: [
-                                    SliverOverlapInjector(
-                                      handle: NestedScrollView
-                                          .sliverOverlapAbsorberHandleFor(
-                                              context),
-                                    ),
-                                    SliverList(
-                                      delegate: SliverChildListDelegate.fixed(
-                                          pageContentList),
-                                    )
-                                  ],
-                                );
-                              });
-                            }).toList(),
+                            child: PageView(
+                              controller: pageController,
+                              onPageChanged: (i) {
+                                setState(() {
+                                  _verse = i;
+                                });
+                              },
+                              physics: Platform.isIOS
+                                  ? const BouncingScrollPhysics()
+                                  : null,
+                              children: buildPages(orientation, context)
+                                  .map((pageContentList) {
+                                return Builder(builder: (BuildContext context) {
+                                  return CustomScrollView(
+                                    key: PageStorageKey(pageContentList),
+                                    slivers: [
+                                      SliverOverlapInjector(
+                                        handle: NestedScrollView
+                                            .sliverOverlapAbsorberHandleFor(
+                                                context),
+                                      ),
+                                      SliverList(
+                                        delegate: SliverChildListDelegate.fixed(
+                                            pageContentList),
+                                      )
+                                    ],
+                                  );
+                                });
+                              }).toList(),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
                 ),
-              ),
-              Theme(
-                data: ThemeData(
-                    useMaterial3: true,
-                    brightness: widget.settingsProvider
-                        .getCurrentSheetBrightness(context)),
-                child: Material(
-                  elevation: 15,
-                  child: Flex(
-                    direction: orientation == Orientation.portrait
-                        ? Axis.horizontal
-                        : Axis.vertical,
-                    // Make the buttons "justified" (ie. use all the screen
-                    // width).
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: controllerButtons,
+                Theme(
+                  data: ThemeData(
+                      useMaterial3: true,
+                      brightness: widget.settingsProvider
+                          .getCurrentSheetBrightness(context)),
+                  child: Material(
+                    elevation: 15,
+                    child: Flex(
+                      direction: orientation == Orientation.portrait
+                          ? Axis.horizontal
+                          : Axis.vertical,
+                      // Make the buttons "justified" (ie. use all the screen
+                      // width).
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: controllerButtons,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }),
