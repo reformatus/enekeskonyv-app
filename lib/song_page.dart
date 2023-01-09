@@ -333,7 +333,7 @@ class _MySongPageState extends State<MySongPage> {
       body: OrientationBuilder(builder: (context, orientation) {
         return SafeArea(
           child: Container(
-            margin: EdgeInsets.only(top: 0.01),
+            margin: const EdgeInsets.only(top: 0.01),
             child: Flex(
               direction: orientation == Orientation.portrait
                   ? Axis.vertical
