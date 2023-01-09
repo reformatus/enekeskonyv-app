@@ -177,10 +177,9 @@ class _MySongPageState extends State<MySongPage> {
                       // Split the text at the '.' characters,
                       // ignore the first part and show the rest.
                       TextSpan(
-                          text: (widget.songsInBook[songKey]['texts']
-                                      [verseIndex]
-                                  .split('.') as List<String>)
-                              .sublist(1)
+                          text: widget.songsInBook[songKey]['texts'][verseIndex]
+                              .split('.')
+                              .skip(1)
                               .join('.')),
                     ]),
               ),
