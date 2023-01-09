@@ -166,22 +166,22 @@ class _MySongPageState extends State<MySongPage> {
                         fontSize: widget.settingsProvider.fontSize),
                     children: [
                       // Display verse number bold.
-                      // Match the first digits in a string followed by a dot and
-                      // a space. Ignore everything else.
+                      // Split the text at the '.' characters,
+                      // only show first part.
                       TextSpan(
-                        text: RegExp(r'(^\d*. )')
-                                .firstMatch(widget.songsInBook[songKey]['texts']
-                                    [verseIndex])
-                                ?.group(0) ??
-                            '',
+                        text:
+                            '${widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0]}.',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       // Display rest of verse text normally.
-                      // Match verse number in the same way as before,
-                      // but this time remove it.
+                      // Split the text at the '.' characters,
+                      // ignore the first part and show the rest.
                       TextSpan(
-                          text: widget.songsInBook[songKey]['texts'][verseIndex]
-                              .replaceAll(RegExp(r'(^\d*. )'), ''))
+                          text: (widget.songsInBook[songKey]['texts']
+                                      [verseIndex]
+                                  .split('.') as List<String>)
+                              .sublist(1)
+                              .join('.')),
                     ]),
               ),
             ),
