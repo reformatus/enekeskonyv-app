@@ -439,7 +439,6 @@ class _MySongPageState extends State<MySongPage> {
                       brightness: widget.settingsProvider
                           .getCurrentSheetBrightness(context)),
                   child: Material(
-                    elevation: 15,
                     child: Flex(
                       direction: orientation == Orientation.portrait
                           ? Axis.horizontal
