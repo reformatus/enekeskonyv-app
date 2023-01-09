@@ -438,17 +438,20 @@ class _MySongPageState extends State<MySongPage> {
                       useMaterial3: true,
                       brightness: widget.settingsProvider
                           .getCurrentSheetBrightness(context)),
-                  child: Material(
-                    child: Flex(
-                      direction: orientation == Orientation.portrait
-                          ? Axis.horizontal
-                          : Axis.vertical,
-                      // Make the buttons "justified" (ie. use all the screen
-                      // width).
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: controllerButtons,
-                    ),
-                  ),
+                  child: Builder(builder: (BuildContext context) {
+                    return Material(
+                      color: Theme.of(context).cardColor,
+                      child: Flex(
+                        direction: orientation == Orientation.portrait
+                            ? Axis.horizontal
+                            : Axis.vertical,
+                        // Make the buttons "justified" (ie. use all the screen
+                        // width).
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: controllerButtons,
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
