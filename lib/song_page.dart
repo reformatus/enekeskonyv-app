@@ -160,29 +160,29 @@ class _MySongPageState extends State<MySongPage> {
               // Add space between verses.
               padding: const EdgeInsets.only(bottom: 8),
               child: RichText(
-                text: TextSpan(children: [
-                  // Display verse number bold.
-                  // Match the first digits in a string followed by a dot and
-                  // a space. Ignore everything else.
-                  TextSpan(
-                    text: RegExp(r'(^\d*. )')
-                            .firstMatch(widget.songsInBook[songKey]['texts']
-                                [verseIndex])
-                            ?.group(0) ??
-                        '',
+                text: TextSpan(
                     style: TextStyle(
-                        fontSize: widget.settingsProvider.fontSize,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  // Display rest of verse text normally.
-                  // Match verse number in the same way as before,
-                  // but this time remove it.
-                  TextSpan(
-                      style:
-                          TextStyle(fontSize: widget.settingsProvider.fontSize),
-                      text: widget.songsInBook[songKey]['texts'][verseIndex]
-                          .replaceAll(RegExp(r'(^\d*. )'), ''))
-                ]),
+                        color: Theme.of(context).textTheme.bodyText1!.color,
+                        fontSize: widget.settingsProvider.fontSize),
+                    children: [
+                      // Display verse number bold.
+                      // Match the first digits in a string followed by a dot and
+                      // a space. Ignore everything else.
+                      TextSpan(
+                        text: RegExp(r'(^\d*. )')
+                                .firstMatch(widget.songsInBook[songKey]['texts']
+                                    [verseIndex])
+                                ?.group(0) ??
+                            '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      // Display rest of verse text normally.
+                      // Match verse number in the same way as before,
+                      // but this time remove it.
+                      TextSpan(
+                          text: widget.songsInBook[songKey]['texts'][verseIndex]
+                              .replaceAll(RegExp(r'(^\d*. )'), ''))
+                    ]),
               ),
             ),
           );
