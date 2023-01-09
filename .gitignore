@@ -48,3 +48,6 @@ app.*.map.json
 # Custom
 assets/ref21/*.svg
 assets/ref48/*.svg
+
+# Windows (just used for debugging)
+windows/
