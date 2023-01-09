@@ -155,8 +155,37 @@ class _MySongPageState extends State<MySongPage> {
                 verseIndex == 0)) {
           page.add(getScore(orientation, verseIndex, context));
         } else {
-          page.add(Text(widget.songsInBook[songKey]['texts'][verseIndex],
-              style: TextStyle(fontSize: widget.settingsProvider.fontSize)));
+          page.add(
+            Padding(
+              // Add space between verses.
+              padding: const EdgeInsets.only(bottom: 8),
+              child: RichText(
+                text: TextSpan(children: [
+                  // Display verse number bold.
+                  // Match the first digits in a string followed by a dot and
+                  // a space. Ignore everything else.
+                  TextSpan(
+                    text: RegExp(r'(^\d*. )')
+                            .firstMatch(widget.songsInBook[songKey]['texts']
+                                [verseIndex])
+                            ?.group(0) ??
+                        '',
+                    style: TextStyle(
+                        fontSize: widget.settingsProvider.fontSize,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  // Display rest of verse text normally.
+                  // Match verse number in the same way as before,
+                  // but this time remove it.
+                  TextSpan(
+                      style:
+                          TextStyle(fontSize: widget.settingsProvider.fontSize),
+                      text: widget.songsInBook[songKey]['texts'][verseIndex]
+                          .replaceAll(RegExp(r'(^\d*. )'), ''))
+                ]),
+              ),
+            ),
+          );
         }
 
         // Only display the poet (if exists) below the last verse, and only do
