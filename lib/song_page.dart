@@ -407,7 +407,9 @@ class _MySongPageState extends State<MySongPage> {
                                   .map((pageContentList) {
                                 return Builder(builder: (BuildContext context) {
                                   return Padding(
-                                    padding: const EdgeInsets.all(3.0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 3.0,
+                                    ),
                                     child: CustomScrollView(
                                       key: PageStorageKey(pageContentList),
                                       slivers: [
