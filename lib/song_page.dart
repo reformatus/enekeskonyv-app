@@ -406,19 +406,23 @@ class _MySongPageState extends State<MySongPage> {
                               children: buildPages(orientation, context)
                                   .map((pageContentList) {
                                 return Builder(builder: (BuildContext context) {
-                                  return CustomScrollView(
-                                    key: PageStorageKey(pageContentList),
-                                    slivers: [
-                                      SliverOverlapInjector(
-                                        handle: NestedScrollView
-                                            .sliverOverlapAbsorberHandleFor(
-                                                context),
-                                      ),
-                                      SliverList(
-                                        delegate: SliverChildListDelegate.fixed(
-                                            pageContentList),
-                                      )
-                                    ],
+                                  return Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: CustomScrollView(
+                                      key: PageStorageKey(pageContentList),
+                                      slivers: [
+                                        SliverOverlapInjector(
+                                          handle: NestedScrollView
+                                              .sliverOverlapAbsorberHandleFor(
+                                                  context),
+                                        ),
+                                        SliverList(
+                                          delegate:
+                                              SliverChildListDelegate.fixed(
+                                                  pageContentList),
+                                        )
+                                      ],
+                                    ),
                                   );
                                 });
                               }).toList(),
