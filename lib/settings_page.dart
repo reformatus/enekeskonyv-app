@@ -27,7 +27,7 @@ class _MySettingsPageState extends State<MySettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SettingsSectionTitle("Énekeskönyv"),
+              const SettingsSectionTitle('Énekeskönyv'),
               Platform.isIOS
                   ? Padding(
                       padding: const EdgeInsets.all(8),
@@ -104,7 +104,8 @@ class _MySettingsPageState extends State<MySettingsPage> {
                           onChanged: (ScoreDisplay? value) {
                             setState(() {
                               widget.settingsProvider.changeScoreDisplay(
-                                  value ?? SettingsProvider.defaultScoreDisplay);
+                                  value ??
+                                      SettingsProvider.defaultScoreDisplay);
                             });
                           },
                         ),
@@ -115,7 +116,8 @@ class _MySettingsPageState extends State<MySettingsPage> {
                           onChanged: (ScoreDisplay? value) {
                             setState(() {
                               widget.settingsProvider.changeScoreDisplay(
-                                  value ?? SettingsProvider.defaultScoreDisplay);
+                                  value ??
+                                      SettingsProvider.defaultScoreDisplay);
                             });
                           },
                         ),
@@ -126,7 +128,8 @@ class _MySettingsPageState extends State<MySettingsPage> {
                           onChanged: (ScoreDisplay? value) {
                             setState(() {
                               widget.settingsProvider.changeScoreDisplay(
-                                  value ?? SettingsProvider.defaultScoreDisplay);
+                                  value ??
+                                      SettingsProvider.defaultScoreDisplay);
                             });
                           },
                         ),
@@ -139,8 +142,9 @@ class _MySettingsPageState extends State<MySettingsPage> {
                   value: widget.settingsProvider.appThemeMode,
                   items: ThemeMode.values
                       .map((brightnessSetting) => DropdownMenuItem(
-                          value: brightnessSetting,
-                          child: Text(getThemeModeName(brightnessSetting))))
+                            value: brightnessSetting,
+                            child: Text(getThemeModeName(brightnessSetting)),
+                          ))
                       .toList(),
                   onChanged: ((value) {
                     setState(() {
@@ -156,8 +160,9 @@ class _MySettingsPageState extends State<MySettingsPage> {
                   value: widget.settingsProvider.sheetThemeMode,
                   items: ThemeMode.values
                       .map((brightnessSetting) => DropdownMenuItem(
-                          value: brightnessSetting,
-                          child: Text(getThemeModeName(brightnessSetting))))
+                            value: brightnessSetting,
+                            child: Text(getThemeModeName(brightnessSetting)),
+                          ))
                       .toList(),
                   onChanged: ((value) {
                     setState(() {
@@ -177,6 +182,7 @@ class _MySettingsPageState extends State<MySettingsPage> {
 
 class SettingsSectionTitle extends StatelessWidget {
   final String title;
+
   const SettingsSectionTitle(
     this.title, {
     Key? key,

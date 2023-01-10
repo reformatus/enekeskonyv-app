@@ -16,9 +16,13 @@ class SettingsProvider extends ChangeNotifier {
   bool _initialized = false;
 
   Book get book => _book;
+
   ScoreDisplay get scoreDisplay => _scoreDisplay;
+
   double get fontSize => _fontSize;
+
   ThemeMode get appThemeMode => _appThemeMode;
+
   ThemeMode get sheetThemeMode => _sheetThemeMode;
 
   String get bookAsString {
@@ -61,8 +65,6 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('bookEnum', value.index);
     notifyListeners();
-    // TODO Is it possible that this gets called before .initialize()?
-    _initialized = true;
   }
 
   void changeScoreDisplay(ScoreDisplay value) async {
@@ -70,8 +72,6 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('scoreDisplayEnum', value.index);
     notifyListeners();
-    // TODO Is it possible that this gets called before .initialize()?
-    _initialized = true;
   }
 
   void changeFontSize(double value) async {
@@ -79,8 +79,6 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('fontSize', value);
     notifyListeners();
-    // TODO Is it possible that this gets called before .initialize()?
-    _initialized = true;
   }
 
   void changeAppBrightnessSetting(ThemeMode value) async {
@@ -88,8 +86,6 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('appThemeMode', value.index);
     notifyListeners();
-    //? I don't think seting _initialized to true is appropriate here.
-    //? Other values have not been loaded yet. (-RedyAu)
   }
 
   void changeSheetBrightnessSetting(ThemeMode value) async {
@@ -102,7 +98,7 @@ class SettingsProvider extends ChangeNotifier {
   void initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //! Book
+    //! Book selection.
     try {
       // First try migrating from previous version.
       String? bookMigrateString = prefs.getString('book');
@@ -116,13 +112,13 @@ class SettingsProvider extends ChangeNotifier {
         _book = Book.values[prefs.getInt('bookEnum') ?? defaultBook.index];
       }
 
-      //! Score apperance
+      //! Score appearance.
       _scoreDisplay = ScoreDisplay.values[
           prefs.getInt('scoreDisplayEnum') ?? defaultScoreDisplay.index];
 
       _fontSize = prefs.getDouble('fontSize') ?? defaultFontSize;
 
-      //! Brightness
+      //! Brightness.
       _appThemeMode = ThemeMode
           .values[prefs.getInt('appThemeMode') ?? defaultAppThemeMode.index];
 
@@ -174,10 +170,10 @@ String getScoreDisplayName(ScoreDisplay scoreDisplay) {
 String getThemeModeName(ThemeMode themeMode) {
   switch (themeMode) {
     case ThemeMode.system:
-      return "Rendszer";
+      return 'Rendszer';
     case ThemeMode.dark:
-      return "Sötét";
+      return 'Sötét';
     case ThemeMode.light:
-      return "Világos";
+      return 'Világos';
   }
 }
