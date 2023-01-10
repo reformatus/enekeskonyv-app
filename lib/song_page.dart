@@ -70,8 +70,8 @@ class _MySongPageState extends State<MySongPage> {
     List<Widget> getFirstVerseHeader() {
       final List<Widget> firstVerseHeader = [];
       switch (widget.settingsProvider.book) {
-        // In case of the black book (48), the subtitle and the composer
-        // should be displayed.
+        // In case of the black book (48), the subtitle and the composer should
+        // be displayed.
         case Book.black:
           if (widget.songsInBook[songKey]['subtitle'] is String) {
             firstVerseHeader.add(Text(widget.songsInBook[songKey]['subtitle']));
@@ -84,8 +84,7 @@ class _MySongPageState extends State<MySongPage> {
           }
           break;
 
-        // In case of the blue book (21), all the metadata should be
-        // displayed.
+        // In case of the blue book (21), all the metadata should be displayed.
         case Book.blue:
         default:
           final List<String> metadata = [];
@@ -111,8 +110,8 @@ class _MySongPageState extends State<MySongPage> {
 
     Widget getScore(
         Orientation orientation, int verseIndex, BuildContext context) {
-      // The actual verse number is the number (well, any text) before the
-      // first dot of the verse text.
+      // The actual verse number is the number (well, any text) before the first
+      // dot of the verse text.
       final verseNumber =
           widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
       final fileName =
@@ -124,8 +123,8 @@ class _MySongPageState extends State<MySongPage> {
               '.svg';
       return SvgPicture.asset(
         fileName,
-        // The score should utilize the full width of the screen, regardless
-        // its size. This covers two cases:
+        // The score should utilize the full width of the screen, regardless its
+        // size. This covers two cases:
         // - rotating the device,
         // - devices with different widths.
         width: MediaQuery.of(context).size.width *
@@ -139,7 +138,8 @@ class _MySongPageState extends State<MySongPage> {
         Orientation orientation, BuildContext context) {
       // Nested list; a page is just a list of widgets.
       final List<List<Widget>> pages = [];
-      // Let's collect the list items for the current page.
+      // Collects the list items for the current page. When not all verses
+      // should have scores displayed, the song consists of one single page.
       var page = <Widget>[];
       for (var verseIndex = 0;
           verseIndex < widget.songsInBook[songKey]['texts'].length;
@@ -161,27 +161,28 @@ class _MySongPageState extends State<MySongPage> {
               padding: const EdgeInsets.only(bottom: 8),
               child: RichText(
                 text: TextSpan(
-                    style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyText1!.color,
-                        fontSize: widget.settingsProvider.fontSize),
-                    children: [
-                      // Display verse number bold.
-                      // Split the text at the '.' characters,
-                      // only show first part.
-                      TextSpan(
-                        text:
-                            '${widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0]}.',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      // Display rest of verse text normally.
-                      // Split the text at the '.' characters,
-                      // ignore the first part and show the rest.
-                      TextSpan(
-                          text: widget.songsInBook[songKey]['texts'][verseIndex]
-                              .split('.')
-                              .skip(1)
-                              .join('.')),
-                    ]),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    fontSize: widget.settingsProvider.fontSize,
+                  ),
+                  children: [
+                    // Display verse number (everything before and including
+                    // the first dot) in bold.
+                    TextSpan(
+                      text:
+                          '${widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0]}.',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    // Display rest of verse text normally (split at dots,
+                    // skip the first slice, join the rest).
+                    TextSpan(
+                      text: widget.songsInBook[songKey]['texts'][verseIndex]
+                          .split('.')
+                          .skip(1)
+                          .join('.'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -206,6 +207,8 @@ class _MySongPageState extends State<MySongPage> {
           page = <Widget>[];
         }
       }
+      // When NOT all verses should have scores displayed, the single page that
+      // has been built so far should definitely be displayed.
       if (widget.settingsProvider.scoreDisplay != ScoreDisplay.all) {
         pages.add(page);
       }
@@ -234,8 +237,8 @@ class _MySongPageState extends State<MySongPage> {
         } else if (_song > 0) {
           _song--;
           if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
-            // This songKey must be recalculated to be able to fetch the number of
-            // verses for the previous song.
+            // This songKey must be recalculated to be able to fetch the number
+            // of verses for the previous song.
             songKey = widget.songsInBook.keys.elementAt(_song);
             _verse = widget.songsInBook[songKey]['texts'].length - 1;
           } else {
@@ -358,136 +361,153 @@ class _MySongPageState extends State<MySongPage> {
 
     return Scaffold(
       // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-      body: OrientationBuilder(builder: (context, orientation) {
-        return SafeArea(
-          child: Container(
-            margin: const EdgeInsets.only(top: 1.0, bottom: 1.0),
-            child: Flex(
-              direction: orientation == Orientation.portrait
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              children: [
-                Expanded(
-                  child: NestedScrollView(
-                    controller: scrollController,
-                    headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                      return [
-                        SliverOverlapAbsorber(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context),
-                          sliver: SliverAppBar(
-                            pinned: orientation == Orientation.portrait,
-                            // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                            expandedHeight: 57,
-                            title: Text(
-                              getSongTitle(widget.songsInBook[songKey]),
-                              style: const TextStyle(fontSize: 18),
-                              maxLines: 2,
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return SafeArea(
+            child: Container(
+              // Prevent screen artifacts (single-pixel line with opposing
+              // color) on certain devices.
+              margin: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+              child: Flex(
+                direction: orientation == Orientation.portrait
+                    ? Axis.vertical
+                    : Axis.horizontal,
+                children: [
+                  Expanded(
+                    child: NestedScrollView(
+                      controller: scrollController,
+                      headerSliverBuilder: ((context, innerBoxIsScrolled) {
+                        return [
+                          SliverOverlapAbsorber(
+                            handle:
+                                NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                    context),
+                            sliver: SliverAppBar(
+                              pinned: orientation == Orientation.portrait,
+                              // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                              expandedHeight: 57,
+                              title: Text(
+                                getSongTitle(widget.songsInBook[songKey]),
+                                style: const TextStyle(fontSize: 18),
+                                maxLines: 2,
+                              ),
                             ),
                           ),
-                        ),
-                      ];
-                    }),
-                    body: Theme(
-                      data: ThemeData(
+                        ];
+                      }),
+                      body: Theme(
+                        data: ThemeData(
                           useMaterial3: true,
                           brightness: widget.settingsProvider
-                              .getCurrentSheetBrightness(context)),
-                      // Needs a separate [Material] and [Builder] for
-                      // providing a new BuildContext to children properly.
-                      child: Builder(builder: (BuildContext context) {
-                        return Material(
-                          child: GestureDetector(
-                            onTapDown: (details) {
-                              tapDownPosition = details.globalPosition;
-                            },
-                            onTapUp: (details) {
-                              // Bail out early if tap ended more than 3.0 away from
-                              // where it started.
-                              if ((details.globalPosition - tapDownPosition)
-                                      .distance >
-                                  3.0) {
-                                return;
-                              }
-                              setState(() {
-                                if ((MediaQuery.of(context).size.width / 2) >
-                                    details.globalPosition.dx) {
-                                  // Go backward (to the previous verse).
-                                  switchVerse(false);
-                                } else {
-                                  // Go forward (to the next verse).
-                                  switchVerse(true);
-                                }
-                              });
-                            },
-                            child: PageView(
-                              controller: pageController,
-                              onPageChanged: (i) {
-                                setState(() {
-                                  _verse = i;
-                                });
-                              },
-                              physics: Platform.isIOS
-                                  ? const BouncingScrollPhysics()
-                                  : null,
-                              children: buildPages(orientation, context)
-                                  .map((pageContentList) {
-                                return Builder(builder: (BuildContext context) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 3.0,
-                                    ),
-                                    child: CustomScrollView(
-                                      key: PageStorageKey(pageContentList),
-                                      slivers: [
-                                        SliverOverlapInjector(
-                                          handle: NestedScrollView
-                                              .sliverOverlapAbsorberHandleFor(
-                                                  context),
-                                        ),
-                                        SliverList(
-                                          delegate:
-                                              SliverChildListDelegate.fixed(
-                                                  pageContentList),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                });
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      }),
+                              .getCurrentSheetBrightness(context),
+                        ),
+                        // Needs a separate [Material] and [Builder] for
+                        // providing a new BuildContext to children properly.
+                        child: Builder(
+                          builder: (BuildContext context) {
+                            return Material(
+                              child: GestureDetector(
+                                onTapDown: (details) {
+                                  tapDownPosition = details.globalPosition;
+                                },
+                                onTapUp: (details) {
+                                  // Bail out early if tap ended more than 3.0
+                                  // away from where it started.
+                                  if ((details.globalPosition - tapDownPosition)
+                                          .distance >
+                                      3.0) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    if ((MediaQuery.of(context).size.width /
+                                            2) >
+                                        details.globalPosition.dx) {
+                                      // Go backward (to the previous verse).
+                                      switchVerse(false);
+                                    } else {
+                                      // Go forward (to the next verse).
+                                      switchVerse(true);
+                                    }
+                                  });
+                                },
+                                child: PageView(
+                                  controller: pageController,
+                                  onPageChanged: (i) {
+                                    setState(() {
+                                      _verse = i;
+                                    });
+                                  },
+                                  physics: Platform.isIOS
+                                      ? const BouncingScrollPhysics()
+                                      : null,
+                                  children: buildPages(orientation, context)
+                                      .map((pageContentList) {
+                                    return Builder(
+                                      builder: (BuildContext context) {
+                                        return Padding(
+                                          // Prevent having score and/or text
+                                          // sticking to the side of the
+                                          // display.
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 3.0,
+                                          ),
+                                          child: CustomScrollView(
+                                            key:
+                                                PageStorageKey(pageContentList),
+                                            slivers: [
+                                              SliverOverlapInjector(
+                                                handle: NestedScrollView
+                                                    .sliverOverlapAbsorberHandleFor(
+                                                        context),
+                                              ),
+                                              SliverList(
+                                                delegate:
+                                                    SliverChildListDelegate
+                                                        .fixed(pageContentList),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Theme(
-                  data: ThemeData(
+                  Theme(
+                    data: ThemeData(
                       useMaterial3: true,
                       brightness: widget.settingsProvider
-                          .getCurrentSheetBrightness(context)),
-                  child: Builder(builder: (BuildContext context) {
-                    return Material(
-                      color: Theme.of(context).cardColor,
-                      child: Flex(
-                        direction: orientation == Orientation.portrait
-                            ? Axis.horizontal
-                            : Axis.vertical,
-                        // Make the buttons "justified" (ie. use all the screen
-                        // width).
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: controllerButtons,
-                      ),
-                    );
-                  }),
-                ),
-              ],
+                          .getCurrentSheetBrightness(context),
+                    ),
+                    child: Builder(
+                      builder: (BuildContext context) {
+                        return Material(
+                          color: Theme.of(context).cardColor,
+                          child: Flex(
+                            direction: orientation == Orientation.portrait
+                                ? Axis.horizontal
+                                : Axis.vertical,
+                            // Make the buttons "justified" (ie. use all the
+                            // screen width).
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: controllerButtons,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
       key: const Key('_MySongPageState'),
     );
   }

@@ -57,8 +57,8 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // To save some screen estate, reuse the page title for the search
-        // input field.
+        // To save some screen estate, reuse the page title for the search input
+        // field.
         title: PlatformAwareTextField(
           hintText: 'Keresendő szöveg (3+ betű)',
           onChanged: (searchText) {

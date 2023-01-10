@@ -71,16 +71,20 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
             if (Platform.isIOS)
               Material(
                 color: Theme.of(context).bottomAppBarColor,
-                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  // TODO future place of 'Tovább' button for entering verse number.
-                  SizedBox(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // TODO Add 'Next' button here for entering verse number.
+                    SizedBox(
                       width: 100,
                       child: CupertinoDialogAction(
                           child: const Text('Ugrás'),
                           onPressed: () {
                             onFieldSubmitted(controller.text);
-                          })),
-                ]),
+                          }),
+                    ),
+                  ],
+                ),
               )
           ],
         ),
@@ -99,20 +103,18 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
             return MySongPage(
               songsInBook: widget.songs,
               settingsProvider: widget.settingsProvider,
-              // As we want to be able to turn page by page (ie.
-              // verse by verse), we need to go to the Nth song
-              // in the book (from the ListView the user sees).
-              // So we need to look up the index of the song
-              // whose number was entered (eg. for the 2021
-              // book, we need the 198th song from the list when
-              // the user wants to navigate to song #201).
+              // As we want to be able to turn page by page (ie. verse by
+              // verse), we need to go to the Nth song in the book (from the
+              // ListView the user sees). So we need to look up the index of the
+              // song whose number was entered (eg. for the 2021 book, we need
+              // the 198th song from the list when the user wants to navigate to
+              // song #201).
               songIndex: widget.songs.keys.toList().indexOf(details),
             );
           },
         ),
       );
-      // Clear the TextFormField after returning from the song
-      // page.
+      // Clear the TextFormField after returning from the song page.
       // @see https://stackoverflow.com/a/57747739
       controller.clear();
     }
@@ -158,7 +160,8 @@ class PlatformAwareTextFormField extends StatelessWidget {
               ],
               validator: validator,
               onFieldSubmitted: onFieldSubmitted,
-            ))
+            ),
+          )
         : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: TextFormField(
