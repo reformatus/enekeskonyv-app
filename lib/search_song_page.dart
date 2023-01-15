@@ -33,8 +33,7 @@ class MySearchSongPage extends StatefulWidget {
 
 class _MySearchSongPageState extends State<MySearchSongPage> {
   List<SearchVerse> allSearchVerses = [];
-  List<SearchVerse> foundVerses = [];
-  String searchPhrase = '';
+  List<ListTile> searchResults = [];
 
   @override
   void initState() {
@@ -54,6 +53,83 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     });
   }
 
+  void _updateSearchResults(String searchText) {
+    searchResults = [];
+    String lastSongSeen = '';
+    for (var element in allSearchVerses) {
+      // Continue with next verse if search text is not found in this one.
+      if (!(element.text.toLowerCase().contains(searchText.toLowerCase()))) {
+        continue;
+      }
+      // Add the song title as a header for its found verses.
+      if (lastSongSeen != element.songKey) {
+        lastSongSeen = element.songKey;
+        searchResults.add(ListTile(
+          title: Text(
+            '${element.songKey}. ${widget.songs[element.songKey]['title']}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          // Song titles should have no left padding.
+          contentPadding: const EdgeInsets.only(
+            left: 3,
+            right: 3,
+          ),
+        ));
+      }
+
+      // Highlight search text by making it bold.
+      final matchPosition =
+          element.text.toLowerCase().indexOf(searchText.toLowerCase());
+      List<TextSpan> titleSpans = [
+        TextSpan(
+          text: element.text.substring(0, matchPosition),
+        ),
+        TextSpan(
+          text: element.text
+              .substring(matchPosition, matchPosition + searchText.length),
+          style: const TextStyle(
+            // This is the boldest possible choice; changing the color is not
+            // really an option as both dark and light modes should be
+            // supported.
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        TextSpan(
+          text: element.text.substring(matchPosition + searchText.length),
+        ),
+      ];
+
+      searchResults.add(ListTile(
+        title: RichText(
+          text: TextSpan(
+            children: titleSpans,
+          ),
+        ),
+        // Search result verses should be left-indented.
+        contentPadding: const EdgeInsets.only(
+          left: 15,
+          right: 3,
+        ),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return MySongPage(
+                  songsInBook: widget.songs,
+                  settingsProvider: widget.settingsProvider,
+                  songIndex:
+                      widget.songs.keys.toList().indexOf(element.songKey),
+                  verseIndex: element.verseIndex,
+                );
+              },
+            ),
+          );
+        },
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,23 +140,14 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
           hintText: 'Keresendő szöveg (3+ betű)',
           onChanged: (searchText) {
             if (searchText.length >= 3) {
-              // Remember the search text to be able to highlight it.
-              searchPhrase = searchText;
-              // Update the list of found verses if there are at least 3
-              // characters typed.
-              final suggestions = allSearchVerses.where((verse) {
-                final verseText = verse.text.toLowerCase();
-                final input = searchText.toLowerCase();
-                return verseText.contains(input);
-              }).toList();
               setState(() {
-                foundVerses = suggestions;
+                _updateSearchResults(searchText);
               });
             } else {
               // When less than 3 characters typed, empty the list.
-              if (foundVerses.isNotEmpty) {
+              if (searchResults.isNotEmpty) {
                 setState(() {
-                  foundVerses = [];
+                  searchResults = [];
                 });
               }
             }
@@ -91,50 +158,9 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: foundVerses.length,
+              itemCount: searchResults.length,
               itemBuilder: (context, index) {
-                final verse = foundVerses[index];
-                // Highlight search phrase by making it bold.
-                final matchPosition = verse.text.toLowerCase().indexOf(searchPhrase.toLowerCase());
-                List<TextSpan> titleSpans = [
-                  TextSpan(
-                    text: '${verse.songKey}/${verse.text.substring(0, matchPosition)}',
-                  ),
-                  TextSpan(
-                    text: verse.text.substring(matchPosition, matchPosition + searchPhrase.length),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextSpan(
-                    text: verse.text.substring(matchPosition + searchPhrase.length),
-                  ),
-                ];
-
-                return ListTile(
-                  title: RichText(
-                    text: TextSpan(
-                      children: titleSpans,
-                    ),
-                  ),
-                  onTap: () {
-                    var tappedVerse = foundVerses[index];
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MySongPage(
-                            songsInBook: widget.songs,
-                            settingsProvider: widget.settingsProvider,
-                            songIndex: widget.songs.keys
-                                .toList()
-                                .indexOf(tappedVerse.songKey),
-                            verseIndex: tappedVerse.verseIndex,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                );
+                return searchResults[index];
               },
             ),
           ),
