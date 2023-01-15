@@ -34,6 +34,7 @@ class MySearchSongPage extends StatefulWidget {
 class _MySearchSongPageState extends State<MySearchSongPage> {
   List<SearchVerse> allSearchVerses = [];
   List<SearchVerse> foundVerses = [];
+  String searchPhrase = '';
 
   @override
   void initState() {
@@ -63,6 +64,8 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
           hintText: 'Keresendő szöveg (3+ betű)',
           onChanged: (searchText) {
             if (searchText.length >= 3) {
+              // Remember the search text to be able to highlight it.
+              searchPhrase = searchText;
               // Update the list of found verses if there are at least 3
               // characters typed.
               final suggestions = allSearchVerses.where((verse) {
@@ -91,9 +94,29 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
               itemCount: foundVerses.length,
               itemBuilder: (context, index) {
                 final verse = foundVerses[index];
+                // Highlight search phrase by making it bold.
+                final matchPosition = verse.text.toLowerCase().indexOf(searchPhrase.toLowerCase());
+                List<TextSpan> titleSpans = [
+                  TextSpan(
+                    text: '${verse.songKey}/${verse.text.substring(0, matchPosition)}',
+                  ),
+                  TextSpan(
+                    text: verse.text.substring(matchPosition, matchPosition + searchPhrase.length),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: verse.text.substring(matchPosition + searchPhrase.length),
+                  ),
+                ];
 
                 return ListTile(
-                  title: Text('${verse.songKey}/${verse.text}'),
+                  title: RichText(
+                    text: TextSpan(
+                      children: titleSpans,
+                    ),
+                  ),
                   onTap: () {
                     var tappedVerse = foundVerses[index];
                     Navigator.of(context).push(
