@@ -51,7 +51,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                         helperText: '(1 és ${widget.songs.keys.last} között)',
                         focusNode: _myFocusNode,
                         controller: controller,
-                        onFieldSubmitted: onFieldSubmitted,
+                        onFieldSubmitted: _onFieldSubmitted,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Írj be egy számot!';
@@ -80,7 +80,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                       child: CupertinoDialogAction(
                           child: const Text('Ugrás'),
                           onPressed: () {
-                            onFieldSubmitted(controller.text);
+                            _onFieldSubmitted(controller.text);
                           }),
                     ),
                   ],
@@ -92,7 +92,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
     );
   }
 
-  onFieldSubmitted(details) {
+  _onFieldSubmitted(details) {
     // Validate returns true if the form is valid, or false
     // otherwise.
     if (_formKey.currentState!.validate()) {
