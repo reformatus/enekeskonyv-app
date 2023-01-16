@@ -1,0 +1,19 @@
+name: Analyze, test
+
+on:
+  push:
+    branches: release
+  pull_request:
+    branches: release
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: 'stable'
+      - name: Analyze project
+        run: flutter analyze --no-fatal-warnings
+      - name: Test project
+        run: flutter test
