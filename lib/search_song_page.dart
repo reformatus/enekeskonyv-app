@@ -88,11 +88,10 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         TextSpan(
           text: element.text
               .substring(matchPosition, matchPosition + searchText.length),
-          style: const TextStyle(
-            // This is the boldest possible choice; changing the color is not
-            // really an option as both dark and light modes should be
-            // supported.
+          style: TextStyle(
+            // This is the boldest possible choice.
             fontWeight: FontWeight.w900,
+            color: Theme.of(context).indicatorColor,
           ),
         ),
         TextSpan(
