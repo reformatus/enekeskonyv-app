@@ -1,10 +1,10 @@
-name: Flutter
+name: Analyze, test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: main
   pull_request:
-    branches: [ $default-branch ]
+    branches: main
 
 jobs:
   analyze:
@@ -15,3 +15,5 @@ jobs:
           channel: 'stable'
       - name: Analyze project
         run: flutter analyze --no-fatal-warnings
+      - name: Test project
+        run: flutter test
