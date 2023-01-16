@@ -102,6 +102,12 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
       searchResults.add(ListTile(
         title: RichText(
           text: TextSpan(
+            // Without this explicit color, the search results would be
+            // illegible when the app is in light mode. This makes it legible in
+            // both dark and light modes.
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyText1!.color,
+            ),
             children: titleSpans,
           ),
         ),
