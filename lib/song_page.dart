@@ -278,6 +278,7 @@ class _MySongPageState extends State<MySongPage> {
       controllerButtons.add(IconButton(
         onPressed: _verse == 0 ? null : () => switchVerse(false),
         icon: const Icon(Icons.arrow_circle_left_outlined),
+        tooltip: "Előző vers",
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.prevVerse'),
       ));
@@ -296,6 +297,7 @@ class _MySongPageState extends State<MySongPage> {
               });
             },
       iconData: Icons.arrow_upward,
+      tooltip: "Előző ének",
       disabledColor: ThemeData.dark().highlightColor,
       key: const Key('_MySongPageState.IconButton.prevSong'),
       alignment: Alignment.topRight,
@@ -313,6 +315,7 @@ class _MySongPageState extends State<MySongPage> {
                 }
             : null,
         icon: const Icon(Icons.text_increase),
+        tooltip: "Betűméret növelése",
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.textIncrease'),
       ));
@@ -338,6 +341,7 @@ class _MySongPageState extends State<MySongPage> {
                 }
             : null,
         icon: const Icon(Icons.text_decrease),
+        tooltip: "Betűméret csökkentése",
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.textDecrease'),
       ));
@@ -356,6 +360,7 @@ class _MySongPageState extends State<MySongPage> {
               });
             },
       iconData: Icons.arrow_downward,
+      tooltip: "Következő ének",
       disabledColor: ThemeData.dark().highlightColor,
       key: const Key('_MySongPageState.IconButton.nextSong'),
       alignment: Alignment.bottomRight,
@@ -368,6 +373,7 @@ class _MySongPageState extends State<MySongPage> {
             ? null
             : () => switchVerse(true),
         icon: const Icon(Icons.arrow_circle_right_outlined),
+        tooltip: "Következő vers",
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.nextVerse'),
       ));
@@ -530,6 +536,7 @@ class _MySongPageState extends State<MySongPage> {
 class TextIconButton extends StatelessWidget {
   final void Function()? onTap;
   final String? text;
+  final String? tooltip;
   final IconData iconData;
   final Color disabledColor;
   final BuildContext context;
@@ -537,6 +544,7 @@ class TextIconButton extends StatelessWidget {
 
   const TextIconButton(
       {Key? key,
+      this.tooltip,
       required this.text,
       required this.onTap,
       required this.iconData,
@@ -547,31 +555,34 @@ class TextIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Stack(
-          alignment: text != null ? alignment : Alignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
-              child: Text(
-                text ?? '',
-                style: TextStyle(color: onTap != null ? null : disabledColor),
+    return Tooltip(
+      message: tooltip,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Stack(
+            alignment: text != null ? alignment : Alignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
+                child: Text(
+                  text ?? '',
+                  style: TextStyle(color: onTap != null ? null : disabledColor),
+                ),
               ),
-            ),
-            Icon(iconData, color: onTap != null ? null : disabledColor),
-          ],
-        ),
-        InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: const SizedBox(
-            width: 50,
-            height: 50,
+              Icon(iconData, color: onTap != null ? null : disabledColor),
+            ],
           ),
-        ),
-      ],
+          InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: const SizedBox(
+              width: 50,
+              height: 50,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
