@@ -8,6 +8,8 @@ import 'package:wakelock/wakelock.dart';
 import 'settings_provider.dart';
 import 'util.dart';
 
+import 'quick_settings_dialog.dart';
+
 class MySongPage extends StatefulWidget {
   const MySongPage(
       {Key? key,
@@ -314,6 +316,18 @@ class _MySongPageState extends State<MySongPage> {
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.textIncrease'),
       ));
+    }
+    controllerButtons.add(IconButton(
+      icon: Icon(Icons.menu),
+      tooltip: "Gyorsmenü",
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => quickSettingsDialog(context),
+        );
+      },
+    ));
+    if (widget.settingsProvider.scoreDisplay != ScoreDisplay.all) {
       controllerButtons.add(IconButton(
         onPressed: widget.settingsProvider.fontSize > 10.0
             ? () => {
