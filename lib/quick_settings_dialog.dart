@@ -17,7 +17,8 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
             shrinkWrap: true,
             children: [
               const SizedBox(height: 10),
-              const SettingsSectionTitle('Kapcsolódó'),
+              if (songData["links"].isNotEmpty)
+                const SettingsSectionTitle('Kapcsolódó'),
               ...songData["links"].map(
                 (e) => RelatedTile(
                   songLink: e["link"]!,
@@ -25,7 +26,8 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
                   provider: provider,
                 ),
               ),
-              const Divider(endIndent: 70, indent: 70),
+              if (songData["links"].isNotEmpty)
+                const Divider(endIndent: 70, indent: 70),
               const SettingsSectionTitle('Beállítások'),
               const SettingsSectionTitle('Kotta', subtitle: true),
               Platform.isIOS
