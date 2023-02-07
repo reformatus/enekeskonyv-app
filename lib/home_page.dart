@@ -35,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
         await rootBundle.loadString('assets/enekeskonyv.json');
     _songs = (await compute(json.decode, response))
         as LinkedHashMap<String, dynamic>;
+    globalSongs = _songs;
     setState(() {});
   }
 
