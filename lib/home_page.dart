@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'settings_provider.dart';
 import 'goto_song_form.dart';
 import 'search_song_page.dart';
-import 'settings_page.dart';
 import 'song_page.dart';
 import 'util.dart';
 
@@ -69,60 +68,81 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         return Scaffold(
           appBar: AppBar(
-            title: Text('Énekeskönyv (${provider.bookAsString})'),
+            title: Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Book>(
+                      isExpanded: true,
+                      value: provider.book,
+                      items: [
+                        DropdownMenuItem(
+                          value: Book.black,
+                          child: Text(
+                            "${getBookName(Book.black)} énekeskönyv",
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 20),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: Book.blue,
+                          child: Text(
+                            "${getBookName(Book.blue)} énekeskönyv",
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal, fontSize: 20),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) => provider.changeBook(value!),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    // @see https://www.youtube.com/watch?v=Xdt8TlwNRAM
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return MySearchSongPage(
+                            songs: _songs[provider.bookAsString],
+                            settingsProvider: provider,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.search_outlined),
+                  tooltip: "Keresés",
+                  key: const Key('_MyHomePageState.SearchSongButton'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return MyGotoSongForm(
+                            songs: _songs[provider.bookAsString],
+                            settingsProvider: provider,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.apps),
+                  tooltip: "Ugrás énekre",
+                  key: const Key('_MyHomePageState.GotoSongButton'),
+                ),
+              ],
+            ),
             bottom: (_songs.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(0),
                     child: LinearProgressIndicator())
                 : null,
-            actions: [
-              IconButton(
-                onPressed: () {
-                  // @see https://www.youtube.com/watch?v=Xdt8TlwNRAM
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return MySearchSongPage(
-                          songs: _songs[provider.bookAsString],
-                          settingsProvider: provider,
-                        );
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.search_outlined),
-                key: const Key('_MyHomePageState.SearchSongButton'),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return MyGotoSongForm(
-                          songs: _songs[provider.bookAsString],
-                          settingsProvider: provider,
-                        );
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.apps),
-                key: const Key('_MyHomePageState.GotoSongButton'),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return MySettingsPage(settingsProvider: provider);
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.settings),
-                key: const Key('_MyHomePageState.SettingsButton'),
-              ),
-            ],
           ),
           body: (_songs.isEmpty)
               ? null
