@@ -3,6 +3,7 @@ import 'dart:convert' show json;
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -32,9 +33,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _readJson() async {
     final String response =
         await rootBundle.loadString('assets/enekeskonyv.json');
-    setState(() {
-      _songs = json.decode(response);
-    });
+    _songs = (await compute(json.decode, response))
+        as LinkedHashMap<String, dynamic>;
+    setState(() {});
   }
 
   @override
@@ -56,9 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // On the initial run this might be empty (while the song file is not read
     // yet). To prevent errors below, let's display a throbber instead.
-    if (_songs.isEmpty) {
-      return const Scaffold();
-    }
 
     return Consumer<SettingsProvider>(
       builder: (context, provider, child) {
@@ -71,6 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
         return Scaffold(
           appBar: AppBar(
             title: Text('Énekeskönyv (${provider.bookAsString})'),
+            bottom: (_songs.isEmpty)
+                ? const PreferredSize(
+                    preferredSize: Size.fromHeight(0),
+                    child: LinearProgressIndicator())
+                : null,
             actions: [
               IconButton(
                 onPressed: () {
@@ -120,37 +123,40 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          body: CupertinoScrollbar(
-            // Using CupertinoScrollbar on Android too (looks better and is
-            // interactive by default). Also, it should be wide enough to be
-            // useful for a finger (to be able to scroll through the whole list
-            // which is quite long).
-            thickness: 10.0,
-            child: ListView.builder(
-              physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
-              itemCount: _songs[provider.bookAsString].length,
-              itemBuilder: (context, i) {
-                return ListTile(
-                  title: Text(getSongTitle(_songs[provider.bookAsString]
-                      [_songs[provider.bookAsString].keys.elementAt(i)])),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MySongPage(
-                            songsInBook: _songs[provider.bookAsString],
-                            settingsProvider: provider,
-                            songIndex: i,
+          body: (_songs.isEmpty)
+              ? null
+              : CupertinoScrollbar(
+                  // Using CupertinoScrollbar on Android too (looks better and is
+                  // interactive by default). Also, it should be wide enough to be
+                  // useful for a finger (to be able to scroll through the whole list
+                  // which is quite long).
+                  thickness: 10.0,
+                  child: ListView.builder(
+                    physics:
+                        Platform.isIOS ? const BouncingScrollPhysics() : null,
+                    itemCount: _songs[provider.bookAsString].length,
+                    itemBuilder: (context, i) {
+                      return ListTile(
+                        title: Text(getSongTitle(_songs[provider.bookAsString]
+                            [_songs[provider.bookAsString].keys.elementAt(i)])),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return MySongPage(
+                                  songsInBook: _songs[provider.bookAsString],
+                                  settingsProvider: provider,
+                                  songIndex: i,
+                                );
+                              },
+                            ),
                           );
                         },
-                      ),
-                    );
-                  },
-                  key: const Key('_MyHomePageState.ListTile'),
-                );
-              },
-            ),
-          ),
+                        key: const Key('_MyHomePageState.ListTile'),
+                      );
+                    },
+                  ),
+                ),
           key: const Key('_MyHomePageState'),
         );
       },
