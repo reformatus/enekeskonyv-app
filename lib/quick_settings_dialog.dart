@@ -125,16 +125,16 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
     );
 
 class RelatedTile extends StatelessWidget {
-  RelatedTile({
+  const RelatedTile({
     required this.songLink,
     required this.relatedReason,
     required this.provider,
     Key? key,
   }) : super(key: key);
 
-  String songLink;
-  String relatedReason;
-  SettingsProvider provider;
+  final String songLink;
+  final String relatedReason;
+  final SettingsProvider provider;
 
   @override
   Widget build(BuildContext context) {
