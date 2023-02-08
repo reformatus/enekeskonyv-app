@@ -321,7 +321,7 @@ class _MySongPageState extends State<MySongPage> {
       ));
     }
     controllerButtons.add(IconButton(
-      icon: Icon(Icons.menu),
+      icon: const Icon(Icons.menu),
       tooltip: "Gyorsmenü",
       onPressed: () {
         showDialog(
