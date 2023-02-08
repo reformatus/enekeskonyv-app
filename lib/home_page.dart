@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             bottom: (_songs.isEmpty)
                 ? const PreferredSize(
-                    preferredSize: Size.fromHeight(0),
+                    preferredSize: Size.fromHeight(3),
                     child: LinearProgressIndicator())
                 : null,
           ),
