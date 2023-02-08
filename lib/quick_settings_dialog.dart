@@ -152,14 +152,14 @@ class RelatedTile extends StatelessWidget {
       )),
       title: Text(relatedReason),
       onTap: () async {
-        // HACK - needs refactor
+        await provider.changeBook(book);
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) {
-            provider.changeBook(book);
             return MySongPage(
               songsInBook: globalSongs[provider.bookAsString],
               settingsProvider: provider,
+              // HACK - needs refactor
               songIndex: globalSongs[provider.bookAsString]
                   .keys
                   .toList()
