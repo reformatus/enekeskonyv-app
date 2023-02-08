@@ -60,42 +60,42 @@ class SettingsProvider extends ChangeNotifier {
 
   bool get initialized => _initialized;
 
-  void changeBook(Book value) async {
+  Future changeBook(Book value) async {
     _book = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('bookEnum', value.index);
     notifyListeners();
   }
 
-  void changeScoreDisplay(ScoreDisplay value) async {
+  Future changeScoreDisplay(ScoreDisplay value) async {
     _scoreDisplay = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('scoreDisplayEnum', value.index);
     notifyListeners();
   }
 
-  void changeFontSize(double value) async {
+  Future changeFontSize(double value) async {
     _fontSize = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('fontSize', value);
     notifyListeners();
   }
 
-  void changeAppBrightnessSetting(ThemeMode value) async {
+  Future changeAppBrightnessSetting(ThemeMode value) async {
     _appThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('appThemeMode', value.index);
     notifyListeners();
   }
 
-  void changeSheetBrightnessSetting(ThemeMode value) async {
+  Future changeSheetBrightnessSetting(ThemeMode value) async {
     _sheetThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('sheetThemeMode', value.index);
     notifyListeners();
   }
 
-  void initialize() async {
+  Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     //! Book selection.
