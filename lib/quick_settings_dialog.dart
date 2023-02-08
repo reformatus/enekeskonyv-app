@@ -138,8 +138,8 @@ class RelatedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String songId = songLink.split("/").last;
-    Book book = songLink.split("/").first == '21' ? Book.blue : Book.black;
+    String songId = songLink.split('/').last;
+    Book book = songLink.split('/').first == '21' ? Book.blue : Book.black;
 
     return ListTile(
       leading: Card(
