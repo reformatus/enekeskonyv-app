@@ -17,17 +17,18 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
             shrinkWrap: true,
             children: [
               const SizedBox(height: 10),
-              if (songData["links"].isNotEmpty)
+              if (songData["links"] != null &&
+                  songData["links"].isNotEmpty) ...[
                 const SettingsSectionTitle('Kapcsolódó'),
-              ...songData["links"].map(
-                (e) => RelatedTile(
-                  songLink: e["link"]!,
-                  relatedReason: e["text"]!,
-                  provider: provider,
+                ...songData["links"].map(
+                  (e) => RelatedTile(
+                    songLink: e["link"]!,
+                    relatedReason: e["text"]!,
+                    provider: provider,
+                  ),
                 ),
-              ),
-              if (songData["links"].isNotEmpty)
                 const Divider(endIndent: 70, indent: 70),
+              ],
               const SettingsSectionTitle('Beállítások'),
               const SettingsSectionTitle('Kotta', subtitle: true),
               Platform.isIOS
