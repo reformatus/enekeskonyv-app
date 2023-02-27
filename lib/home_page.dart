@@ -78,9 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       value: provider.book,
                       items: [
                         DropdownMenuItem(
-                          value: Book.black,
+                          value: Book.blue,
                           child: Text(
-                            "${getBookName(Book.black)} énekeskönyv",
+                            "Énekeskönyv (${Book.blue.name})",
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
@@ -88,9 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         DropdownMenuItem(
-                          value: Book.blue,
+                          value: Book.black,
                           child: Text(
-                            "${getBookName(Book.blue)} énekeskönyv",
+                            "Énekeskönyv (${Book.black.name})",
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
@@ -180,6 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               builder: (context) {
                                 return MySongPage(
                                   songsInBook: _songs[provider.bookAsString],
+                                  book: provider.book,
                                   settingsProvider: provider,
                                   songIndex: i,
                                 );

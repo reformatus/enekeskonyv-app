@@ -153,18 +153,15 @@ class RelatedTile extends StatelessWidget {
       )),
       title: Text(relatedReason),
       onTap: () {
-        provider.changeBook(book);
         Navigator.of(context).pop();
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
+        Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
             return MySongPage(
-              songsInBook: globalSongs[provider.bookAsString],
+              songsInBook: globalSongs[book.name],
+              book: book,
               settingsProvider: provider,
               // HACK - needs refactor
-              songIndex: globalSongs[provider.bookAsString]
-                  .keys
-                  .toList()
-                  .indexOf(songId),
+              songIndex: globalSongs[book.name].keys.toList().indexOf(songId),
             );
           },
         ));
@@ -176,6 +173,7 @@ class RelatedTile extends StatelessWidget {
 class SettingsSectionTitle extends StatelessWidget {
   final String title;
   final bool subtitle;
+
   const SettingsSectionTitle(
     this.title, {
     this.subtitle = false,
