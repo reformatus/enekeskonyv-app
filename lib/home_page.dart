@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:enekeskonyv/quick_settings_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -135,6 +136,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: const Icon(Icons.apps),
                   tooltip: "Ugrás énekre",
                   key: const Key('_MyHomePageState.GotoSongButton'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) =>
+                          // Not in song context, therefore no links, thanks.
+                          quickSettingsDialog(context, {}),
+                    );
+                  },
+                  icon: const Icon(Icons.settings),
+                  tooltip: 'Beállítások',
+                  key: const Key('_MyHomePageState.SettingsButton'),
                 ),
               ],
             ),
