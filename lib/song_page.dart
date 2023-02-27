@@ -14,12 +14,14 @@ class MySongPage extends StatefulWidget {
   const MySongPage(
       {Key? key,
       required this.songsInBook,
+      required this.book,
       required this.settingsProvider,
       required this.songIndex,
       this.verseIndex = 0})
       : super(key: key);
 
   final LinkedHashMap songsInBook;
+  final Book book;
   final SettingsProvider settingsProvider;
   final int songIndex;
   final int verseIndex;
@@ -71,7 +73,7 @@ class _MySongPageState extends State<MySongPage> {
 
     List<Widget> getFirstVerseHeader() {
       final List<Widget> firstVerseHeader = [];
-      switch (widget.settingsProvider.book) {
+      switch (widget.book) {
         // In case of the black book (48), the subtitle and the composer should
         // be displayed.
         case Book.black:
@@ -118,7 +120,7 @@ class _MySongPageState extends State<MySongPage> {
           widget.songsInBook[songKey]['texts'][verseIndex].split('.')[0];
       final fileName =
           // ignore: prefer_interpolation_to_compose_strings
-          'assets/ref${widget.settingsProvider.bookAsString}/ref${widget.settingsProvider.bookAsString}-' +
+          'assets/ref${widget.book.name}/ref${widget.book.name}-' +
               songKey.padLeft(3, '0') +
               '-' +
               verseNumber.padLeft(3, '0') +
@@ -192,7 +194,7 @@ class _MySongPageState extends State<MySongPage> {
 
         // Only display the poet (if exists) below the last verse, and only do
         // it for the black (48) book.
-        if (widget.settingsProvider.book == Book.black &&
+        if (widget.book == Book.black &&
             verseIndex == widget.songsInBook[songKey]['texts'].length - 1 &&
             widget.songsInBook[songKey]['poet'] is String) {
           page.add(Text(

@@ -122,6 +122,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
               builder: (context) {
                 return MySongPage(
                   songsInBook: widget.songs,
+                  book: widget.settingsProvider.book,
                   settingsProvider: widget.settingsProvider,
                   songIndex:
                       widget.songs.keys.toList().indexOf(element.songKey),

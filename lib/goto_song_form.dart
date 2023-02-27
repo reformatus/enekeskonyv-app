@@ -102,6 +102,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
           builder: (context) {
             return MySongPage(
               songsInBook: widget.songs,
+              book: widget.settingsProvider.book,
               settingsProvider: widget.settingsProvider,
               // As we want to be able to turn page by page (ie. verse by
               // verse), we need to go to the Nth song in the book (from the
