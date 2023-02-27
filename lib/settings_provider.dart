@@ -138,7 +138,15 @@ class SettingsProvider extends ChangeNotifier {
   }
 }
 
-enum Book { black, blue }
+// @see https://stackoverflow.com/a/29567669
+enum Book {
+  black('48'),
+  blue('21');
+
+  final String name;
+
+  const Book(this.name);
+}
 
 String getBookName(Book book) {
   switch (book) {
