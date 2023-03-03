@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +22,10 @@ class SearchVerse {
 
 class MySearchSongPage extends StatefulWidget {
   const MySearchSongPage(
-      {Key? key, required this.songs, required this.settingsProvider})
+      {Key? key, required this.book, required this.settingsProvider})
       : super(key: key);
 
-  final LinkedHashMap songs;
+  final Book book;
   final SettingsProvider settingsProvider;
 
   @override
@@ -40,7 +41,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     super.initState();
     // When the page is displayed, a full list of all verses is needed as a
     // search data source.
-    widget.songs.forEach((key, value) {
+    globalSongs[widget.book.name].forEach((key, value) {
       var verseNumber = 0;
       value['texts'].forEach((valueText) {
         allSearchVerses.add(SearchVerse(
@@ -66,7 +67,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         lastSongSeen = element.songKey;
         searchResults.add(ListTile(
           title: Text(
-            '${element.songKey}. ${widget.songs[element.songKey]['title']}',
+            '${element.songKey}. ${globalSongs[widget.book.name][element.songKey]['title']}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -122,8 +123,10 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
               builder: (context) {
                 return MySongPage(
                   book: widget.settingsProvider.book,
-                  songIndex:
-                      widget.songs.keys.toList().indexOf(element.songKey),
+                  songIndex: globalSongs[widget.book.name]
+                      .keys
+                      .toList()
+                      .indexOf(element.songKey),
                   settingsProvider: widget.settingsProvider,
                   verseIndex: element.verseIndex,
                 );
