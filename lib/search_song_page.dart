@@ -106,7 +106,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
             // illegible when the app is in light mode. This makes it legible in
             // both dark and light modes.
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodyText1!.color,
+              color: Theme.of(context).textTheme.bodyLarge!.color,
             ),
             children: titleSpans,
           ),

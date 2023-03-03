@@ -70,7 +70,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
             ),
             if (Platform.isIOS)
               Material(
-                color: Theme.of(context).bottomAppBarColor,
+                color: Theme.of(context).bottomAppBarTheme.color,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
