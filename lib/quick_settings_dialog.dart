@@ -17,20 +17,26 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
             shrinkWrap: true,
             children: [
               const SizedBox(height: 10),
-              if (songData["links"] != null &&
-                  songData["links"].isNotEmpty) ...[
+              if (songData['links'] != null &&
+                  songData['links'].isNotEmpty) ...[
                 const SettingsSectionTitle('Kapcsolódó'),
-                ...songData["links"].map(
+                ...songData['links'].map(
                   (e) => RelatedTile(
-                    songLink: e["link"]!,
-                    relatedReason: e["text"]!,
+                    songLink: e['link']!,
+                    relatedReason: e['text']!,
                     provider: provider,
                   ),
                 ),
-                const Divider(endIndent: 70, indent: 70),
+                const Divider(
+                  endIndent: 70,
+                  indent: 70,
+                ),
               ],
               const SettingsSectionTitle('Beállítások'),
-              const SettingsSectionTitle('Kotta', subtitle: true),
+              const SettingsSectionTitle(
+                'Kotta',
+                subtitle: true,
+              ),
               Platform.isIOS
                   ? Padding(
                       padding: const EdgeInsets.all(8),
@@ -148,7 +154,10 @@ class RelatedTile extends StatelessWidget {
         padding: const EdgeInsets.all(7),
         child: Text(
           songId,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 17,
+          ),
         ),
       )),
       title: Text(relatedReason),
@@ -183,7 +192,11 @@ class SettingsSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 5, left: 15, bottom: 5),
+      padding: const EdgeInsets.only(
+        top: 5,
+        left: 15,
+        bottom: 5,
+      ),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleLarge!.copyWith(

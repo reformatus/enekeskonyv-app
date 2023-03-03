@@ -166,7 +166,7 @@ class _MySongPageState extends State<MySongPage> {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyText1!.color,
+                    color: Theme.of(context).textTheme.bodyLarge!.color,
                     fontSize: widget.settingsProvider.fontSize,
                   ),
                   children: [
@@ -280,7 +280,7 @@ class _MySongPageState extends State<MySongPage> {
       controllerButtons.add(IconButton(
         onPressed: _verse == 0 ? null : () => switchVerse(false),
         icon: const Icon(Icons.arrow_circle_left_outlined),
-        tooltip: "Előző vers",
+        tooltip: 'Előző vers',
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.prevVerse'),
       ));
@@ -299,7 +299,7 @@ class _MySongPageState extends State<MySongPage> {
               });
             },
       iconData: Icons.arrow_upward,
-      tooltip: "Előző ének",
+      tooltip: 'Előző ének',
       disabledColor: ThemeData.dark().highlightColor,
       key: const Key('_MySongPageState.IconButton.prevSong'),
       alignment: Alignment.topRight,
@@ -317,14 +317,14 @@ class _MySongPageState extends State<MySongPage> {
                 }
             : null,
         icon: const Icon(Icons.text_increase),
-        tooltip: "Betűméret növelése",
+        tooltip: 'Betűméret növelése',
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.textIncrease'),
       ));
     }
     controllerButtons.add(IconButton(
       icon: const Icon(Icons.menu),
-      tooltip: "Gyorsmenü",
+      tooltip: 'Gyorsmenü',
       onPressed: () {
         showDialog(
           context: context,
@@ -344,7 +344,7 @@ class _MySongPageState extends State<MySongPage> {
                 }
             : null,
         icon: const Icon(Icons.text_decrease),
-        tooltip: "Betűméret csökkentése",
+        tooltip: 'Betűméret csökkentése',
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.textDecrease'),
       ));
@@ -363,7 +363,7 @@ class _MySongPageState extends State<MySongPage> {
               });
             },
       iconData: Icons.arrow_downward,
-      tooltip: "Következő ének",
+      tooltip: 'Következő ének',
       disabledColor: ThemeData.dark().highlightColor,
       key: const Key('_MySongPageState.IconButton.nextSong'),
       alignment: Alignment.bottomRight,
@@ -376,7 +376,7 @@ class _MySongPageState extends State<MySongPage> {
             ? null
             : () => switchVerse(true),
         icon: const Icon(Icons.arrow_circle_right_outlined),
-        tooltip: "Következő vers",
+        tooltip: 'Következő vers',
         disabledColor: ThemeData.dark().highlightColor,
         key: const Key('_MySongPageState.IconButton.nextVerse'),
       ));
@@ -390,7 +390,10 @@ class _MySongPageState extends State<MySongPage> {
             child: Container(
               // Prevent screen artifacts (single-pixel line with opposing
               // color) on certain devices.
-              margin: const EdgeInsets.only(top: 1.0, bottom: 1.0),
+              margin: const EdgeInsets.only(
+                top: 1.0,
+                bottom: 1.0,
+              ),
               child: Flex(
                 direction: orientation == Orientation.portrait
                     ? Axis.vertical
@@ -570,10 +573,15 @@ class TextIconButton extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
                 child: Text(
                   text ?? '',
-                  style: TextStyle(color: onTap != null ? null : disabledColor),
+                  style: TextStyle(
+                    color: onTap != null ? null : disabledColor,
+                  ),
                 ),
               ),
-              Icon(iconData, color: onTap != null ? null : disabledColor),
+              Icon(
+                iconData,
+                color: onTap != null ? null : disabledColor,
+              ),
             ],
           ),
           InkWell(

@@ -80,21 +80,25 @@ class _MyHomePageState extends State<MyHomePage> {
                         DropdownMenuItem(
                           value: Book.blue,
                           child: Text(
-                            "Énekeskönyv (${Book.blue.name})",
+                            'Énekeskönyv (${Book.blue.name})',
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 20),
+                              fontWeight: FontWeight.normal,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                         DropdownMenuItem(
                           value: Book.black,
                           child: Text(
-                            "Énekeskönyv (${Book.black.name})",
+                            'Énekeskönyv (${Book.black.name})',
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 20),
+                              fontWeight: FontWeight.normal,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ],
@@ -117,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   },
                   icon: const Icon(Icons.search_outlined),
-                  tooltip: "Keresés",
+                  tooltip: 'Keresés',
                   key: const Key('_MyHomePageState.SearchSongButton'),
                 ),
                 IconButton(
@@ -134,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   },
                   icon: const Icon(Icons.apps),
-                  tooltip: "Ugrás énekre",
+                  tooltip: 'Ugrás énekre',
                   key: const Key('_MyHomePageState.GotoSongButton'),
                 ),
                 IconButton(
@@ -155,16 +159,17 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: (_songs.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
-                    child: LinearProgressIndicator())
+                    child: LinearProgressIndicator(),
+                  )
                 : null,
           ),
           body: (_songs.isEmpty)
               ? null
               : CupertinoScrollbar(
-                  // Using CupertinoScrollbar on Android too (looks better and is
-                  // interactive by default). Also, it should be wide enough to be
-                  // useful for a finger (to be able to scroll through the whole list
-                  // which is quite long).
+                  // Using CupertinoScrollbar on Android too (looks better and
+                  // is interactive by default). Also, it should be wide enough
+                  // to be useful for a finger (to be able to scroll through the
+                  // whole list which is quite long).
                   thickness: 10.0,
                   child: ListView.builder(
                     physics:

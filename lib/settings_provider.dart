@@ -148,17 +148,7 @@ enum Book {
   const Book(this.name);
 }
 
-String getBookName(Book book) {
-  switch (book) {
-    case Book.black:
-      return '48-as (fekete)';
-
-    case Book.blue:
-    default:
-      return '21-es (kék)';
-  }
-}
-
+// @TODO Replace below function with above approach: enum with named consts.
 enum ScoreDisplay { all, first, none }
 
 String getScoreDisplayName(ScoreDisplay scoreDisplay) {
