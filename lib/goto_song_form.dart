@@ -101,9 +101,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
         MaterialPageRoute(
           builder: (context) {
             return MySongPage(
-              songsInBook: widget.songs,
               book: widget.settingsProvider.book,
-              settingsProvider: widget.settingsProvider,
               // As we want to be able to turn page by page (ie. verse by
               // verse), we need to go to the Nth song in the book (from the
               // ListView the user sees). So we need to look up the index of the
@@ -111,6 +109,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               // the 198th song from the list when the user wants to navigate to
               // song #201).
               songIndex: widget.songs.keys.toList().indexOf(details),
+              settingsProvider: widget.settingsProvider,
             );
           },
         ),

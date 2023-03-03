@@ -121,11 +121,10 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
             MaterialPageRoute(
               builder: (context) {
                 return MySongPage(
-                  songsInBook: widget.songs,
                   book: widget.settingsProvider.book,
-                  settingsProvider: widget.settingsProvider,
                   songIndex:
                       widget.songs.keys.toList().indexOf(element.songKey),
+                  settingsProvider: widget.settingsProvider,
                   verseIndex: element.verseIndex,
                 );
               },

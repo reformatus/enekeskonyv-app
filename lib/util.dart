@@ -5,4 +5,6 @@ String getSongTitle(LinkedHashMap song) {
 }
 
 // HACK - needs refactor
-late LinkedHashMap<String, dynamic> globalSongs;
+// The JSON asset gets loaded into this one when the app starts, then this never
+// gets writes any more.
+late final LinkedHashMap<String, dynamic> globalSongs;
