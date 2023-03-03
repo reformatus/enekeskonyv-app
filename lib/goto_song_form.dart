@@ -2,6 +2,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,10 +12,10 @@ import 'song_page.dart';
 
 class MyGotoSongForm extends StatefulWidget {
   const MyGotoSongForm(
-      {Key? key, required this.songs, required this.settingsProvider})
+      {Key? key, required this.book, required this.settingsProvider})
       : super(key: key);
 
-  final LinkedHashMap songs;
+  final Book book;
   final SettingsProvider settingsProvider;
 
   @override
@@ -48,7 +49,8 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                       padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
                       child: PlatformAwareTextFormField(
                         labelText: 'Ének száma:',
-                        helperText: '(1 és ${widget.songs.keys.last} között)',
+                        helperText:
+                            '(1 és ${globalSongs[widget.book.name].keys.last} között)',
                         focusNode: _myFocusNode,
                         controller: controller,
                         onFieldSubmitted: _onFieldSubmitted,
@@ -56,7 +58,8 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                           if (value == null || value.isEmpty) {
                             return 'Írj be egy számot!';
                           }
-                          if (!widget.songs.containsKey(value)) {
+                          if (!globalSongs[widget.book.name]
+                              .containsKey(value)) {
                             return 'Nincs ilyen ének.';
                           }
                           return null;
@@ -108,7 +111,8 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               // song whose number was entered (eg. for the 2021 book, we need
               // the 198th song from the list when the user wants to navigate to
               // song #201).
-              songIndex: widget.songs.keys.toList().indexOf(details),
+              songIndex:
+                  globalSongs[widget.book.name].keys.toList().indexOf(details),
               settingsProvider: widget.settingsProvider,
             );
           },
