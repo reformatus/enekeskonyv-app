@@ -184,10 +184,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             MaterialPageRoute(
                               builder: (context) {
                                 return MySongPage(
-                                  songsInBook: _songs[provider.bookAsString],
                                   book: provider.book,
-                                  settingsProvider: provider,
                                   songIndex: i,
+                                  settingsProvider: provider,
                                 );
                               },
                             ),

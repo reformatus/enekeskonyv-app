@@ -166,11 +166,10 @@ class RelatedTile extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
             return MySongPage(
-              songsInBook: globalSongs[book.name],
               book: book,
-              settingsProvider: provider,
               // HACK - needs refactor
               songIndex: globalSongs[book.name].keys.toList().indexOf(songId),
+              settingsProvider: provider,
             );
           },
         ));
