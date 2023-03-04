@@ -21,10 +21,14 @@ class SearchVerse {
 }
 
 class MySearchSongPage extends StatefulWidget {
-  const MySearchSongPage(
-      {Key? key, required this.book, required this.settingsProvider})
-      : super(key: key);
+  const MySearchSongPage({
+    Key? key,
+    required this.songBooks,
+    required this.book,
+    required this.settingsProvider,
+  }) : super(key: key);
 
+  final LinkedHashMap<String, dynamic> songBooks;
   final Book book;
   final SettingsProvider settingsProvider;
 
@@ -41,7 +45,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     super.initState();
     // When the page is displayed, a full list of all verses is needed as a
     // search data source.
-    globalSongs[widget.book.name].forEach((key, value) {
+    widget.songBooks[widget.book.name].forEach((key, value) {
       var verseNumber = 0;
       value['texts'].forEach((valueText) {
         allSearchVerses.add(SearchVerse(
@@ -67,7 +71,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         lastSongSeen = element.songKey;
         searchResults.add(ListTile(
           title: Text(
-            '${element.songKey}. ${globalSongs[widget.book.name][element.songKey]['title']}',
+            '${element.songKey}. ${widget.songBooks[widget.book.name][element.songKey]['title']}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -122,9 +126,9 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
             MaterialPageRoute(
               builder: (context) {
                 return MySongPage(
+                  songBooks: widget.songBooks,
                   book: widget.settingsProvider.book,
-                  songIndex: globalSongs[widget.book.name]
-                      .keys
+                  songIndex: widget.songBooks[widget.book.name].keys
                       .toList()
                       .indexOf(element.songKey),
                   settingsProvider: widget.settingsProvider,

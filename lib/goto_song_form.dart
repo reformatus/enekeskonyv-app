@@ -11,10 +11,14 @@ import 'settings_provider.dart';
 import 'song_page.dart';
 
 class MyGotoSongForm extends StatefulWidget {
-  const MyGotoSongForm(
-      {Key? key, required this.book, required this.settingsProvider})
-      : super(key: key);
+  const MyGotoSongForm({
+    Key? key,
+    required this.songBooks,
+    required this.book,
+    required this.settingsProvider,
+  }) : super(key: key);
 
+  final LinkedHashMap<String, dynamic> songBooks;
   final Book book;
   final SettingsProvider settingsProvider;
 
@@ -50,7 +54,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                       child: PlatformAwareTextFormField(
                         labelText: 'Ének száma:',
                         helperText:
-                            '(1 és ${globalSongs[widget.book.name].keys.last} között)',
+                            '(1 és ${widget.songBooks[widget.book.name].keys.last} között)',
                         focusNode: _myFocusNode,
                         controller: controller,
                         onFieldSubmitted: _onFieldSubmitted,
@@ -58,7 +62,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                           if (value == null || value.isEmpty) {
                             return 'Írj be egy számot!';
                           }
-                          if (!globalSongs[widget.book.name]
+                          if (!widget.songBooks[widget.book.name]
                               .containsKey(value)) {
                             return 'Nincs ilyen ének.';
                           }
@@ -104,6 +108,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
         MaterialPageRoute(
           builder: (context) {
             return MySongPage(
+              songBooks: widget.songBooks,
               book: widget.settingsProvider.book,
               // As we want to be able to turn page by page (ie. verse by
               // verse), we need to go to the Nth song in the book (from the
@@ -111,8 +116,9 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               // song whose number was entered (eg. for the 2021 book, we need
               // the 198th song from the list when the user wants to navigate to
               // song #201).
-              songIndex:
-                  globalSongs[widget.book.name].keys.toList().indexOf(details),
+              songIndex: widget.songBooks[widget.book.name].keys
+                  .toList()
+                  .indexOf(details),
               settingsProvider: widget.settingsProvider,
             );
           },
