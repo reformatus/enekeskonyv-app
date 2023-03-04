@@ -11,14 +11,16 @@ import 'util.dart';
 import 'quick_settings_dialog.dart';
 
 class MySongPage extends StatefulWidget {
-  const MySongPage(
-      {Key? key,
-      required this.book,
-      required this.songIndex,
-      required this.settingsProvider,
-      this.verseIndex = 0})
-      : super(key: key);
+  const MySongPage({
+    Key? key,
+    required this.songBooks,
+    required this.book,
+    required this.songIndex,
+    required this.settingsProvider,
+    this.verseIndex = 0,
+  }) : super(key: key);
 
+  final LinkedHashMap<String, dynamic> songBooks;
   final Book book;
   final SettingsProvider settingsProvider;
   final int songIndex;
@@ -60,7 +62,7 @@ class _MySongPageState extends State<MySongPage> {
   Widget build(BuildContext context) {
     // To retrieve the song data, the key (the actual number of the song) is
     // needed, not the index (the position in the list).
-    var songKey = globalSongs[widget.book.name].keys.elementAt(_song);
+    var songKey = widget.songBooks[widget.book.name].keys.elementAt(_song);
 
     // Whenever this widget (screen) needs to be rebuilt, (re-)initialize this
     // page controller to point to the correct page. When coming from the list,
@@ -75,13 +77,15 @@ class _MySongPageState extends State<MySongPage> {
         // In case of the black book (48), the subtitle and the composer should
         // be displayed.
         case Book.black:
-          if (globalSongs[widget.book.name][songKey]['subtitle'] is String) {
-            firstVerseHeader
-                .add(Text(globalSongs[widget.book.name][songKey]['subtitle']));
+          if (widget.songBooks[widget.book.name][songKey]['subtitle']
+              is String) {
+            firstVerseHeader.add(
+                Text(widget.songBooks[widget.book.name][songKey]['subtitle']));
           }
-          if (globalSongs[widget.book.name][songKey]['composer'] is String) {
+          if (widget.songBooks[widget.book.name][songKey]['composer']
+              is String) {
             firstVerseHeader.add(Text(
-              globalSongs[widget.book.name][songKey]['composer'],
+              widget.songBooks[widget.book.name][songKey]['composer'],
               textAlign: TextAlign.right,
             ));
           }
@@ -91,20 +95,24 @@ class _MySongPageState extends State<MySongPage> {
         case Book.blue:
         default:
           final List<String> metadata = [];
-          if (globalSongs[widget.book.name][songKey]['subtitle'] is String) {
-            metadata.add(globalSongs[widget.book.name][songKey]['subtitle']);
-          }
-          if (globalSongs[widget.book.name][songKey]['poet'] is String) {
+          if (widget.songBooks[widget.book.name][songKey]['subtitle']
+              is String) {
             metadata
-                .add('sz: ${globalSongs[widget.book.name][songKey]['poet']}');
+                .add(widget.songBooks[widget.book.name][songKey]['subtitle']);
           }
-          if (globalSongs[widget.book.name][songKey]['translator'] is String) {
+          if (widget.songBooks[widget.book.name][songKey]['poet'] is String) {
             metadata.add(
-                'f: ${globalSongs[widget.book.name][songKey]['translator']}');
+                'sz: ${widget.songBooks[widget.book.name][songKey]['poet']}');
           }
-          if (globalSongs[widget.book.name][songKey]['composer'] is String) {
+          if (widget.songBooks[widget.book.name][songKey]['translator']
+              is String) {
             metadata.add(
-                'd: ${globalSongs[widget.book.name][songKey]['composer']}');
+                'f: ${widget.songBooks[widget.book.name][songKey]['translator']}');
+          }
+          if (widget.songBooks[widget.book.name][songKey]['composer']
+              is String) {
+            metadata.add(
+                'd: ${widget.songBooks[widget.book.name][songKey]['composer']}');
           }
           if (metadata.isNotEmpty) {
             firstVerseHeader.add(Text(metadata.join(' | ')));
@@ -118,7 +126,7 @@ class _MySongPageState extends State<MySongPage> {
         Orientation orientation, int verseIndex, BuildContext context) {
       // The actual verse number is the number (well, any text) before the first
       // dot of the verse text.
-      final verseNumber = globalSongs[widget.book.name][songKey]['texts']
+      final verseNumber = widget.songBooks[widget.book.name][songKey]['texts']
               [verseIndex]
           .split('.')[0];
       final fileName =
@@ -149,7 +157,8 @@ class _MySongPageState extends State<MySongPage> {
       // should have scores displayed, the song consists of one single page.
       var page = <Widget>[];
       for (var verseIndex = 0;
-          verseIndex < globalSongs[widget.book.name][songKey]['texts'].length;
+          verseIndex <
+              widget.songBooks[widget.book.name][songKey]['texts'].length;
           verseIndex++) {
         // Only display certain info above the first verse.
         if (verseIndex == 0) {
@@ -177,13 +186,13 @@ class _MySongPageState extends State<MySongPage> {
                     // the first dot) in bold.
                     TextSpan(
                       text:
-                          '${globalSongs[widget.book.name][songKey]['texts'][verseIndex].split('.')[0]}.',
+                          '${widget.songBooks[widget.book.name][songKey]['texts'][verseIndex].split('.')[0]}.',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     // Display rest of verse text normally (split at dots,
                     // skip the first slice, join the rest).
                     TextSpan(
-                      text: globalSongs[widget.book.name][songKey]['texts']
+                      text: widget.songBooks[widget.book.name][songKey]['texts']
                               [verseIndex]
                           .split('.')
                           .skip(1)
@@ -200,10 +209,11 @@ class _MySongPageState extends State<MySongPage> {
         // it for the black (48) book.
         if (widget.book == Book.black &&
             verseIndex ==
-                globalSongs[widget.book.name][songKey]['texts'].length - 1 &&
-            globalSongs[widget.book.name][songKey]['poet'] is String) {
+                widget.songBooks[widget.book.name][songKey]['texts'].length -
+                    1 &&
+            widget.songBooks[widget.book.name][songKey]['poet'] is String) {
           page.add(Text(
-            globalSongs[widget.book.name][songKey]['poet'],
+            widget.songBooks[widget.book.name][songKey]['poet'],
             textAlign: TextAlign.right,
           ));
         }
@@ -232,9 +242,10 @@ class _MySongPageState extends State<MySongPage> {
         // scores (and there _is_ a next verse).
         if ((widget.settingsProvider.scoreDisplay == ScoreDisplay.all) &&
             _verse <
-                globalSongs[widget.book.name][songKey]['texts'].length - 1) {
+                widget.songBooks[widget.book.name][songKey]['texts'].length -
+                    1) {
           _verse++;
-        } else if (_song < globalSongs[widget.book.name].length - 1) {
+        } else if (_song < widget.songBooks[widget.book.name].length - 1) {
           _song++;
           _verse = 0;
         }
@@ -249,8 +260,9 @@ class _MySongPageState extends State<MySongPage> {
           if (widget.settingsProvider.scoreDisplay == ScoreDisplay.all) {
             // This songKey must be recalculated to be able to fetch the number
             // of verses for the previous song.
-            songKey = globalSongs[widget.book.name].keys.elementAt(_song);
-            _verse = globalSongs[widget.book.name][songKey]['texts'].length - 1;
+            songKey = widget.songBooks[widget.book.name].keys.elementAt(_song);
+            _verse =
+                widget.songBooks[widget.book.name][songKey]['texts'].length - 1;
           } else {
             // When not all verses should have their scores displayed,
             // technically always their first verse is displayed.
@@ -295,7 +307,7 @@ class _MySongPageState extends State<MySongPage> {
     controllerButtons.add(TextIconButton(
       text: _song == 0
           ? null
-          : globalSongs[widget.book.name].keys.elementAt(_song - 1),
+          : widget.songBooks[widget.book.name].keys.elementAt(_song - 1),
       onTap: _song == 0
           ? null
           : () {
@@ -336,8 +348,8 @@ class _MySongPageState extends State<MySongPage> {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) => quickSettingsDialog(
-              context, globalSongs[widget.book.name][songKey]),
+          builder: (context) => quickSettingsDialog(context,
+              widget.songBooks[widget.book.name][songKey], widget.songBooks),
         );
       },
     ));
@@ -359,10 +371,10 @@ class _MySongPageState extends State<MySongPage> {
     }
     // Switch to the next song's first verse (if exists).
     controllerButtons.add(TextIconButton(
-      text: _song == globalSongs[widget.book.name].length - 1
+      text: _song == widget.songBooks[widget.book.name].length - 1
           ? null
-          : globalSongs[widget.book.name].keys.elementAt(_song + 1),
-      onTap: _song == globalSongs[widget.book.name].length - 1
+          : widget.songBooks[widget.book.name].keys.elementAt(_song + 1),
+      onTap: _song == widget.songBooks[widget.book.name].length - 1
           ? null
           : () {
               setState(() {
@@ -383,7 +395,7 @@ class _MySongPageState extends State<MySongPage> {
       // Switch to the next verse (if exists).
       controllerButtons.add(IconButton(
         onPressed: (_verse ==
-                globalSongs[widget.book.name][songKey]['texts'].length - 1)
+                widget.songBooks[widget.book.name][songKey]['texts'].length - 1)
             ? null
             : () => switchVerse(true),
         icon: const Icon(Icons.arrow_circle_right_outlined),
@@ -424,8 +436,8 @@ class _MySongPageState extends State<MySongPage> {
                               // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
                               expandedHeight: 57,
                               title: Text(
-                                getSongTitle(
-                                    globalSongs[widget.book.name][songKey]),
+                                getSongTitle(widget.songBooks[widget.book.name]
+                                    [songKey]),
                                 style: const TextStyle(fontSize: 18),
                                 maxLines: 2,
                               ),
