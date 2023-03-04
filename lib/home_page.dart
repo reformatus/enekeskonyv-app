@@ -27,15 +27,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LinkedHashMap<String, dynamic> _songs = LinkedHashMap();
+  LinkedHashMap<String, dynamic> _jsonSongBooks = LinkedHashMap();
+  late final LinkedHashMap<String, dynamic> songBooks;
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> _readJson() async {
     final String response =
         await rootBundle.loadString('assets/enekeskonyv.json');
-    _songs = (await compute(json.decode, response))
+    _jsonSongBooks = (await compute(json.decode, response))
         as LinkedHashMap<String, dynamic>;
-    globalSongs = _songs;
+    songBooks = _jsonSongBooks;
     setState(() {});
   }
 
@@ -113,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MySearchSongPage(
+                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -130,6 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MyGotoSongForm(
+                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -147,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context: context,
                       builder: (context) =>
                           // Not in song context, therefore no links, thanks.
-                          quickSettingsDialog(context, {}),
+                          quickSettingsDialog(context, {}, songBooks),
                     );
                   },
                   icon: const Icon(Icons.settings),
@@ -156,14 +159,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            bottom: (_songs.isEmpty)
+            bottom: (_jsonSongBooks.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
                     child: LinearProgressIndicator(),
                   )
                 : null,
           ),
-          body: (_songs.isEmpty)
+          body: (_jsonSongBooks.isEmpty)
               ? null
               : CupertinoScrollbar(
                   // Using CupertinoScrollbar on Android too (looks better and
@@ -174,16 +177,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: ListView.builder(
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: _songs[provider.bookAsString].length,
+                    itemCount: _jsonSongBooks[provider.bookAsString].length,
                     itemBuilder: (context, i) {
                       return ListTile(
-                        title: Text(getSongTitle(_songs[provider.bookAsString]
-                            [_songs[provider.bookAsString].keys.elementAt(i)])),
+                        title: Text(getSongTitle(
+                            _jsonSongBooks[provider.bookAsString][
+                                _jsonSongBooks[provider.bookAsString]
+                                    .keys
+                                    .elementAt(i)])),
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
                                 return MySongPage(
+                                  songBooks: songBooks,
                                   book: provider.book,
                                   songIndex: i,
                                   settingsProvider: provider,

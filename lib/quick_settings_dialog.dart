@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:enekeskonyv/settings_provider.dart';
@@ -8,7 +9,8 @@ import 'package:provider/provider.dart';
 
 import 'song_page.dart';
 
-Widget quickSettingsDialog(BuildContext context, Map songData) =>
+Widget quickSettingsDialog(BuildContext context, Map songData,
+        final LinkedHashMap<String, dynamic> songBooks) =>
     Consumer<SettingsProvider>(
       builder: (context, provider, child) {
         return Dialog(
@@ -22,6 +24,7 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
                 const SettingsSectionTitle('Kapcsolódó'),
                 ...songData['links'].map(
                   (e) => RelatedTile(
+                    songBooks: songBooks,
                     songLink: e['link']!,
                     relatedReason: e['text']!,
                     provider: provider,
@@ -133,12 +136,14 @@ Widget quickSettingsDialog(BuildContext context, Map songData) =>
 
 class RelatedTile extends StatelessWidget {
   const RelatedTile({
+    required this.songBooks,
     required this.songLink,
     required this.relatedReason,
     required this.provider,
     Key? key,
   }) : super(key: key);
 
+  final LinkedHashMap<String, dynamic> songBooks;
   final String songLink;
   final String relatedReason;
   final SettingsProvider provider;
@@ -166,9 +171,9 @@ class RelatedTile extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
             return MySongPage(
+              songBooks: songBooks,
               book: book,
-              // HACK - needs refactor
-              songIndex: globalSongs[book.name].keys.toList().indexOf(songId),
+              songIndex: songBooks[book.name].keys.toList().indexOf(songId),
               settingsProvider: provider,
             );
           },
