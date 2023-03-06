@@ -432,6 +432,14 @@ class _MySongPageState extends State<MySongPage> {
                                 NestedScrollView.sliverOverlapAbsorberHandleFor(
                                     context),
                             sliver: SliverAppBar(
+                              // instead of the back button on the left, use this to go home immediately
+                              leading: IconButton(
+                                icon: const Icon(Icons.list),
+                                onPressed: () {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context, '/', (route) => false);
+                                },
+                              ),
                               pinned: orientation == Orientation.portrait,
                               // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
                               expandedHeight: 57,
