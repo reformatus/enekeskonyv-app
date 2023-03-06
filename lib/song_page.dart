@@ -432,7 +432,8 @@ class _MySongPageState extends State<MySongPage> {
                                 NestedScrollView.sliverOverlapAbsorberHandleFor(
                                     context),
                             sliver: SliverAppBar(
-                              // instead of the back button on the left, use this to go home immediately
+                              // Instead of the back button on the left, use
+                              // this to go home immediately.
                               leading: IconButton(
                                 icon: const Icon(Icons.list),
                                 onPressed: () {
