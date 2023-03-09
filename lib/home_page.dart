@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         DropdownMenuItem(
                           value: Book.blue,
                           child: Text(
-                            'Énekeskönyv (${Book.blue.name})',
+                            '${Book.blue.displayName} énekeskönyv',
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
@@ -93,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         DropdownMenuItem(
                           value: Book.black,
                           child: Text(
-                            'Énekeskönyv (${Book.black.name})',
+                            '${Book.black.displayName} énekeskönyv',
                             overflow: TextOverflow.fade,
                             softWrap: false,
                             style: const TextStyle(
