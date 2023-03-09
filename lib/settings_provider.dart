@@ -145,6 +145,9 @@ enum Book {
 
   final String name;
 
+  String get displayName =>
+      this == Book.black ? '48-as (fekete)' : '21-es (kék)';
+
   const Book(this.name);
 }
 
