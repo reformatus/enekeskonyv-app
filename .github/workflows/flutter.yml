@@ -34,7 +34,7 @@ jobs:
         run: |
           rm -r assets
           wget ${{ secrets.ASSETS_LINK }}
-          tar -xf assets.tar.bz2
+          tar -xf assets.tbz2
       - uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
