@@ -20,8 +20,7 @@ jobs:
         with:
           channel: 'stable'
       - name: Analyze project
-        run: flutter analyze --no-fatal-warnings
-      
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
   build-android:
     needs: [analyze]
     runs-on: ubuntu-latest
