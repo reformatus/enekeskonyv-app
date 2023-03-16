@@ -3,7 +3,7 @@ description: Református énekeskönyv (21-es kék és 48-as fekete)
 
 publish_to: 'none'
 
-version: 2.4.1+15
+version: 2.4.2+16
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  flutter_svg: ^1.0.3
+  flutter_svg: ^2.0.4
   wakelock: ^0.6.1+1
   provider: ^6.0.4
   shared_preferences: ^2.0.15
@@ -23,7 +23,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
-  flutter_launcher_icons: ^0.11.0
+  flutter_launcher_icons: ^0.12.0
 
 flutter_icons:
   android: "launcher_icon"
