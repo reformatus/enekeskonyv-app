@@ -154,7 +154,6 @@ class QuickSettingsDialog extends StatelessWidget {
                     onPressed: () {
                       launchUrl(Uri.parse(Mailto(
                         to: ['reflabs.enekeskonyv@gmail.com'],
-                        cc: ['enekeskonyv@fodor.pro'],
                         subject:
                             'Hibajelentés: ${songData?['number']} / ${verseNumber + 1}. vers (${book?.name} könyv)',
                         body: """
