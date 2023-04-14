@@ -31,7 +31,7 @@ class QuickSettingsDialog extends StatelessWidget {
         return Dialog(
           backgroundColor: Theme.of(context).canvasColor,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.all(10.0),
             child: ListView(
               shrinkWrap: true,
               children: [
@@ -151,21 +151,22 @@ class QuickSettingsDialog extends StatelessWidget {
                     indent: 70,
                   ),
                   ElevatedButton.icon(
-                      onPressed: () {
-                        launchUrl(Uri.parse(Mailto(
-                          to: ['reflabs.enekeskonyv@gmail.com'],
-                          cc: ['enekeskonyv@fodor.pro'],
-                          subject:
-                              'Hibajelentés: ${songData?['number']} / ${verseNumber + 1}. vers (${book?.name} könyv)',
-                          body: """
+                    onPressed: () {
+                      launchUrl(Uri.parse(Mailto(
+                        to: ['reflabs.enekeskonyv@gmail.com'],
+                        cc: ['enekeskonyv@fodor.pro'],
+                        subject:
+                            'Hibajelentés: ${songData?['number']} / ${verseNumber + 1}. vers (${book?.name} könyv)',
+                        body: """
 Kérlek, írd le a hibát: Kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
 Csatolhatsz képet is.""",
-                        ).toString()));
+                      ).toString()));
 
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.flag_rounded),
-                      label: const Text('Hibajelentés')),
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.flag_rounded),
+                    label: const Text('Hibajelentés'),
+                  ),
                 ]
               ],
             ),
