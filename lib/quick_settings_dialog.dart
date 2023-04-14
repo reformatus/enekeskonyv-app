@@ -16,6 +16,7 @@ class QuickSettingsDialog extends StatelessWidget {
   final Map? songData;
   final Book? book;
   final int verseNumber;
+
   const QuickSettingsDialog(
       {Key? key,
       required this.songBooks,
@@ -144,6 +145,26 @@ class QuickSettingsDialog extends StatelessWidget {
                           value ?? SettingsProvider.defaultSheetThemeMode);
                     }),
                   ),
+                ),
+                const SettingsSectionTitle(
+                  'Navigáció',
+                  subtitle: true,
+                ),
+                ListTile(
+                  title: const Text('Versszak- és énekváltás koppintással'),
+                  trailing: Platform.isIOS
+                      ? CupertinoSwitch(
+                          value: provider.tapNavigation,
+                          onChanged: (value) {
+                            provider.changeTapNavigation(value);
+                          },
+                        )
+                      : Switch(
+                          value: provider.tapNavigation,
+                          onChanged: (value) {
+                            provider.changeTapNavigation(value);
+                          },
+                        ),
                 ),
                 if (songData != null) ...[
                   const Divider(
