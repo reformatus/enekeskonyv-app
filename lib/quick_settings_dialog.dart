@@ -9,17 +9,15 @@ import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'song_page.dart';
+import 'song/song_page.dart';
 
 class QuickSettingsDialog extends StatelessWidget {
-  final LinkedHashMap<String, dynamic> songBooks;
   final Map? songData;
   final Book? book;
   final int verseNumber;
 
   const QuickSettingsDialog(
       {Key? key,
-      required this.songBooks,
       this.songData,
       this.book,
       this.verseNumber = 0})
@@ -42,7 +40,6 @@ class QuickSettingsDialog extends StatelessWidget {
                   const SettingsSectionTitle('Kapcsolódó'),
                   ...songData!['links'].map(
                     (e) => RelatedTile(
-                      songBooks: songBooks,
                       songLink: e['link']!,
                       relatedReason: e['text']!,
                       provider: provider,
@@ -199,14 +196,12 @@ Csatolhatsz képet is.""",
 
 class RelatedTile extends StatelessWidget {
   const RelatedTile({
-    required this.songBooks,
     required this.songLink,
     required this.relatedReason,
     required this.provider,
     Key? key,
   }) : super(key: key);
 
-  final LinkedHashMap<String, dynamic> songBooks;
   final String songLink;
   final String relatedReason;
   final SettingsProvider provider;
@@ -234,7 +229,6 @@ class RelatedTile extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
             return MySongPage(
-              songBooks: songBooks,
               book: book,
               songIndex: songBooks[book.name].keys.toList().indexOf(songId),
               settingsProvider: provider,

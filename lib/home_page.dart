@@ -12,23 +12,18 @@ import 'package:provider/provider.dart';
 import 'settings_provider.dart';
 import 'goto_song_form.dart';
 import 'search_song_page.dart';
-import 'song_page.dart';
+import 'song/song_page.dart';
 import 'util.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  LinkedHashMap<String, dynamic> _jsonSongBooks = LinkedHashMap();
-  late final LinkedHashMap<String, dynamic> songBooks;
+class _HomePageState extends State<HomePage> {
+  Map<String, dynamic> _jsonSongBooks = {};
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> _readJson() async {
@@ -117,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MySearchSongPage(
-                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -135,7 +129,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MyGotoSongForm(
-                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -153,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context: context,
                       builder: (context) =>
                           // Not in song context, therefore no links, thanks.
-                          QuickSettingsDialog(songBooks: songBooks),
+                          QuickSettingsDialog(),
                     );
                   },
                   icon: const Icon(Icons.settings),
@@ -193,7 +186,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             MaterialPageRoute(
                               builder: (context) {
                                 return MySongPage(
-                                  songBooks: songBooks,
                                   book: provider.book,
                                   songIndex: i,
                                   settingsProvider: provider,
