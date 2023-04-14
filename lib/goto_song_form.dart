@@ -157,7 +157,9 @@ class PlatformAwareTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Platform.isIOS
         ? CupertinoTheme(
-            data: const CupertinoThemeData(brightness: Brightness.dark),
+            data: CupertinoThemeData(
+                brightness: SettingsProvider.of(context)
+                    .getCurrentAppBrightness(context)),
             child: CupertinoTextFormFieldRow(
               prefix: Text(labelText),
               placeholder: helperText,

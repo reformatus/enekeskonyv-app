@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider extends ChangeNotifier {
@@ -135,6 +136,11 @@ class SettingsProvider extends ChangeNotifier {
 
     notifyListeners();
     _initialized = true;
+  }
+
+  // of method for easy access
+  static SettingsProvider of(BuildContext context) {
+    return Provider.of<SettingsProvider>(context, listen: false);
   }
 }
 

@@ -96,7 +96,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
           style: TextStyle(
             // This is the boldest possible choice.
             fontWeight: FontWeight.w900,
-            color: Theme.of(context).indicatorColor,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         TextSpan(
@@ -194,9 +194,9 @@ class PlatformAwareTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Platform.isIOS
         ? CupertinoTheme(
-            data: const CupertinoThemeData(
-              brightness: Brightness.dark,
-            ),
+            data: CupertinoThemeData(
+                brightness: SettingsProvider.of(context)
+                    .getCurrentAppBrightness(context)),
             child: CupertinoTextField(
               placeholder: hintText,
               autofocus: true,
