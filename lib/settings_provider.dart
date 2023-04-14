@@ -8,12 +8,14 @@ class SettingsProvider extends ChangeNotifier {
   static const double defaultFontSize = 14.0;
   static const ThemeMode defaultAppThemeMode = ThemeMode.system;
   static const ThemeMode defaultSheetThemeMode = ThemeMode.light;
+  static const bool defaultTapNavigation = true;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
   double _fontSize = defaultFontSize;
   ThemeMode _appThemeMode = defaultAppThemeMode;
   ThemeMode _sheetThemeMode = defaultSheetThemeMode;
+  bool _tapNavigation = defaultTapNavigation;
   bool _initialized = false;
 
   Book get book => _book;
@@ -25,6 +27,8 @@ class SettingsProvider extends ChangeNotifier {
   ThemeMode get appThemeMode => _appThemeMode;
 
   ThemeMode get sheetThemeMode => _sheetThemeMode;
+
+  bool get tapNavigation => _tapNavigation;
 
   String get bookAsString {
     switch (_book) {
@@ -96,11 +100,18 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeTapNavigation(bool value) async {
+    _tapNavigation = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tapNavigation', value);
+    notifyListeners();
+  }
+
   Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //! Book selection.
     try {
+      //! Book selection.
       // First try migrating from previous version.
       String? bookMigrateString = prefs.getString('book');
       if (bookMigrateString != null) {
@@ -125,13 +136,17 @@ class SettingsProvider extends ChangeNotifier {
 
       _sheetThemeMode = ThemeMode.values[
           prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
+
+      //! Tap navigation.
+      _tapNavigation = prefs.getBool('tapNavigation') ?? defaultTapNavigation;
     } catch (e) {
-      // On any unexpected error, use default settings
+      // On any unexpected error, use default settings.
       _book = defaultBook;
       _scoreDisplay = defaultScoreDisplay;
       _fontSize = defaultFontSize;
       _appThemeMode = defaultAppThemeMode;
       _sheetThemeMode = defaultSheetThemeMode;
+      _tapNavigation = defaultTapNavigation;
     }
 
     notifyListeners();
