@@ -73,37 +73,40 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Row(
               children: [
                 Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<Book>(
-                      isExpanded: true,
-                      value: provider.book,
-                      items: [
-                        DropdownMenuItem(
-                          value: Book.blue,
-                          child: Text(
-                            '${Book.blue.displayName} énekeskönyv',
-                            overflow: TextOverflow.fade,
-                            softWrap: false,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 20,
+                  child: Tooltip(
+                    message: 'Válassz énekeskönyvet',
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Book>(
+                        isExpanded: true,
+                        value: provider.book,
+                        items: [
+                          DropdownMenuItem(
+                            value: Book.blue,
+                            child: Text(
+                              '${Book.blue.displayName} énekeskönyv',
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 20,
+                              ),
                             ),
                           ),
-                        ),
-                        DropdownMenuItem(
-                          value: Book.black,
-                          child: Text(
-                            '${Book.black.displayName} énekeskönyv',
-                            overflow: TextOverflow.fade,
-                            softWrap: false,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 20,
+                          DropdownMenuItem(
+                            value: Book.black,
+                            child: Text(
+                              '${Book.black.displayName} énekeskönyv',
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 20,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                      onChanged: (value) => provider.changeBook(value!),
+                        ],
+                        onChanged: (value) => provider.changeBook(value!),
+                      ),
                     ),
                   ),
                 ),

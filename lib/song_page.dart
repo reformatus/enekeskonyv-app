@@ -435,6 +435,7 @@ class _MySongPageState extends State<MySongPage> {
                               // Instead of the back button on the left, use
                               // this to go home immediately.
                               leading: IconButton(
+                                tooltip: 'Főoldal',
                                 icon: const Icon(Icons.list),
                                 onPressed: () {
                                   Navigator.pushNamedAndRemoveUntil(
