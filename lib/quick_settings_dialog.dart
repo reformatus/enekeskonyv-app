@@ -145,6 +145,26 @@ class QuickSettingsDialog extends StatelessWidget {
                     }),
                   ),
                 ),
+                const SettingsSectionTitle(
+                  'Navigáció',
+                  subtitle: true,
+                ),
+                ListTile(
+                  title: const Text('Versszak- és énekváltás koppintással'),
+                  trailing: Platform.isIOS
+                      ? CupertinoSwitch(
+                          value: provider.isGestureEnabled,
+                          onChanged: (value) {
+                            provider.changeGestureEnabled(value);
+                          },
+                        )
+                      : Switch(
+                          value: provider.isGestureEnabled,
+                          onChanged: (value) {
+                            provider.changeGestureEnabled(value);
+                          },
+                        ),
+                ),
                 if (songData != null) ...[
                   const Divider(
                     endIndent: 70,

@@ -471,29 +471,39 @@ class _MySongPageState extends State<MySongPage> {
                           builder: (BuildContext context) {
                             return Material(
                               child: GestureDetector(
-                                onTapDown: (details) {
-                                  tapDownPosition = details.globalPosition;
-                                },
-                                onTapUp: (details) {
-                                  // Bail out early if tap ended more than 3.0
-                                  // away from where it started.
-                                  if ((details.globalPosition - tapDownPosition)
-                                          .distance >
-                                      3.0) {
-                                    return;
-                                  }
-                                  setState(() {
-                                    if ((MediaQuery.of(context).size.width /
-                                            2) >
-                                        details.globalPosition.dx) {
-                                      // Go backward (to the previous verse).
-                                      switchVerse(false);
-                                    } else {
-                                      // Go forward (to the next verse).
-                                      switchVerse(true);
-                                    }
-                                  });
-                                },
+                                onTapDown:
+                                    widget.settingsProvider.isGestureEnabled
+                                        ? (details) {
+                                            tapDownPosition =
+                                                details.globalPosition;
+                                          }
+                                        : null,
+                                onTapUp:
+                                    widget.settingsProvider.isGestureEnabled
+                                        ? (details) {
+                                            // Bail out early if tap ended more than 3.0
+                                            // away from where it started.
+                                            if ((details.globalPosition -
+                                                        tapDownPosition)
+                                                    .distance >
+                                                3.0) {
+                                              return;
+                                            }
+                                            setState(() {
+                                              if ((MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2) >
+                                                  details.globalPosition.dx) {
+                                                // Go backward (to the previous verse).
+                                                switchVerse(false);
+                                              } else {
+                                                // Go forward (to the next verse).
+                                                switchVerse(true);
+                                              }
+                                            });
+                                          }
+                                        : null,
                                 child: PageView(
                                   controller: pageController,
                                   onPageChanged: (i) {

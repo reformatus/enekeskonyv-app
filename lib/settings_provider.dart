@@ -14,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
   double _fontSize = defaultFontSize;
   ThemeMode _appThemeMode = defaultAppThemeMode;
   ThemeMode _sheetThemeMode = defaultSheetThemeMode;
+  bool _isGestureEnabled = true;
   bool _initialized = false;
 
   Book get book => _book;
@@ -25,6 +26,8 @@ class SettingsProvider extends ChangeNotifier {
   ThemeMode get appThemeMode => _appThemeMode;
 
   ThemeMode get sheetThemeMode => _sheetThemeMode;
+
+  bool get isGestureEnabled => _isGestureEnabled;
 
   String get bookAsString {
     switch (_book) {
@@ -96,11 +99,18 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeGestureEnabled(bool value) async {
+    _isGestureEnabled = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isGestureDisabled', value);
+    notifyListeners();
+  }
+
   Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    //! Book selection.
     try {
+      //! Book selection.
       // First try migrating from previous version.
       String? bookMigrateString = prefs.getString('book');
       if (bookMigrateString != null) {
@@ -125,6 +135,9 @@ class SettingsProvider extends ChangeNotifier {
 
       _sheetThemeMode = ThemeMode.values[
           prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
+
+      //! Gesture.
+      _isGestureEnabled = prefs.getBool('isGestureDisabled') ?? false;
     } catch (e) {
       // On any unexpected error, use default settings
       _book = defaultBook;
@@ -132,6 +145,7 @@ class SettingsProvider extends ChangeNotifier {
       _fontSize = defaultFontSize;
       _appThemeMode = defaultAppThemeMode;
       _sheetThemeMode = defaultSheetThemeMode;
+      _isGestureEnabled = false;
     }
 
     notifyListeners();
