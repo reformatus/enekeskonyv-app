@@ -15,120 +15,124 @@ Widget quickSettingsDialog(BuildContext context, Map songData,
       builder: (context, provider, child) {
         return Dialog(
           backgroundColor: Theme.of(context).canvasColor,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              const SizedBox(height: 10),
-              if (songData['links'] != null &&
-                  songData['links'].isNotEmpty) ...[
-                const SettingsSectionTitle('Kapcsolódó'),
-                ...songData['links'].map(
-                  (e) => RelatedTile(
-                    songBooks: songBooks,
-                    songLink: e['link']!,
-                    relatedReason: e['text']!,
-                    provider: provider,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 10),
+                if (songData['links'] != null &&
+                    songData['links'].isNotEmpty) ...[
+                  const SettingsSectionTitle('Kapcsolódó'),
+                  ...songData['links'].map(
+                    (e) => RelatedTile(
+                      songBooks: songBooks,
+                      songLink: e['link']!,
+                      relatedReason: e['text']!,
+                      provider: provider,
+                    ),
+                  ),
+                  const Divider(
+                    endIndent: 70,
+                    indent: 70,
+                  ),
+                ],
+                const SettingsSectionTitle('Beállítások'),
+                const SettingsSectionTitle(
+                  'Kotta',
+                  subtitle: true,
+                ),
+                Platform.isIOS
+                    ? Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: CupertinoSlidingSegmentedControl<ScoreDisplay>(
+                          children: <ScoreDisplay, Widget>{
+                            ScoreDisplay.all:
+                                Text(getScoreDisplayName(ScoreDisplay.all)),
+                            ScoreDisplay.first:
+                                Text(getScoreDisplayName(ScoreDisplay.first)),
+                            ScoreDisplay.none:
+                                Text(getScoreDisplayName(ScoreDisplay.none)),
+                          },
+                          groupValue: provider.scoreDisplay,
+                          onValueChanged: (ScoreDisplay? value) {
+                            provider.changeScoreDisplay(
+                                value ?? SettingsProvider.defaultScoreDisplay);
+                          },
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          RadioListTile<ScoreDisplay>(
+                            title: Text(getScoreDisplayName(ScoreDisplay.all)),
+                            value: ScoreDisplay.all,
+                            groupValue: provider.scoreDisplay,
+                            onChanged: (ScoreDisplay? value) {
+                              provider.changeScoreDisplay(value ??
+                                  SettingsProvider.defaultScoreDisplay);
+                            },
+                          ),
+                          RadioListTile<ScoreDisplay>(
+                            title:
+                                Text(getScoreDisplayName(ScoreDisplay.first)),
+                            value: ScoreDisplay.first,
+                            groupValue: provider.scoreDisplay,
+                            onChanged: (ScoreDisplay? value) {
+                              provider.changeScoreDisplay(value ??
+                                  SettingsProvider.defaultScoreDisplay);
+                            },
+                          ),
+                          RadioListTile<ScoreDisplay>(
+                            title: Text(getScoreDisplayName(ScoreDisplay.none)),
+                            value: ScoreDisplay.none,
+                            groupValue: provider.scoreDisplay,
+                            onChanged: (ScoreDisplay? value) {
+                              provider.changeScoreDisplay(value ??
+                                  SettingsProvider.defaultScoreDisplay);
+                            },
+                          ),
+                        ],
+                      ),
+                const SettingsSectionTitle(
+                  'Színek',
+                  subtitle: true,
+                ),
+                ListTile(
+                  title: const Text('Alkalmazás témája'),
+                  trailing: DropdownButton<ThemeMode>(
+                    value: provider.appThemeMode,
+                    items: ThemeMode.values
+                        .map((brightnessSetting) => DropdownMenuItem(
+                              value: brightnessSetting,
+                              child: Text(getThemeModeName(brightnessSetting)),
+                            ))
+                        .toList(),
+                    onChanged: ((value) {
+                      provider.changeAppBrightnessSetting(
+                          value ?? SettingsProvider.defaultAppThemeMode);
+                    }),
                   ),
                 ),
-                const Divider(
-                  endIndent: 70,
-                  indent: 70,
+                ListTile(
+                  title: const Text('Kotta témája'),
+                  trailing: DropdownButton<ThemeMode>(
+                    value: provider.sheetThemeMode,
+                    items: ThemeMode.values
+                        .map((brightnessSetting) => DropdownMenuItem(
+                              value: brightnessSetting,
+                              child: Text(getThemeModeName(brightnessSetting)),
+                            ))
+                        .toList(),
+                    onChanged: ((value) {
+                      provider.changeSheetBrightnessSetting(
+                          value ?? SettingsProvider.defaultSheetThemeMode);
+                    }),
+                  ),
                 ),
+                const SizedBox(height: 10),
               ],
-              const SettingsSectionTitle('Beállítások'),
-              const SettingsSectionTitle(
-                'Kotta',
-                subtitle: true,
-              ),
-              Platform.isIOS
-                  ? Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: CupertinoSlidingSegmentedControl<ScoreDisplay>(
-                        children: <ScoreDisplay, Widget>{
-                          ScoreDisplay.all:
-                              Text(getScoreDisplayName(ScoreDisplay.all)),
-                          ScoreDisplay.first:
-                              Text(getScoreDisplayName(ScoreDisplay.first)),
-                          ScoreDisplay.none:
-                              Text(getScoreDisplayName(ScoreDisplay.none)),
-                        },
-                        groupValue: provider.scoreDisplay,
-                        onValueChanged: (ScoreDisplay? value) {
-                          provider.changeScoreDisplay(
-                              value ?? SettingsProvider.defaultScoreDisplay);
-                        },
-                      ),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        RadioListTile<ScoreDisplay>(
-                          title: Text(getScoreDisplayName(ScoreDisplay.all)),
-                          value: ScoreDisplay.all,
-                          groupValue: provider.scoreDisplay,
-                          onChanged: (ScoreDisplay? value) {
-                            provider.changeScoreDisplay(
-                                value ?? SettingsProvider.defaultScoreDisplay);
-                          },
-                        ),
-                        RadioListTile<ScoreDisplay>(
-                          title: Text(getScoreDisplayName(ScoreDisplay.first)),
-                          value: ScoreDisplay.first,
-                          groupValue: provider.scoreDisplay,
-                          onChanged: (ScoreDisplay? value) {
-                            provider.changeScoreDisplay(
-                                value ?? SettingsProvider.defaultScoreDisplay);
-                          },
-                        ),
-                        RadioListTile<ScoreDisplay>(
-                          title: Text(getScoreDisplayName(ScoreDisplay.none)),
-                          value: ScoreDisplay.none,
-                          groupValue: provider.scoreDisplay,
-                          onChanged: (ScoreDisplay? value) {
-                            provider.changeScoreDisplay(
-                                value ?? SettingsProvider.defaultScoreDisplay);
-                          },
-                        ),
-                      ],
-                    ),
-              const SettingsSectionTitle(
-                'Színek',
-                subtitle: true,
-              ),
-              ListTile(
-                title: const Text('Alkalmazás témája'),
-                trailing: DropdownButton<ThemeMode>(
-                  value: provider.appThemeMode,
-                  items: ThemeMode.values
-                      .map((brightnessSetting) => DropdownMenuItem(
-                            value: brightnessSetting,
-                            child: Text(getThemeModeName(brightnessSetting)),
-                          ))
-                      .toList(),
-                  onChanged: ((value) {
-                    provider.changeAppBrightnessSetting(
-                        value ?? SettingsProvider.defaultAppThemeMode);
-                  }),
-                ),
-              ),
-              ListTile(
-                title: const Text('Kotta témája'),
-                trailing: DropdownButton<ThemeMode>(
-                  value: provider.sheetThemeMode,
-                  items: ThemeMode.values
-                      .map((brightnessSetting) => DropdownMenuItem(
-                            value: brightnessSetting,
-                            child: Text(getThemeModeName(brightnessSetting)),
-                          ))
-                      .toList(),
-                  onChanged: ((value) {
-                    provider.changeSheetBrightnessSetting(
-                        value ?? SettingsProvider.defaultSheetThemeMode);
-                  }),
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
+            ),
           ),
         );
       },
