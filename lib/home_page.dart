@@ -185,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return MySongPage(
+                                return SongPage(
                                   book: provider.book,
                                   songIndex: i,
                                   settingsProvider: provider,

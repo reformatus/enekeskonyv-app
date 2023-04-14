@@ -123,9 +123,10 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return MySongPage(
+                return SongPage(
                   book: widget.settingsProvider.book,
-                  songIndex: songBooks[widget.book.name].keys
+                  songIndex: songBooks[widget.book.name]
+                      .keys
                       .toList()
                       .indexOf(element.songKey),
                   settingsProvider: widget.settingsProvider,

@@ -60,8 +60,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
                           if (value == null || value.isEmpty) {
                             return 'Írj be egy számot!';
                           }
-                          if (!songBooks[widget.book.name]
-                              .containsKey(value)) {
+                          if (!songBooks[widget.book.name].containsKey(value)) {
                             return 'Nincs ilyen ének.';
                           }
                           return null;
@@ -105,7 +104,7 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return MySongPage(
+            return SongPage(
               book: widget.settingsProvider.book,
               // As we want to be able to turn page by page (ie. verse by
               // verse), we need to go to the Nth song in the book (from the
@@ -113,9 +112,8 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               // song whose number was entered (eg. for the 2021 book, we need
               // the 198th song from the list when the user wants to navigate to
               // song #201).
-              songIndex: songBooks[widget.book.name].keys
-                  .toList()
-                  .indexOf(details),
+              songIndex:
+                  songBooks[widget.book.name].keys.toList().indexOf(details),
               settingsProvider: widget.settingsProvider,
             );
           },

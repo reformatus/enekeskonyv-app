@@ -17,10 +17,7 @@ class QuickSettingsDialog extends StatelessWidget {
   final int verseNumber;
 
   const QuickSettingsDialog(
-      {Key? key,
-      this.songData,
-      this.book,
-      this.verseNumber = 0})
+      {Key? key, this.songData, this.book, this.verseNumber = 0})
       : super(key: key);
 
   @override
@@ -228,7 +225,7 @@ class RelatedTile extends StatelessWidget {
         Navigator.of(context).pop();
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
-            return MySongPage(
+            return SongPage(
               book: book,
               songIndex: songBooks[book.name].keys.toList().indexOf(songId),
               settingsProvider: provider,
