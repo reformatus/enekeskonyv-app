@@ -348,8 +348,12 @@ class _MySongPageState extends State<MySongPage> {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) => quickSettingsDialog(context,
-              widget.songBooks[widget.book.name][songKey], widget.songBooks),
+          builder: (context) => QuickSettingsDialog(
+            songData: widget.songBooks[widget.book.name][songKey],
+            songBooks: widget.songBooks,
+            book: widget.book,
+            verseNumber: _verse,
+          ),
         );
       },
     ));

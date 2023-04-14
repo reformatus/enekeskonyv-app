@@ -5,26 +5,41 @@ import 'package:enekeskonyv/settings_provider.dart';
 import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'song_page.dart';
 
-Widget quickSettingsDialog(BuildContext context, Map songData,
-        final LinkedHashMap<String, dynamic> songBooks) =>
-    Consumer<SettingsProvider>(
+class QuickSettingsDialog extends StatelessWidget {
+  final LinkedHashMap<String, dynamic> songBooks;
+  final Map? songData;
+  final Book? book;
+  final int verseNumber;
+  const QuickSettingsDialog(
+      {Key? key,
+      required this.songBooks,
+      this.songData,
+      this.book,
+      this.verseNumber = 0})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SettingsProvider>(
       builder: (context, provider, child) {
         return Dialog(
           backgroundColor: Theme.of(context).canvasColor,
           child: Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: ListView(
               shrinkWrap: true,
               children: [
-                const SizedBox(height: 10),
-                if (songData['links'] != null &&
-                    songData['links'].isNotEmpty) ...[
+                if (songData != null &&
+                    songData!['links'] != null &&
+                    songData!['links'].isNotEmpty) ...[
                   const SettingsSectionTitle('Kapcsolódó'),
-                  ...songData['links'].map(
+                  ...songData!['links'].map(
                     (e) => RelatedTile(
                       songBooks: songBooks,
                       songLink: e['link']!,
@@ -130,13 +145,36 @@ Widget quickSettingsDialog(BuildContext context, Map songData,
                     }),
                   ),
                 ),
-                const SizedBox(height: 10),
+                if (songData != null) ...[
+                  const Divider(
+                    endIndent: 70,
+                    indent: 70,
+                  ),
+                  ElevatedButton.icon(
+                      onPressed: () {
+                        launchUrl(Uri.parse(Mailto(
+                          to: ['reflabs.enekeskonyv@gmail.com'],
+                          cc: ['enekeskonyv@fodor.pro'],
+                          subject:
+                              'Hibajelentés: ${songData?['number']} / ${verseNumber + 1}. vers (${book?.name} könyv)',
+                          body: """
+Kérlek, írd le a hibát: Kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
+Csatolhatsz képet is.""",
+                        ).toString()));
+
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.flag_rounded),
+                      label: const Text('Hibajelentés')),
+                ]
               ],
             ),
           ),
         );
       },
     );
+  }
+}
 
 class RelatedTile extends StatelessWidget {
   const RelatedTile({
@@ -209,7 +247,7 @@ class SettingsSectionTitle extends StatelessWidget {
         title,
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
             fontWeight: subtitle ? FontWeight.bold : FontWeight.normal,
-            fontSize: subtitle ? 17 : 23),
+            fontSize: subtitle ? 18 : 21),
       ),
     );
   }
