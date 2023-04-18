@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Read the JSON once, when the app starts.
-    _readJson();
+    if (songBooks.isEmpty) _readJson();
   }
 
   @override

@@ -1,39 +1,41 @@
+import 'package:enekeskonyv/song/build_pages.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
 
-class SongStateProvider extends ChangeNotifier with WidgetsBindingObserver {
+class SongStateProvider extends ChangeNotifier {
   int song;
   int verse;
   Book book;
   ScrollController scrollController = ScrollController();
-  TabController tabController;
-  Orientation orientation;
-  BuildContext context;
+  late TabController tabController;
 
   SongStateProvider({
-    required int song,
-    required int verse,
-    required Book book,
-    required this.context,
-  })  : song = song,
-        verse = verse,
-        book = book,
-        tabController = TabController(
-            initialIndex: verse, length: 10, vsync: ScrollableState()),
-        orientation = MediaQuery.of(context).orientation;
+    required this.song,
+    required this.verse,
+    required this.book,
+    required TickerProvider vsync,
+    required BuildContext context,
+  }) {
+    tabController = TabController(
+        initialIndex: verse,
+        length: getNumOfPages(book, songKey, context),
+        vsync: vsync);
+  }
 
   // To retrieve the song data, the key (the actual number of the song) is
   // needed, not the index (the position in the list).
   String get songKey => songBooks[book.name].keys.elementAt(song);
 
-  void switchVerse({required bool next}) {
+  void switchVerse(
+      {required bool next,
+      required SettingsProvider settingsProvider,
+      required BuildContext context,
+      required TickerProvider vsync}) {
     int originalVerse = verse;
     int originalSong = song;
-
-    SettingsProvider settingsProvider = SettingsProvider.of(context);
 
     if (next) {
       // Only allow switching to the next verse when all verses should have
@@ -65,7 +67,9 @@ class SongStateProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
-        tabController.animateTo(verse, duration: const Duration(seconds: 0));
+        tabController.dispose();
+        tabController = TabController(
+            length: getNumOfPages(book, songKey, context), vsync: vsync);
         scrollController.jumpTo(0);
       } else {
         tabController.animateTo(verse);
@@ -83,7 +87,8 @@ class SongStateProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   bool songExists({required bool next}) {
-    if (next) { // TODO verify
+    if (next) {
+      // TODO verify
       return song < songBooks[book.name].length - 1;
     } else {
       return song > 0;
@@ -91,7 +96,8 @@ class SongStateProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   bool verseExists({required bool next}) {
-    if (next) { // TODO verify
+    if (next) {
+      // TODO verify
       return verse < songBooks[book.name][songKey]['texts'].length - 1;
     } else {
       return verse > 0;

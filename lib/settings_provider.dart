@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-late final Map<String, dynamic> songBooks;
+Map<String, dynamic> songBooks = {};
 
 class SettingsProvider extends ChangeNotifier {
   static const Book defaultBook = Book.blue;

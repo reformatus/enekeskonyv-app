@@ -85,3 +85,15 @@ List<List<Widget>> buildPages(
   }
   return pages;
 }
+
+int getNumOfPages(Book book, String songKey, BuildContext context) {
+  SettingsProvider settingsProvider = SettingsProvider.of(context);
+  // When all verses should have scores displayed, every verse should have
+  // its own page.
+  if (settingsProvider.scoreDisplay == ScoreDisplay.all) {
+    return songBooks[book.name][songKey]['texts'].length;
+  }
+  // When not all verses should have scores displayed, the song consists of
+  // one single page.
+  return 1;
+}

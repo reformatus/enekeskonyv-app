@@ -70,8 +70,8 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
   );
 }
 
-void onTapUp(
-    TapUpDetails details, BuildContext context, Offset tapDownPosition) {
+void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
+    TickerProvider vsync) {
   // Only do anything if tap navigation is enabled.
   if (!SettingsProvider.of(context).tapNavigation) return;
 
@@ -81,9 +81,17 @@ void onTapUp(
   if ((MediaQuery.of(context).size.width / 2) > details.globalPosition.dx) {
     // Go backward (to the previous
     // verse).
-    SongStateProvider.of(context).switchVerse(next: false);
+    SongStateProvider.of(context).switchVerse(
+        next: false,
+        settingsProvider: SettingsProvider.of(context),
+        context: context,
+        vsync: vsync);
   } else {
     // Go forward (to the next verse).
-    SongStateProvider.of(context).switchVerse(next: false);
+    SongStateProvider.of(context).switchVerse(
+        next: false,
+        settingsProvider: SettingsProvider.of(context),
+        context: context,
+        vsync: vsync);
   }
 }

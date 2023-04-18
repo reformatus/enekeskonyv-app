@@ -7,7 +7,10 @@ import '../quick_settings_dialog.dart';
 import 'text_icon_button.dart';
 
 class ControllerButtons extends StatelessWidget {
-  const ControllerButtons({Key? key}) : super(key: key);
+  final Orientation orientation;
+  final TickerProvider vsync;
+  const ControllerButtons({Key? key, required this.orientation, required this.vsync})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +26,13 @@ class ControllerButtons extends StatelessWidget {
             return Material(
               color: Theme.of(context).cardColor,
               child: Flex(
-                direction: state.orientation == Orientation.portrait
+                direction: orientation == Orientation.portrait
                     ? Axis.horizontal
                     : Axis.vertical,
                 // Make the buttons "justified" (ie. use all the
                 // screen width).
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: controllerButtons(settings, state, context),
+                children: controllerButtons(settings, state, context, vsync),
               ),
             );
           },
@@ -39,12 +42,17 @@ class ControllerButtons extends StatelessWidget {
   }
 
   List<Widget> controllerButtons(SettingsProvider settings,
-      SongStateProvider state, BuildContext context) {
+      SongStateProvider state, BuildContext context, TickerProvider vsync) {
     return [
       if (settings.scoreDisplay == ScoreDisplay.all)
         IconButton(
-          onPressed:
-              state.verseExists(next: false) ? null : () => state.switchVerse(next: false),
+          onPressed: state.verseExists(next: false)
+              ? null
+              : () => state.switchVerse(
+                  next: false,
+                  settingsProvider: settings,
+                  context: context,
+                  vsync: vsync),
           icon: const Icon(Icons.arrow_circle_left_outlined),
           tooltip: 'Előző vers',
           disabledColor: ThemeData.dark().highlightColor,
@@ -108,15 +116,18 @@ class ControllerButtons extends StatelessWidget {
         context: context,
       ),
       if (settings.scoreDisplay == ScoreDisplay.all)
-      IconButton(
-        onPressed:
-            state.verseExists(next: true)
-                ? null
-                : () => state.switchVerse(next: true),
-        icon: const Icon(Icons.arrow_circle_right_outlined),
-        tooltip: 'Következő vers',
-        disabledColor: ThemeData.dark().highlightColor,
-      ),
+        IconButton(
+          onPressed: state.verseExists(next: true)
+              ? null
+              : () => state.switchVerse(
+                  next: true,
+                  settingsProvider: settings,
+                  context: context,
+                  vsync: vsync),
+          icon: const Icon(Icons.arrow_circle_right_outlined),
+          tooltip: 'Következő vers',
+          disabledColor: ThemeData.dark().highlightColor,
+        ),
     ];
   }
 }
