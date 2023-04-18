@@ -129,7 +129,6 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
                       .keys
                       .toList()
                       .indexOf(element.songKey),
-                  settingsProvider: widget.settingsProvider,
                   verseIndex: element.verseIndex,
                 );
               },

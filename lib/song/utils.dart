@@ -1,3 +1,4 @@
+import 'package:enekeskonyv/song/state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -67,4 +68,22 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
         ((orientation == Orientation.portrait) ? 1.0 : 0.7),
     color: Theme.of(context).textTheme.titleSmall!.color,
   );
+}
+
+void onTapUp(
+    TapUpDetails details, BuildContext context, Offset tapDownPosition) {
+  // Only do anything if tap navigation is enabled.
+  if (!SettingsProvider.of(context).tapNavigation) return;
+
+  // Bail out early if tap ended more than 3.0 away from where it started.
+  if ((details.globalPosition - tapDownPosition).distance > 3.0) return;
+
+  if ((MediaQuery.of(context).size.width / 2) > details.globalPosition.dx) {
+    // Go backward (to the previous
+    // verse).
+    SongStateProvider.of(context).switchVerse(next: false);
+  } else {
+    // Go forward (to the next verse).
+    SongStateProvider.of(context).switchVerse(next: false);
+  }
 }

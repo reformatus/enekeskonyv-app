@@ -114,7 +114,6 @@ class _MyGotoSongFormState extends State<MyGotoSongForm> {
               // song #201).
               songIndex:
                   songBooks[widget.book.name].keys.toList().indexOf(details),
-              settingsProvider: widget.settingsProvider,
             );
           },
         ),

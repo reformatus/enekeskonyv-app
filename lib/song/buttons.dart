@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import '../quick_settings_dialog.dart';
 import 'text_icon_button.dart';
 
-class ButtonBar extends StatelessWidget {
-  const ButtonBar({Key? key}) : super(key: key);
+class ControllerButtons extends StatelessWidget {
+  const ControllerButtons({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

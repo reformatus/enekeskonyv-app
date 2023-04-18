@@ -228,7 +228,6 @@ class RelatedTile extends StatelessWidget {
             return SongPage(
               book: book,
               songIndex: songBooks[book.name].keys.toList().indexOf(songId),
-              settingsProvider: provider,
             );
           },
         ));

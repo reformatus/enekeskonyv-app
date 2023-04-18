@@ -188,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                                 return SongPage(
                                   book: provider.book,
                                   songIndex: i,
-                                  settingsProvider: provider,
                                 );
                               },
                             ),
