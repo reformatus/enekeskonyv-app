@@ -1,16 +1,14 @@
 import 'dart:io';
 
-import 'buttons.dart';
-import 'utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
 import '../util.dart';
-
-
 import 'build_pages.dart';
+import 'buttons.dart';
 import 'state_provider.dart';
+import 'utils.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({

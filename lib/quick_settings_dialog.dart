@@ -1,14 +1,12 @@
-import 'dart:collection';
 import 'dart:io';
 
-import 'settings_provider.dart';
-import 'util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'settings_provider.dart';
 import 'song/song_page.dart';
 
 class QuickSettingsDialog extends StatelessWidget {

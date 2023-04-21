@@ -1,9 +1,9 @@
-import '../settings_provider.dart';
-import 'state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../quick_settings_dialog.dart';
+import '../settings_provider.dart';
+import 'state_provider.dart';
 import 'text_icon_button.dart';
 
 class ControllerButtons extends StatelessWidget {

@@ -1,8 +1,8 @@
-import 'state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../settings_provider.dart';
+import 'state_provider.dart';
 
 List<Widget> getFirstVerseHeader(Book book, String songKey) {
   final List<Widget> firstVerseHeader = [];

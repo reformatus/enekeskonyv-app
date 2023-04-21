@@ -2,16 +2,16 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'quick_settings_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'settings_provider.dart';
 import 'goto_song_form.dart';
+import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
+import 'settings_provider.dart';
 import 'song/song_page.dart';
 import 'util.dart';
 

@@ -1,8 +1,8 @@
-import 'build_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
+import 'build_pages.dart';
 
 class SongStateProvider extends ChangeNotifier {
   int song;
