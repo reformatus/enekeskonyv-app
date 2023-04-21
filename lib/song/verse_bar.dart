@@ -1,5 +1,5 @@
 import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/song/state_provider.dart';
+import 'package:enekeskonyv/song/song_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -52,8 +52,8 @@ class VerseBar extends StatelessWidget {
                     settings.changeIsVerseBarPinned(!settings.isVerseBarPinned),
                 icon: const Icon(Icons.push_pin),
                 color: settings.isVerseBarPinned
-                    ? Theme.of(context).colorScheme.primary
-                    : null)
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).disabledColor)
           ],
         ),
       );

@@ -7,7 +7,7 @@ import '../settings_provider.dart';
 import '../util.dart';
 import 'build_pages.dart';
 import 'buttons.dart';
-import 'state_provider.dart';
+import 'song_page_state.dart';
 import 'utils.dart';
 import 'verse_bar.dart';
 

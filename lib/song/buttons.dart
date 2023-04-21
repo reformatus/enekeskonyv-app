@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../quick_settings_dialog.dart';
 import '../settings_provider.dart';
-import 'state_provider.dart';
+import 'song_page_state.dart';
 import 'text_icon_button.dart';
 
 class ControllerButtons extends StatelessWidget {
