@@ -29,16 +29,19 @@ List<Widget> getFirstVerseHeader(Book book, String songKey) {
         metadata.add(songBooks[book.name][songKey]['subtitle']);
       }
       if (songBooks[book.name][songKey]['poet'] is String) {
-        metadata.add('sz: ${songBooks[book.name][songKey]['poet']}');
+        metadata.add('✍️ ${songBooks[book.name][songKey]['poet']}');
       }
       if (songBooks[book.name][songKey]['translator'] is String) {
-        metadata.add('f: ${songBooks[book.name][songKey]['translator']}');
+        metadata.add('🌐 ${songBooks[book.name][songKey]['translator']}');
       }
       if (songBooks[book.name][songKey]['composer'] is String) {
-        metadata.add('d: ${songBooks[book.name][songKey]['composer']}');
+        metadata.add('🎵 ${songBooks[book.name][songKey]['composer']}');
       }
       if (metadata.isNotEmpty) {
-        firstVerseHeader.add(Text(metadata.join(' | ')));
+        // grayscale emoji filter
+        firstVerseHeader.add(
+          Text(metadata.join(' | ')),
+        );
       }
       break;
   }
