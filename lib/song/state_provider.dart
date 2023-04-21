@@ -22,6 +22,10 @@ class SongStateProvider extends ChangeNotifier {
         initialIndex: verse,
         length: getNumOfPages(book, songKey, context),
         vsync: vsync);
+    tabController.addListener(() {
+      verse = tabController.index;
+      notifyListeners();
+    });
   }
 
   // To retrieve the song data, the key (the actual number of the song) is
@@ -71,6 +75,10 @@ class SongStateProvider extends ChangeNotifier {
             length: getNumOfPages(book, songKey, context),
             vsync: vsync,
             initialIndex: verse);
+        tabController.addListener(() {
+          verse = tabController.index;
+          notifyListeners();
+        });
         scrollController.jumpTo(0);
       } else {
         tabController.animateTo(verse);
