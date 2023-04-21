@@ -124,53 +124,59 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
-                                    child: Column(
+                                    child: Stack(
+                                      alignment: Alignment.bottomCenter,
                                       children: [
-                                        Expanded(
-                                          child: TabBarView(
-                                            controller: state.tabController,
-                                            physics: Platform.isIOS
-                                                ? const BouncingScrollPhysics()
-                                                : null,
-                                            children: buildPages(
-                                                    orientation,
-                                                    state.book,
-                                                    state.songKey,
-                                                    context)
-                                                .map((tabContentList) {
-                                              return Builder(
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return Padding(
-                                                    // Prevent having score and/or text
-                                                    // sticking to the side of the
-                                                    // display.
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 3.0,
-                                                    ),
-                                                    child: CustomScrollView(
-                                                      slivers: [
-                                                        SliverOverlapInjector(
-                                                          handle: NestedScrollView
-                                                              .sliverOverlapAbsorberHandleFor(
-                                                                  context),
-                                                        ),
-                                                        SliverList(
-                                                          delegate:
-                                                              SliverChildListDelegate
-                                                                  .fixed(
-                                                                      tabContentList),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            }).toList(),
-                                          ),
+                                        TabBarView(
+                                          controller: state.tabController,
+                                          physics: Platform.isIOS
+                                              ? const BouncingScrollPhysics()
+                                              : null,
+                                          children: buildPages(
+                                                  orientation,
+                                                  state.book,
+                                                  state.songKey,
+                                                  context)
+                                              .map((tabContentList) {
+                                            return Builder(
+                                              builder: (BuildContext context) {
+                                                return Padding(
+                                                  // Prevent having score and/or text
+                                                  // sticking to the side of the
+                                                  // display.
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 3.0,
+                                                  ),
+                                                  child: CustomScrollView(
+                                                    slivers: [
+                                                      SliverOverlapInjector(
+                                                        handle: NestedScrollView
+                                                            .sliverOverlapAbsorberHandleFor(
+                                                                context),
+                                                      ),
+                                                      SliverList(
+                                                        delegate:
+                                                            SliverChildListDelegate
+                                                                .fixed(
+                                                                    tabContentList),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          }).toList(),
                                         ),
-                                        VerseBar()
+                                        const AnimatedPositioned(
+                                          duration: Duration(milliseconds: 300),
+                                          curve:
+                                              Curves.easeInOutCubicEmphasized,
+                                          right: 0,
+                                          left: 0,
+                                          bottom: 0,
+                                          child: VerseBar(),
+                                        ),
                                       ],
                                     ),
                                   ),

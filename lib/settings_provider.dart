@@ -11,6 +11,7 @@ class SettingsProvider extends ChangeNotifier {
   static const ThemeMode defaultAppThemeMode = ThemeMode.system;
   static const ThemeMode defaultSheetThemeMode = ThemeMode.light;
   static const bool defaultTapNavigation = true;
+  static const bool defaultIsVerseBarPinned = false;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -18,19 +19,16 @@ class SettingsProvider extends ChangeNotifier {
   ThemeMode _appThemeMode = defaultAppThemeMode;
   ThemeMode _sheetThemeMode = defaultSheetThemeMode;
   bool _tapNavigation = defaultTapNavigation;
+  bool _isVerseBarPinned = defaultIsVerseBarPinned;
   bool _initialized = false;
 
   Book get book => _book;
-
   ScoreDisplay get scoreDisplay => _scoreDisplay;
-
   double get fontSize => _fontSize;
-
   ThemeMode get appThemeMode => _appThemeMode;
-
   ThemeMode get sheetThemeMode => _sheetThemeMode;
-
   bool get tapNavigation => _tapNavigation;
+  bool get isVerseBarPinned => _isVerseBarPinned;
 
   String get bookAsString {
     switch (_book) {
@@ -109,6 +107,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeIsVerseBarPinned(bool value) async {
+    _isVerseBarPinned = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isVerseBarPinned', value);
+    notifyListeners();
+  }
+
   Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -139,8 +144,10 @@ class SettingsProvider extends ChangeNotifier {
       _sheetThemeMode = ThemeMode.values[
           prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
 
-      //! Tap navigation.
+      //! Others
       _tapNavigation = prefs.getBool('tapNavigation') ?? defaultTapNavigation;
+      _isVerseBarPinned =
+          prefs.getBool('isVerseBarPinned') ?? defaultIsVerseBarPinned;
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -149,6 +156,7 @@ class SettingsProvider extends ChangeNotifier {
       _appThemeMode = defaultAppThemeMode;
       _sheetThemeMode = defaultSheetThemeMode;
       _tapNavigation = defaultTapNavigation;
+      _isVerseBarPinned = defaultIsVerseBarPinned;
     }
 
     notifyListeners();

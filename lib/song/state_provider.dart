@@ -18,18 +18,23 @@ class SongStateProvider extends ChangeNotifier {
     required TickerProvider vsync,
     required BuildContext context,
   }) {
-    initTabControllerTo(
+    initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context),
+        initialIndex: verse,
         initial: true);
   }
 
-  void initTabControllerTo(
-      {int numOfPages = 1,
-      int initialIndex = 0,
+  void initTabController(
+      {int? numOfPages,
+      int? initialIndex,
       bool initial = false,
       required TickerProvider vsync}) {
     if (!initial) tabController.dispose();
+
+    initialIndex ??= tabController.index;
+    numOfPages ??= tabController.length;
+
     tabController = TabController(
         initialIndex: initialIndex, length: numOfPages, vsync: vsync);
     tabController.addListener(() {
@@ -40,10 +45,11 @@ class SongStateProvider extends ChangeNotifier {
 
   void settingsListener(
       {required BuildContext context, required TickerProvider vsync}) {
-    print('settingsListener() called');
     if (tabController.length != getNumOfPages(book, songKey, context)) {
-      initTabControllerTo(
-          vsync: vsync, numOfPages: getNumOfPages(book, songKey, context));
+      initTabController(
+          vsync: vsync,
+          numOfPages: getNumOfPages(book, songKey, context),
+          initialIndex: 0);
     }
   }
 
@@ -89,7 +95,7 @@ class SongStateProvider extends ChangeNotifier {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
-        initTabControllerTo(
+        initTabController(
             vsync: vsync,
             numOfPages: getNumOfPages(book, songKey, context),
             initialIndex: verse);
@@ -107,10 +113,10 @@ class SongStateProvider extends ChangeNotifier {
       required BuildContext context,
       required TickerProvider vsync}) {
     next ? song++ : song--;
-    verse = 0;
-    tabController.dispose();
-    tabController = TabController(
-        length: getNumOfPages(book, songKey, context), vsync: vsync);
+    initTabController(
+        vsync: vsync,
+        numOfPages: getNumOfPages(book, songKey, context),
+        initialIndex: 0);
     scrollController.jumpTo(0);
     notifyListeners();
   }
