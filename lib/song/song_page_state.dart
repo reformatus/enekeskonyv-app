@@ -44,6 +44,7 @@ class SongStateProvider extends ChangeNotifier {
         initialIndex: initialIndex, length: numOfPages, vsync: vsync);
     tabController.addListener(() {
       verse = tabController.index;
+      showThenHideVerseBar();
       notifyListeners();
     });
   }
