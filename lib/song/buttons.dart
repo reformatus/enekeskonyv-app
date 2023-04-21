@@ -69,7 +69,7 @@ class ControllerButtons extends StatelessWidget {
         iconData: Icons.arrow_upward,
         tooltip: 'Előző ének',
         disabledColor: ThemeData.dark().highlightColor,
-        alignment: Alignment.topRight,
+        alignment: Alignment.bottomRight,
         context: context,
       ),
       if (settings.scoreDisplay != ScoreDisplay.all)
