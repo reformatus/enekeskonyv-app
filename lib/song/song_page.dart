@@ -131,7 +131,9 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 child: buildTabBarView(state,
                                                     orientation, context),
                                               ),
-                                              const VerseBar(),
+                                              if (settings.scoreDisplay ==
+                                                  ScoreDisplay.all)
+                                                const VerseBar(),
                                             ],
                                           )
                                         : Stack(
@@ -139,18 +141,21 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                             children: [
                                               buildTabBarView(
                                                   state, orientation, context),
-                                              AnimatedPositioned(
-                                                duration: const Duration(
-                                                    milliseconds: 300),
-                                                curve: Curves
-                                                    .easeInOutCubicEmphasized,
-                                                right: 0,
-                                                left: 0,
-                                                bottom: state.isVerseBarVisible
-                                                    ? 0
-                                                    : -70,
-                                                child: const VerseBar(),
-                                              ),
+                                              if (settings.scoreDisplay ==
+                                                  ScoreDisplay.all)
+                                                AnimatedPositioned(
+                                                  duration: const Duration(
+                                                      milliseconds: 300),
+                                                  curve: Curves
+                                                      .easeInOutCubicEmphasized,
+                                                  right: 0,
+                                                  left: 0,
+                                                  bottom:
+                                                      state.isVerseBarVisible
+                                                          ? 0
+                                                          : -70,
+                                                  child: const VerseBar(),
+                                                ),
                                             ],
                                           ),
                                   ),
