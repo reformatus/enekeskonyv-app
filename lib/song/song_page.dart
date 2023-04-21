@@ -124,61 +124,35 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
-                                    child: Stack(
-                                      alignment: Alignment.bottomCenter,
-                                      children: [
-                                        TabBarView(
-                                          controller: state.tabController,
-                                          physics: Platform.isIOS
-                                              ? const BouncingScrollPhysics()
-                                              : null,
-                                          children: buildPages(
-                                                  orientation,
-                                                  state.book,
-                                                  state.songKey,
-                                                  context)
-                                              .map((tabContentList) {
-                                            return Builder(
-                                              builder: (BuildContext context) {
-                                                return Padding(
-                                                  // Prevent having score and/or text
-                                                  // sticking to the side of the
-                                                  // display.
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 3.0,
-                                                  ),
-                                                  child: CustomScrollView(
-                                                    slivers: [
-                                                      SliverOverlapInjector(
-                                                        handle: NestedScrollView
-                                                            .sliverOverlapAbsorberHandleFor(
-                                                                context),
-                                                      ),
-                                                      SliverList(
-                                                        delegate:
-                                                            SliverChildListDelegate
-                                                                .fixed(
-                                                                    tabContentList),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          }).toList(),
-                                        ),
-                                        const AnimatedPositioned(
-                                          duration: Duration(milliseconds: 300),
-                                          curve:
-                                              Curves.easeInOutCubicEmphasized,
-                                          right: 0,
-                                          left: 0,
-                                          bottom: 0,
-                                          child: VerseBar(),
-                                        ),
-                                      ],
-                                    ),
+                                    child: (settings.isVerseBarPinned)
+                                        ? Column(
+                                            children: [
+                                              Expanded(
+                                                child: buildTabBarView(state,
+                                                    orientation, context),
+                                              ),
+                                              const VerseBar(),
+                                            ],
+                                          )
+                                        : Stack(
+                                            alignment: Alignment.bottomCenter,
+                                            children: [
+                                              buildTabBarView(
+                                                  state, orientation, context),
+                                              AnimatedPositioned(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves
+                                                    .easeInOutCubicEmphasized,
+                                                right: 0,
+                                                left: 0,
+                                                bottom: state.isVerseBarVisible
+                                                    ? 0
+                                                    : -70,
+                                                child: const VerseBar(),
+                                              ),
+                                            ],
+                                          ),
                                   ),
                                 );
                               },
@@ -199,6 +173,40 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           key: const Key('_MySongPageState'),
         );
       }),
+    );
+  }
+
+  TabBarView buildTabBarView(
+      SongStateProvider state, Orientation orientation, BuildContext context) {
+    return TabBarView(
+      controller: state.tabController,
+      physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
+      children: buildPages(orientation, state.book, state.songKey, context)
+          .map((tabContentList) {
+        return Builder(
+          builder: (BuildContext context) {
+            return Padding(
+              // Prevent having score and/or text
+              // sticking to the side of the
+              // display.
+              padding: const EdgeInsets.symmetric(
+                horizontal: 3.0,
+              ),
+              child: CustomScrollView(
+                slivers: [
+                  SliverOverlapInjector(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context),
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate.fixed(tabContentList),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      }).toList(),
     );
   }
 }

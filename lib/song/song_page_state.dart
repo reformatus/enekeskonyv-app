@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +12,8 @@ class SongStateProvider extends ChangeNotifier {
   Book book;
   ScrollController scrollController = ScrollController();
   late TabController tabController;
+  bool isVerseBarVisible = true;
+  Timer? verseBarHideTimer;
 
   SongStateProvider({
     required this.song,
@@ -23,6 +27,7 @@ class SongStateProvider extends ChangeNotifier {
         numOfPages: getNumOfPages(book, songKey, context),
         initialIndex: verse,
         initial: true);
+    showThenHideVerseBar();
   }
 
   void initTabController(
@@ -56,6 +61,16 @@ class SongStateProvider extends ChangeNotifier {
   // To retrieve the song data, the key (the actual number of the song) is
   // needed, not the index (the position in the list).
   String get songKey => songBooks[book.name].keys.elementAt(song);
+
+  void showThenHideVerseBar() {
+    isVerseBarVisible = true;
+    notifyListeners();
+    if (verseBarHideTimer != null) verseBarHideTimer!.cancel();
+    verseBarHideTimer = Timer(const Duration(seconds: 3), () {
+      isVerseBarVisible = false;
+      notifyListeners();
+    });
+  }
 
   void switchVerse(
       {required bool next,
@@ -104,7 +119,7 @@ class SongStateProvider extends ChangeNotifier {
         tabController.animateTo(verse);
       }
     }
-
+    showThenHideVerseBar();
     notifyListeners();
   }
 
@@ -118,6 +133,7 @@ class SongStateProvider extends ChangeNotifier {
         numOfPages: getNumOfPages(book, songKey, context),
         initialIndex: 0);
     scrollController.jumpTo(0);
+    showThenHideVerseBar();
     notifyListeners();
   }
 
