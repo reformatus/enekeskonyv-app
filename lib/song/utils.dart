@@ -93,7 +93,10 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
     // - devices with different widths.
     width: MediaQuery.of(context).size.width *
         ((orientation == Orientation.portrait) ? 1.0 : 0.7),
-    color: Theme.of(context).textTheme.titleSmall!.color,
+    colorFilter: ColorFilter.mode(
+      Theme.of(context).textTheme.titleSmall!.color!,
+      BlendMode.srcIn,
+    ),
   );
 }
 

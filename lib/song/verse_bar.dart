@@ -24,7 +24,7 @@ class VerseBar extends StatelessWidget {
                   child: Card(
                     elevation: 3,
                     child: AnimatedSize(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOutCubic,
                       child: TabBar(
                         indicator: BoxDecoration(

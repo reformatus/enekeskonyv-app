@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                       context: context,
                       builder: (context) =>
                           // Not in song context, therefore no links, thanks.
-                          QuickSettingsDialog(),
+                          const QuickSettingsDialog(),
                     );
                   },
                   icon: const Icon(Icons.settings),
