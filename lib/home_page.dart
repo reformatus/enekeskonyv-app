@@ -155,14 +155,14 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            bottom: (_jsonSongBooks.isEmpty)
+            bottom: (songBooks.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
                     child: LinearProgressIndicator(),
                   )
                 : null,
           ),
-          body: (_jsonSongBooks.isEmpty)
+          body: (songBooks.isEmpty)
               ? null
               : CupertinoScrollbar(
                   // Using CupertinoScrollbar on Android too (looks better and
@@ -171,14 +171,15 @@ class _HomePageState extends State<HomePage> {
                   // whole list which is quite long).
                   thickness: 10.0,
                   child: ListView.builder(
+                    
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: _jsonSongBooks[provider.bookAsString].length,
+                    itemCount: songBooks[provider.bookAsString].length,
                     itemBuilder: (context, i) {
                       return ListTile(
                         title: Text(getSongTitle(
-                            _jsonSongBooks[provider.bookAsString][
-                                _jsonSongBooks[provider.bookAsString]
+                            songBooks[provider.bookAsString][
+                                songBooks[provider.bookAsString]
                                     .keys
                                     .elementAt(i)])),
                         onTap: () {
