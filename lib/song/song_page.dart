@@ -50,6 +50,9 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
       ),
       child: Consumer2<SettingsProvider, SongStateProvider>(
           builder: (context, settings, state, child) {
+        // Necessary hack to inform the State object about changes in
+        // settings. Needed for changing the number of pages when
+        // changing scoreDisplay.
         if (!_listenerAdded) {
           SettingsProvider.of(context).addListener(() {
             SongStateProvider.of(context)
@@ -131,9 +134,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 child: buildTabBarView(state,
                                                     orientation, context),
                                               ),
-                                              if (settings.scoreDisplay ==
-                                                  ScoreDisplay.all)
-                                                const VerseBar(),
+                                              const VerseBar(),
                                             ],
                                           )
                                         : Stack(
@@ -141,21 +142,18 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                             children: [
                                               buildTabBarView(
                                                   state, orientation, context),
-                                              if (settings.scoreDisplay ==
-                                                  ScoreDisplay.all)
-                                                AnimatedPositioned(
-                                                  duration: const Duration(
-                                                      milliseconds: 300),
-                                                  curve: Curves
-                                                      .easeInOutCubicEmphasized,
-                                                  right: 0,
-                                                  left: 0,
-                                                  bottom:
-                                                      state.isVerseBarVisible
-                                                          ? 0
-                                                          : -70,
-                                                  child: const VerseBar(),
-                                                ),
+                                              AnimatedPositioned(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves
+                                                    .easeInOutCubicEmphasized,
+                                                right: 0,
+                                                left: 0,
+                                                bottom: state.isVerseBarVisible
+                                                    ? 0
+                                                    : -70,
+                                                child: const VerseBar(),
+                                              ),
                                             ],
                                           ),
                                   ),
