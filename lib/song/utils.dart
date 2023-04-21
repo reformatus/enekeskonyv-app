@@ -26,11 +26,15 @@ List<Widget> getFirstVerseHeader(Book book, String songKey) {
 
     // In case of the blue book (21), all the metadata should be displayed.
     case Book.blue:
+      if (songBooks[book.name][songKey]['subtitle'] is String) {
+        firstVerseHeader.add(Text(
+          songBooks[book.name][songKey]['subtitle'],
+          style: const TextStyle(fontStyle: FontStyle.italic),
+        ));
+      }
       firstVerseHeader.add(
         Wrap(
           children: [
-            if (songBooks[book.name][songKey]['subtitle'] is String)
-              Text(songBooks[book.name][songKey]['subtitle']),
             if (songBooks[book.name][songKey]['poet'] is String) ...[
               Row(
                 mainAxisSize: MainAxisSize.min,
