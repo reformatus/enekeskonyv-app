@@ -18,14 +18,33 @@ class SongStateProvider extends ChangeNotifier {
     required TickerProvider vsync,
     required BuildContext context,
   }) {
+    initTabControllerTo(
+        vsync: vsync,
+        numOfPages: getNumOfPages(book, songKey, context),
+        initial: true);
+  }
+
+  void initTabControllerTo(
+      {int numOfPages = 1,
+      int initialIndex = 0,
+      bool initial = false,
+      required TickerProvider vsync}) {
+    if (!initial) tabController.dispose();
     tabController = TabController(
-        initialIndex: verse,
-        length: getNumOfPages(book, songKey, context),
-        vsync: vsync);
+        initialIndex: initialIndex, length: numOfPages, vsync: vsync);
     tabController.addListener(() {
       verse = tabController.index;
       notifyListeners();
     });
+  }
+
+  void settingsListener(
+      {required BuildContext context, required TickerProvider vsync}) {
+    print('settingsListener() called');
+    if (tabController.length != getNumOfPages(book, songKey, context)) {
+      initTabControllerTo(
+          vsync: vsync, numOfPages: getNumOfPages(book, songKey, context));
+    }
   }
 
   // To retrieve the song data, the key (the actual number of the song) is
@@ -70,15 +89,10 @@ class SongStateProvider extends ChangeNotifier {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
-        tabController.dispose();
-        tabController = TabController(
-            length: getNumOfPages(book, songKey, context),
+        initTabControllerTo(
             vsync: vsync,
+            numOfPages: getNumOfPages(book, songKey, context),
             initialIndex: verse);
-        tabController.addListener(() {
-          verse = tabController.index;
-          notifyListeners();
-        });
         scrollController.jumpTo(0);
       } else {
         tabController.animateTo(verse);

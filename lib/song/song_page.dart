@@ -27,6 +27,8 @@ class SongPage extends StatefulWidget {
 }
 
 class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
+  bool _listenerAdded = false;
+
   @override
   Widget build(BuildContext context) {
     // When the NestedScrollView-covered area (the whole screen/page without the
@@ -47,6 +49,14 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
       ),
       child: Consumer2<SettingsProvider, SongStateProvider>(
           builder: (context, settings, state, child) {
+        if (!_listenerAdded) {
+          SettingsProvider.of(context).addListener(() {
+            SongStateProvider.of(context)
+                .settingsListener(context: context, vsync: this);
+          });
+          _listenerAdded = true;
+        }
+
         return Scaffold(
           // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
           body: OrientationBuilder(
