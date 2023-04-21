@@ -12,6 +12,8 @@ class VerseBar extends StatelessWidget {
         builder: (context, settings, state, child) {
       return (settings.scoreDisplay == ScoreDisplay.all)
           ? Listener(
+              // Making sure the verse bar is shown when the user
+              // interacts with it.
               onPointerHover: (_) => state.showThenHideVerseBar(),
               onPointerMove: (_) => state.showThenHideVerseBar(),
               child: SizedBox(
@@ -24,6 +26,9 @@ class VerseBar extends StatelessWidget {
                       child: Center(
                         child: Card(
                           elevation: 3,
+                          // The tab bar is animated so that when the number
+                          // of verses changes, the tab bar will be resized
+                          // to fit the new number of verses with an animation.
                           child: AnimatedSize(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOutCubic,
@@ -45,6 +50,8 @@ class VerseBar extends StatelessWidget {
                                 for (var i = 0;
                                     i < state.tabController.length;
                                     i++)
+                                  // Get the verse number from the text itself.
+                                  // The 48 book skips some verses.
                                   Tab(
                                     text: songBooks[state.book.name]
                                             [state.songKey]['texts'][i]
@@ -56,6 +63,7 @@ class VerseBar extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Pin button
                     IconButton(
                         onPressed: () => settings
                             .changeIsVerseBarPinned(!settings.isVerseBarPinned),

@@ -128,6 +128,10 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
                                     child: (settings.isVerseBarPinned)
+                                        // If the verse bar is pinned, we don't
+                                        // need to animate it. Also, we use a Column
+                                        // so that no content is hidden behind the
+                                        // verse bar.
                                         ? Column(
                                             children: [
                                               Expanded(
@@ -137,11 +141,18 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                               const VerseBar(),
                                             ],
                                           )
+                                        // If the verse bar is not pinned, we
+                                        // need to animate it. Also, we need to
+                                        // stack it on top of the TabBarView.
                                         : Stack(
                                             alignment: Alignment.bottomCenter,
                                             children: [
                                               buildTabBarView(
                                                   state, orientation, context),
+                                              // The verse bar is animated
+                                              // in and out of the screen
+                                              // by changing its bottom
+                                              // position.
                                               AnimatedPositioned(
                                                 duration: const Duration(
                                                     milliseconds: 300),
