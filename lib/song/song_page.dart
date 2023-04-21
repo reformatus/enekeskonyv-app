@@ -77,7 +77,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                   // this to go home immediately.
                                   leading: IconButton(
                                     tooltip: 'Főoldal',
-                                    icon: const Icon(Icons.list),
+                                    icon: const Icon(Icons.menu_book),
                                     onPressed: () {
                                       Navigator.pushNamedAndRemoveUntil(
                                           context, '/', (route) => false);
