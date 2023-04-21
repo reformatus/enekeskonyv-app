@@ -79,8 +79,7 @@ void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
   if ((details.globalPosition - tapDownPosition).distance > 3.0) return;
 
   if ((MediaQuery.of(context).size.width / 2) > details.globalPosition.dx) {
-    // Go backward (to the previous
-    // verse).
+    // Go backward (to the previous verse).
     SongStateProvider.of(context).switchVerse(
         next: false,
         settingsProvider: SettingsProvider.of(context),
@@ -89,7 +88,7 @@ void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
   } else {
     // Go forward (to the next verse).
     SongStateProvider.of(context).switchVerse(
-        next: false,
+        next: true,
         settingsProvider: SettingsProvider.of(context),
         context: context,
         vsync: vsync);
