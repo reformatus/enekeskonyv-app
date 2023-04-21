@@ -11,7 +11,10 @@ List<Widget> getFirstVerseHeader(Book book, String songKey) {
     // be displayed.
     case Book.black:
       if (songBooks[book.name][songKey]['subtitle'] is String) {
-        firstVerseHeader.add(Text(songBooks[book.name][songKey]['subtitle']));
+        firstVerseHeader.add(Text(
+          songBooks[book.name][songKey]['subtitle'],
+          style: const TextStyle(fontStyle: FontStyle.italic),
+        ));
       }
       if (songBooks[book.name][songKey]['composer'] is String) {
         firstVerseHeader.add(Text(
@@ -23,26 +26,43 @@ List<Widget> getFirstVerseHeader(Book book, String songKey) {
 
     // In case of the blue book (21), all the metadata should be displayed.
     case Book.blue:
-    default:
-      final List<String> metadata = [];
-      if (songBooks[book.name][songKey]['subtitle'] is String) {
-        metadata.add(songBooks[book.name][songKey]['subtitle']);
-      }
-      if (songBooks[book.name][songKey]['poet'] is String) {
-        metadata.add('✍️ ${songBooks[book.name][songKey]['poet']}');
-      }
-      if (songBooks[book.name][songKey]['translator'] is String) {
-        metadata.add('🌐 ${songBooks[book.name][songKey]['translator']}');
-      }
-      if (songBooks[book.name][songKey]['composer'] is String) {
-        metadata.add('🎵 ${songBooks[book.name][songKey]['composer']}');
-      }
-      if (metadata.isNotEmpty) {
-        // grayscale emoji filter
-        firstVerseHeader.add(
-          Text(metadata.join(' | ')),
-        );
-      }
+      firstVerseHeader.add(
+        Wrap(
+          children: [
+            if (songBooks[book.name][songKey]['subtitle'] is String)
+              Text(songBooks[book.name][songKey]['subtitle']),
+            if (songBooks[book.name][songKey]['poet'] is String) ...[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.edit, size: 18),
+                  Text('${songBooks[book.name][songKey]['poet']}'),
+                  const SizedBox(width: 10)
+                ],
+              )
+            ],
+            if (songBooks[book.name][songKey]['translator'] is String) ...[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.translate, size: 18),
+                  Text('${songBooks[book.name][songKey]['translator']}'),
+                  const SizedBox(width: 10)
+                ],
+              )
+            ],
+            if (songBooks[book.name][songKey]['composer'] is String) ...[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.music_note, size: 18),
+                  Text('${songBooks[book.name][songKey]['composer']}'),
+                ],
+              )
+            ],
+          ],
+        ),
+      );
       break;
   }
   return firstVerseHeader;
