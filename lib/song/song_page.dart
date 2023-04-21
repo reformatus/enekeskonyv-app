@@ -9,6 +9,7 @@ import 'build_pages.dart';
 import 'buttons.dart';
 import 'state_provider.dart';
 import 'utils.dart';
+import 'verse_bar.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({
@@ -123,46 +124,54 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
-                                    child: TabBarView(
-                                      controller: state.tabController,
-                                      physics: Platform.isIOS
-                                          ? const BouncingScrollPhysics()
-                                          : null,
-                                      children: buildPages(
-                                              orientation,
-                                              state.book,
-                                              state.songKey,
-                                              context)
-                                          .map((tabContentList) {
-                                        return Builder(
-                                          builder: (BuildContext context) {
-                                            return Padding(
-                                              // Prevent having score and/or text
-                                              // sticking to the side of the
-                                              // display.
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 3.0,
-                                              ),
-                                              child: CustomScrollView(
-                                                slivers: [
-                                                  SliverOverlapInjector(
-                                                    handle: NestedScrollView
-                                                        .sliverOverlapAbsorberHandleFor(
-                                                            context),
-                                                  ),
-                                                  SliverList(
-                                                    delegate:
-                                                        SliverChildListDelegate
-                                                            .fixed(
-                                                                tabContentList),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      }).toList(),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: TabBarView(
+                                            controller: state.tabController,
+                                            physics: Platform.isIOS
+                                                ? const BouncingScrollPhysics()
+                                                : null,
+                                            children: buildPages(
+                                                    orientation,
+                                                    state.book,
+                                                    state.songKey,
+                                                    context)
+                                                .map((tabContentList) {
+                                              return Builder(
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return Padding(
+                                                    // Prevent having score and/or text
+                                                    // sticking to the side of the
+                                                    // display.
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 3.0,
+                                                    ),
+                                                    child: CustomScrollView(
+                                                      slivers: [
+                                                        SliverOverlapInjector(
+                                                          handle: NestedScrollView
+                                                              .sliverOverlapAbsorberHandleFor(
+                                                                  context),
+                                                        ),
+                                                        SliverList(
+                                                          delegate:
+                                                              SliverChildListDelegate
+                                                                  .fixed(
+                                                                      tabContentList),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                        VerseBar()
+                                      ],
                                     ),
                                   ),
                                 );
