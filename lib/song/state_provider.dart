@@ -1,5 +1,4 @@
-import 'package:enekeskonyv/song/build_pages.dart';
-import 'package:flutter/cupertino.dart';
+import 'build_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +28,7 @@ class SongStateProvider extends ChangeNotifier {
   // needed, not the index (the position in the list).
   String get songKey => songBooks[book.name].keys.elementAt(song);
 
+  // TODO review logic!!
   void switchVerse(
       {required bool next,
       required SettingsProvider settingsProvider,
@@ -79,16 +79,20 @@ class SongStateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void switchSong({required bool next}) {
+  void switchSong(
+      {required bool next,
+      required BuildContext context,
+      required TickerProvider vsync}) {
     next ? song++ : song--;
     verse = 0;
-    tabController.animateTo(verse);
+    tabController.dispose();
+    tabController = TabController(
+        length: getNumOfPages(book, songKey, context), vsync: vsync);
     scrollController.jumpTo(0);
   }
 
   bool songExists({required bool next}) {
     if (next) {
-      // TODO verify
       return song < songBooks[book.name].length - 1;
     } else {
       return song > 0;
@@ -97,8 +101,7 @@ class SongStateProvider extends ChangeNotifier {
 
   bool verseExists({required bool next}) {
     if (next) {
-      // TODO verify
-      return verse < songBooks[book.name][songKey]['texts'].length - 1;
+      return (verse < songBooks[book.name][songKey]['texts'].length - 1);
     } else {
       return verse > 0;
     }

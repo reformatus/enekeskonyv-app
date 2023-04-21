@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:enekeskonyv/quick_settings_dialog.dart';
+import 'quick_settings_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

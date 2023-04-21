@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/util.dart';
+import 'util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

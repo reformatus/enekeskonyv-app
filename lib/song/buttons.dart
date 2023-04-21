@@ -1,5 +1,5 @@
-import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/song/state_provider.dart';
+import '../settings_provider.dart';
+import 'state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +9,8 @@ import 'text_icon_button.dart';
 class ControllerButtons extends StatelessWidget {
   final Orientation orientation;
   final TickerProvider vsync;
-  const ControllerButtons({Key? key, required this.orientation, required this.vsync})
+  const ControllerButtons(
+      {Key? key, required this.orientation, required this.vsync})
       : super(key: key);
 
   @override
@@ -47,23 +48,24 @@ class ControllerButtons extends StatelessWidget {
       if (settings.scoreDisplay == ScoreDisplay.all)
         IconButton(
           onPressed: state.verseExists(next: false)
-              ? null
-              : () => state.switchVerse(
+              ? () => state.switchVerse(
                   next: false,
                   settingsProvider: settings,
                   context: context,
-                  vsync: vsync),
+                  vsync: vsync)
+              : null,
           icon: const Icon(Icons.arrow_circle_left_outlined),
           tooltip: 'Előző vers',
           disabledColor: ThemeData.dark().highlightColor,
         ),
       TextIconButton(
         text: state.songExists(next: false)
-            ? null
-            : songBooks[state.book.name].keys.elementAt(state.song - 1),
+            ? songBooks[state.book.name].keys.elementAt(state.song - 1)
+            : null,
         onTap: state.songExists(next: false)
-            ? null
-            : () => state.switchSong(next: false),
+            ? () =>
+                state.switchSong(next: false, context: context, vsync: vsync)
+            : null,
         iconData: Icons.arrow_upward,
         tooltip: 'Előző ének',
         disabledColor: ThemeData.dark().highlightColor,
@@ -104,11 +106,11 @@ class ControllerButtons extends StatelessWidget {
         ),
       TextIconButton(
         text: state.songExists(next: true)
-            ? null
-            : songBooks[state.book.name].keys.elementAt(state.song + 1),
+            ? songBooks[state.book.name].keys.elementAt(state.song + 1)
+            : null,
         onTap: state.songExists(next: true)
-            ? null
-            : () => state.switchSong(next: true),
+            ? () => state.switchSong(next: true, context: context, vsync: vsync)
+            : null,
         iconData: Icons.arrow_downward,
         tooltip: 'Következő ének',
         disabledColor: ThemeData.dark().highlightColor,
@@ -118,12 +120,12 @@ class ControllerButtons extends StatelessWidget {
       if (settings.scoreDisplay == ScoreDisplay.all)
         IconButton(
           onPressed: state.verseExists(next: true)
-              ? null
-              : () => state.switchVerse(
+              ? () => state.switchVerse(
                   next: true,
                   settingsProvider: settings,
                   context: context,
-                  vsync: vsync),
+                  vsync: vsync)
+              : null,
           icon: const Icon(Icons.arrow_circle_right_outlined),
           tooltip: 'Következő vers',
           disabledColor: ThemeData.dark().highlightColor,

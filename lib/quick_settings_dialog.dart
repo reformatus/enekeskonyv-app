@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/util.dart';
+import 'settings_provider.dart';
+import 'util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';

@@ -1,8 +1,6 @@
 // @see https://docs.flutter.dev/cookbook/forms/validation
-import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

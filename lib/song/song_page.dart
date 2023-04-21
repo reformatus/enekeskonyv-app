@@ -1,17 +1,13 @@
-import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/song/buttons.dart';
-import 'package:enekeskonyv/song/utils.dart';
+import 'buttons.dart';
+import 'utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:wakelock/wakelock.dart';
 
 import '../settings_provider.dart';
 import '../util.dart';
 
-import '../quick_settings_dialog.dart';
 
 import 'build_pages.dart';
 import 'state_provider.dart';
