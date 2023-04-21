@@ -27,8 +27,7 @@ class SongStateProvider extends ChangeNotifier {
   // To retrieve the song data, the key (the actual number of the song) is
   // needed, not the index (the position in the list).
   String get songKey => songBooks[book.name].keys.elementAt(song);
-
-  // TODO review logic!!
+  
   void switchVerse(
       {required bool next,
       required SettingsProvider settingsProvider,
@@ -89,6 +88,7 @@ class SongStateProvider extends ChangeNotifier {
     tabController = TabController(
         length: getNumOfPages(book, songKey, context), vsync: vsync);
     scrollController.jumpTo(0);
+    notifyListeners();
   }
 
   bool songExists({required bool next}) {
