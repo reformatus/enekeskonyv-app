@@ -129,6 +129,7 @@ class SongStateProvider extends ChangeNotifier {
       required BuildContext context,
       required TickerProvider vsync}) {
     next ? song++ : song--;
+    verse = 0;
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context),
