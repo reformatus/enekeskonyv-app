@@ -35,10 +35,10 @@ class SongStateProvider extends ChangeNotifier {
       int? initialIndex,
       bool initial = false,
       required TickerProvider vsync}) {
-    if (!initial) tabController.dispose();
-
     initialIndex ??= tabController.index;
     numOfPages ??= tabController.length;
+
+    if (!initial) tabController.dispose();
 
     tabController = TabController(
         initialIndex: initialIndex, length: numOfPages, vsync: vsync);
