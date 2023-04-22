@@ -21,7 +21,7 @@ class VerseBar extends StatelessWidget {
                 child: Row(
                   children: [
                     // Empty box to make the tab bar centered
-                    const SizedBox(width: 40),
+                    const SizedBox(width: 50),
                     Expanded(
                       child: Center(
                         child: Card(
