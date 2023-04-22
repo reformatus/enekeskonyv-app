@@ -38,14 +38,11 @@ class SongStateProvider extends ChangeNotifier {
     initialIndex ??= tabController.index;
     numOfPages ??= tabController.length;
 
-    if (!initial) tabController.dispose();
-
     tabController = TabController(
         initialIndex: initialIndex, length: numOfPages, vsync: vsync);
     tabController.addListener(() {
       verse = tabController.index;
       showThenHideVerseBar();
-      notifyListeners();
     });
   }
 
@@ -65,12 +62,12 @@ class SongStateProvider extends ChangeNotifier {
 
   void showThenHideVerseBar() {
     isVerseBarVisible = true;
-    notifyListeners();
     if (verseBarHideTimer != null) verseBarHideTimer!.cancel();
     verseBarHideTimer = Timer(const Duration(seconds: 3), () {
       isVerseBarVisible = false;
       notifyListeners();
     });
+    notifyListeners();
   }
 
   void switchVerse(
@@ -121,7 +118,6 @@ class SongStateProvider extends ChangeNotifier {
       }
     }
     showThenHideVerseBar();
-    notifyListeners();
   }
 
   void switchSong(
@@ -136,7 +132,6 @@ class SongStateProvider extends ChangeNotifier {
         initialIndex: 0);
     scrollController.jumpTo(0);
     showThenHideVerseBar();
-    notifyListeners();
   }
 
   bool songExists({required bool next}) {
