@@ -13,6 +13,7 @@ class SongStateProvider extends ChangeNotifier {
   ScrollController scrollController = ScrollController();
   late TabController tabController;
   bool isVerseBarVisible = true;
+  DateTime barLastShownAtTime = DateTime.now();
   Timer? verseBarHideTimer;
 
   SongStateProvider({
@@ -44,6 +45,10 @@ class SongStateProvider extends ChangeNotifier {
       verse = tabController.index;
       showThenHideVerseBar();
     });
+    // show verse bar when user starts scrolling
+    tabController.animation!.addListener(() {
+      showThenHideVerseBar();
+    });
   }
 
   void settingsListener(
@@ -61,12 +66,15 @@ class SongStateProvider extends ChangeNotifier {
   String get songKey => songBooks[book.name].keys.elementAt(song);
 
   void showThenHideVerseBar() {
+    if (DateTime.now().difference(barLastShownAtTime) <
+        const Duration(seconds: 1)) return;
     isVerseBarVisible = true;
     if (verseBarHideTimer != null) verseBarHideTimer!.cancel();
-    verseBarHideTimer = Timer(const Duration(seconds: 3), () {
+    verseBarHideTimer = Timer(const Duration(seconds: 2), () {
       isVerseBarVisible = false;
       notifyListeners();
     });
+    barLastShownAtTime = DateTime.now();
     notifyListeners();
   }
 
