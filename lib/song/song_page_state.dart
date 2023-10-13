@@ -13,7 +13,8 @@ class SongStateProvider extends ChangeNotifier {
   ScrollController scrollController = ScrollController();
   late TabController tabController;
   bool isVerseBarVisible = true;
-  DateTime barLastShownAtTime = DateTime.now();
+  DateTime barLastShownAtTime =
+      DateTime.now().subtract(const Duration(seconds: 10));
   Timer? verseBarHideTimer;
 
   SongStateProvider({
