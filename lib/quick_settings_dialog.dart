@@ -138,6 +138,26 @@ class QuickSettingsDialog extends StatelessWidget {
                     }),
                   ),
                 ),
+                if (provider.getCurrentAppBrightness(context) ==
+                        Brightness.dark ||
+                    provider.getCurrentSheetBrightness(context) ==
+                        Brightness.dark)
+                  ListTile(
+                    title: const Text('Teljesen fekete háttér'),
+                    trailing: Platform.isIOS
+                        ? CupertinoSwitch(
+                            value: provider.isOledTheme,
+                            onChanged: (value) {
+                              provider.changeIsOledTheme(value);
+                            },
+                          )
+                        : Switch(
+                            value: provider.isOledTheme,
+                            onChanged: (value) {
+                              provider.changeIsOledTheme(value);
+                            },
+                          ),
+                  ),
                 const SettingsSectionTitle(
                   'Navigáció',
                   subtitle: true,
@@ -158,6 +178,23 @@ class QuickSettingsDialog extends StatelessWidget {
                           },
                         ),
                 ),
+                if (provider.scoreDisplay == ScoreDisplay.all)
+                  ListTile(
+                    title: const Text('Versszakválasztó sáv'),
+                    trailing: Platform.isIOS
+                        ? CupertinoSwitch(
+                            value: provider.isVerseBarEnabled,
+                            onChanged: (value) {
+                              provider.changeIsVerseBarEnabled(value);
+                            },
+                          )
+                        : Switch(
+                            value: provider.isVerseBarEnabled,
+                            onChanged: (value) {
+                              provider.changeIsVerseBarEnabled(value);
+                            },
+                          ),
+                  ),
                 if (songData != null) ...[
                   const Divider(
                     endIndent: 70,
