@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SettingsProvider>(
       create: (_) => SettingsProvider()..initialize(),
-      child: Consumer<SettingsProvider>(builder: (context, provider, child) {
+      child: Consumer<SettingsProvider>(builder: (context, settings, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
@@ -24,9 +24,13 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
                 seedColor:
-                    provider.book == Book.black ? Colors.amber : Colors.blue,
-                brightness: provider.getCurrentAppBrightness(context),
-                background: provider.isOledTheme ? Colors.black : null),
+                    settings.book == Book.black ? Colors.amber : Colors.blue,
+                brightness: settings.getCurrentAppBrightness(context),
+                background: settings.isOledTheme &&
+                        settings.getCurrentAppBrightness(context) ==
+                            Brightness.dark
+                    ? Colors.black
+                    : null),
           ),
           home: const HomePage(),
         );

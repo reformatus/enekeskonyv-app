@@ -119,9 +119,10 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                       : Colors.blue,
                                   brightness: settings
                                       .getCurrentSheetBrightness(context),
-                                  background: settings.isOledTheme
-                                      ? Colors.black
-                                      : null),
+                                  background:
+                                      settings.isOledTheme && settings.getCurrentSheetBrightness(context) == Brightness.dark
+                                          ? Colors.black
+                                          : null),
                             ),
                             // Needs a separate [Material] and [Builder] for
                             // providing a new BuildContext to children properly.

@@ -23,7 +23,11 @@ class ControllerButtons extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
               seedColor: state.book == Book.black ? Colors.amber : Colors.blue,
               brightness: settings.getCurrentSheetBrightness(context),
-              background: settings.isOledTheme ? Colors.black : null),
+              background: settings.isOledTheme &&
+                      settings.getCurrentSheetBrightness(context) ==
+                          Brightness.dark
+                  ? Colors.black
+                  : null),
         ),
         child: Builder(
           builder: (BuildContext context) {
