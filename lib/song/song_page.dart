@@ -113,8 +113,15 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                           body: Theme(
                             data: ThemeData(
                               useMaterial3: true,
-                              brightness:
-                                  settings.getCurrentSheetBrightness(context),
+                              colorScheme: ColorScheme.fromSeed(
+                                  seedColor: state.book == Book.black
+                                      ? Colors.amber
+                                      : Colors.blue,
+                                  brightness: settings
+                                      .getCurrentSheetBrightness(context),
+                                  background: settings.isOledTheme
+                                      ? Colors.black
+                                      : null),
                             ),
                             // Needs a separate [Material] and [Builder] for
                             // providing a new BuildContext to children properly.
@@ -163,8 +170,8 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 bottom: state.isVerseBarVisible
                                                     ? 0
                                                     : -70,
-                                                child:
-                                                    VerseBar(key: state.verseBarKey),
+                                                child: VerseBar(
+                                                    key: state.verseBarKey),
                                               ),
                                             ],
                                           ),
