@@ -20,9 +20,14 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
-          themeMode: provider.appThemeMode,
-          theme: ThemeData(useMaterial3: true),
-          darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+                seedColor:
+                    provider.book == Book.black ? Colors.amber : Colors.blue,
+                brightness: provider.getCurrentAppBrightness(context),
+                background: provider.isOledTheme ? Colors.black : null),
+          ),
           home: const HomePage(),
         );
       }),
