@@ -11,11 +11,16 @@ class SongStateProvider extends ChangeNotifier {
   int verse;
   Book book;
   ScrollController scrollController = ScrollController();
+  ScrollController? tabBarScrollController;
   late TabController tabController;
   bool isVerseBarVisible = true;
+  // To make sure verse bar hides after opening a page, we subtract a few seconds.
   DateTime barLastShownAtTime =
       DateTime.now().subtract(const Duration(seconds: 10));
   Timer? verseBarHideTimer;
+  List<Widget> tabs = [];
+  Map<int, GlobalKey> tabKeys = {};
+  GlobalKey verseBarKey = GlobalKey();
 
   SongStateProvider({
     required this.song,
@@ -40,12 +45,31 @@ class SongStateProvider extends ChangeNotifier {
     initialIndex ??= tabController.index;
     numOfPages ??= tabController.length;
 
+    tabs.clear();
+
     tabController = TabController(
         initialIndex: initialIndex, length: numOfPages, vsync: vsync);
+
+    for (var i = 0; i < tabController.length; i++) {
+      GlobalKey key = GlobalKey();
+      // Get the verse number from the text itself.
+      // The 48 book skips some verses.
+      tabs.add(Tab(
+        key: key,
+        text: songBooks[book.name][songKey]['texts'][i].split('.')[0],
+      ));
+      tabKeys[i] = key;
+    }
+
     tabController.addListener(() {
       verse = tabController.index;
+      Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease);
       showThenHideVerseBar();
     });
+
     // show verse bar when user starts scrolling
     tabController.animation!.addListener(() {
       showThenHideVerseBar();
@@ -117,10 +141,20 @@ class SongStateProvider extends ChangeNotifier {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
+        //ensure a new versebar state is created
+        verseBarKey = GlobalKey();
+
         initTabController(
             vsync: vsync,
             numOfPages: getNumOfPages(book, songKey, context),
             initialIndex: verse);
+
+        Future.delayed(const Duration(milliseconds: 200)).then((value) =>
+            Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
+                alignment: 0.5,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease));
+
         scrollController.jumpTo(0);
       } else {
         tabController.animateTo(verse);
@@ -135,10 +169,21 @@ class SongStateProvider extends ChangeNotifier {
       required TickerProvider vsync}) {
     next ? song++ : song--;
     verse = 0;
+
+    //ensure a new versebar state is created
+    verseBarKey = GlobalKey();
+
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context),
         initialIndex: 0);
+
+    Future.delayed(const Duration(milliseconds: 200)).then((value) =>
+        Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease));
+
     scrollController.jumpTo(0);
     showThenHideVerseBar();
   }
