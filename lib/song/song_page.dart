@@ -138,7 +138,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 child: buildTabBarView(state,
                                                     orientation, context),
                                               ),
-                                              const VerseBar(),
+                                              VerseBar(key: state.verseBarKey),
                                             ],
                                           )
                                         // If the verse bar is not pinned, we
@@ -163,7 +163,8 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 bottom: state.isVerseBarVisible
                                                     ? 0
                                                     : -70,
-                                                child: const VerseBar(),
+                                                child:
+                                                    VerseBar(key: state.verseBarKey),
                                               ),
                                             ],
                                           ),
