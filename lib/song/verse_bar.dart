@@ -67,7 +67,6 @@ class _VerseBarState extends State<VerseBar> {
                 Expanded(
                   child: Center(
                     child: FadingEdgeScrollView.fromSingleChildScrollView(
-                      shouldDisposeScrollController: true,
                       child: SingleChildScrollView(
                         controller: scrollController,
                         scrollDirection: Axis.horizontal,
