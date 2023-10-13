@@ -20,12 +20,15 @@ class ControllerButtons extends StatelessWidget {
       return Theme(
         data: ThemeData(
           useMaterial3: true,
-          brightness: settings.getCurrentSheetBrightness(context),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: state.book == Book.black ? Colors.amber : Colors.blue,
+              brightness: settings.getCurrentSheetBrightness(context),
+              background: settings.isOledTheme ? Colors.black : null),
         ),
         child: Builder(
           builder: (BuildContext context) {
             return Material(
-              color: Theme.of(context).cardColor,
+              color: Theme.of(context).colorScheme.background,
               child: Flex(
                 direction: orientation == Orientation.portrait
                     ? Axis.horizontal
