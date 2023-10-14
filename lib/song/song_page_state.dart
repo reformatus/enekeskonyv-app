@@ -150,11 +150,11 @@ class SongStateProvider extends ChangeNotifier {
             numOfPages: getNumOfPages(book, songKey, context),
             initialIndex: verse);
 
+        // Scroll verseBar immediately to selected verse (useful when changing
+        // verses backwards and going to last verse in previous song)
         Future.delayed(const Duration(milliseconds: 200)).then((value) =>
             Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
-                alignment: 0.5,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease));
+                alignment: 0.5, duration: Duration.zero));
 
         scrollController.jumpTo(0);
       } else {
