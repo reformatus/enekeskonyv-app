@@ -54,6 +54,7 @@ class ControllerButtons extends StatelessWidget {
     return [
       if (settings.scoreDisplay == ScoreDisplay.all)
         IconButton(
+          key: const Key('_MySongPageState.IconButton.prevVerse'),
           onPressed: state.verseExists(next: false)
               ? () => state.switchVerse(
                   next: false,
@@ -66,6 +67,7 @@ class ControllerButtons extends StatelessWidget {
           disabledColor: ThemeData.dark().highlightColor,
         ),
       TextIconButton(
+        key: const Key('_MySongPageState.IconButton.prevSong'),
         text: state.songExists(next: false)
             ? songBooks[state.book.name].keys.elementAt(state.song - 1)
             : null,
@@ -112,6 +114,7 @@ class ControllerButtons extends StatelessWidget {
           disabledColor: ThemeData.dark().highlightColor,
         ),
       TextIconButton(
+        key: const Key('_MySongPageState.IconButton.nextSong'),
         text: state.songExists(next: true)
             ? songBooks[state.book.name].keys.elementAt(state.song + 1)
             : null,
@@ -126,6 +129,7 @@ class ControllerButtons extends StatelessWidget {
       ),
       if (settings.scoreDisplay == ScoreDisplay.all)
         IconButton(
+          key: const Key('_MySongPageState.IconButton.nextVerse'),
           onPressed: state.verseExists(next: true)
               ? () => state.switchVerse(
                   next: true,
