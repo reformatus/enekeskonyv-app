@@ -15,7 +15,7 @@ void main() {
       await tester.pumpAndSettle();
     }
     // Ensure the app's title is displayed.
-    expect(find.textContaining('Énekeskönyv ('), findsWidgets);
+    expect(find.textContaining('énekeskönyv'), findsWidgets);
     // Ensure the first song is displayed in the list.
     expect(
         find.textContaining('Aki nem jár hitlenek tanácsán'), findsOneWidget);
