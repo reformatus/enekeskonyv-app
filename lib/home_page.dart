@@ -74,32 +74,22 @@ class _HomePageState extends State<HomePage> {
                       child: DropdownButton<Book>(
                         isExpanded: true,
                         value: provider.book,
-                        items: [
-                          DropdownMenuItem(
-                            value: Book.blue,
-                            child: Text(
-                              '${Book.blue.displayName} énekeskönyv',
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 20,
+                        items: Book.values
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  '${e.displayName} énekeskönyv',
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: Book.black,
-                            child: Text(
-                              '${Book.black.displayName} énekeskönyv',
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ],
+                            )
+                            .toList(),
                         onChanged: (value) => provider.changeBook(value!),
                       ),
                     ),
@@ -171,7 +161,6 @@ class _HomePageState extends State<HomePage> {
                   // whole list which is quite long).
                   thickness: 10.0,
                   child: ListView.builder(
-                    
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
                     itemCount: songBooks[provider.bookAsString].length,
