@@ -68,6 +68,7 @@ class SongStateProvider extends ChangeNotifier {
           duration: const Duration(milliseconds: 300),
           curve: Curves.ease);
       showThenHideVerseBar();
+      notifyListeners();
     });
 
     // show verse bar when user starts scrolling
@@ -160,6 +161,7 @@ class SongStateProvider extends ChangeNotifier {
         tabController.animateTo(verse);
       }
     }
+    notifyListeners();
     showThenHideVerseBar();
   }
 
