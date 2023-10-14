@@ -41,7 +41,9 @@ class TextIconButton extends StatelessWidget {
               ),
               Icon(
                 iconData,
-                color: onTap != null ? null : disabledColor,
+                color: onTap != null
+                    ? Theme.of(context).textTheme.bodyLarge!.color
+                    : disabledColor,
               ),
             ],
           ),
