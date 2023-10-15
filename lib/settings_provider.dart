@@ -14,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultIsVerseBarPinned = false;
   static const bool defaultIsVerseBarEnabled = true;
   static const bool defaultIsOledTheme = false;
+  static const bool defaultSearchNumericKeyboard = false;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -24,6 +25,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _isVerseBarPinned = defaultIsVerseBarPinned;
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
   bool _isOledTheme = defaultIsOledTheme;
+  bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
 
   bool _initialized = false;
 
@@ -36,6 +38,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get isVerseBarPinned => _isVerseBarPinned;
   bool get isVerseBarEnabled => _isVerseBarEnabled;
   bool get isOledTheme => _isOledTheme;
+  bool get searchNumericKeyboard => _searchNumericKeyboard;
 
   String get bookAsString {
     switch (_book) {
@@ -135,6 +138,13 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeSearchNumericKeyboard(bool value) async {
+    _searchNumericKeyboard = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('searchNumericKeyboard', value);
+    notifyListeners();
+  }
+
   Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -172,6 +182,8 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled =
           prefs.getBool('isVerseBarEnabled') ?? defaultIsVerseBarEnabled;
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
+      _searchNumericKeyboard =
+          prefs.getBool('searchNumericKeyboard') ?? defaultSearchNumericKeyboard;
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -183,6 +195,7 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarPinned = defaultIsVerseBarPinned;
       _isVerseBarEnabled = defaultIsVerseBarEnabled;
       _isOledTheme = defaultIsOledTheme;
+      _searchNumericKeyboard = defaultSearchNumericKeyboard;
     }
 
     notifyListeners();
