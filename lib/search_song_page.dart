@@ -375,7 +375,7 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
                   onSubmitted: (e) {
                     onSubmit();
                     textController.clear();
-                    setState(() {
+                                        setState(() {
                       searchText = '';
                     });
                   },
