@@ -79,8 +79,8 @@ class _HomePageState extends State<HomePage> {
                           book: provider.book, settingsProvider: provider);
                     }),
                   ),
-                  child: const Icon(Icons.search),
                   tooltip: 'Keresés vagy ugrás...',
+                  child: const Icon(Icons.search),
                 )
               : null,
           appBar: AppBar(
