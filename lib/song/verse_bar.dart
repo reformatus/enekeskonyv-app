@@ -40,6 +40,7 @@ class _VerseBarState extends State<VerseBar> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateEndEllipsies(scrollController.position);
+      SongStateProvider.of(context).scrollVerseBarToCurrent(animate: false);
     });
   }
 
