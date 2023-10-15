@@ -45,7 +45,8 @@ class _VerseBarState extends State<VerseBar> {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      if ((settings.scoreDisplay == ScoreDisplay.all)) {
+      if ((settings.scoreDisplay == ScoreDisplay.all) &&
+          (state.tabs.length > 1)) {
         return Listener(
           // Making sure the verse bar is shown when the user
           // interacts with it.
