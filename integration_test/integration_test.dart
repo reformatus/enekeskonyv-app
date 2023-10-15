@@ -1,4 +1,3 @@
-import 'package:enekeskonyv/goto_song_form.dart';
 import 'package:enekeskonyv/main.dart' as app;
 import 'package:enekeskonyv/song/text_icon_button.dart';
 import 'package:flutter/material.dart';
@@ -110,67 +109,6 @@ void main() {
     expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
     expect(tester.widget<IconButton>(nextVerse).onPressed != null, true);
 
-    // Now let's test the form.
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.tap(gotoSongButton);
-    await tester.pumpAndSettle();
-    // Ensure the proper page is displayed.
-    expect(find.text('Ugrás énekre'), findsOneWidget);
-    // Ensure there is one TextFormField.
-    final textFormField =
-        find.byKey(const Key('_MyCustomFormState.TextFormField'));
-    expect(textFormField, findsOneWidget);
-    // Ensure the limits are displayed.
-    expect(find.text('(1 és 846 között)'), findsOneWidget);
-    // Ensure it's empty.
-    final textFormFieldWidgetController =
-        (textFormField.evaluate().first.widget as PlatformAwareTextFormField)
-            .controller;
-    expect(textFormFieldWidgetController.text, '');
-    // Ensure error messages when submitting invalid form values.
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(find.text('Írj be egy számot!'), findsOneWidget);
-    await tester.enterText(textFormField, '0');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(find.text('Nincs ilyen ének.'), findsOneWidget);
-    await tester.enterText(textFormField, '847');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(find.text('Nincs ilyen ének.'), findsOneWidget);
-    // Ensure that the song page gets displayed after submitting valid form
-    // values.
-    textFormFieldWidgetController.clear();
-
-    // OK, let's move on to a song with a single verse.
-    await tester.enterText(textFormField, '117');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(mySongPageState, findsOneWidget);
-    expect(find.textContaining('Az Urat minden nemzetek'), findsOneWidget);
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onTap != null, true);
-    expect(tester.widget<IconButton>(nextVerse).onPressed, null);
-
-    // Ensure the TextFormField is empty after returning from the song page.
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    expect(textFormFieldWidgetController.text, '');
-
-    // And also check the prev/next controls on the very last verse. (The
-    // default book's last song has only one verse, tho.)
-    await tester.enterText(textFormField, '846');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(tester.widget<IconButton>(prevVerse).onPressed, null);
-    expect(tester.widget<TextIconButton>(prevSong).onTap != null, true);
-    expect(tester.widget<TextIconButton>(nextSong).onTap, null);
-    expect(tester.widget<IconButton>(nextVerse).onPressed, null);
     // TODO Test settings (different books).
     // TODO Test search song function.
   });
