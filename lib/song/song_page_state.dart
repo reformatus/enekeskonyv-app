@@ -197,7 +197,7 @@ class SongStateProvider extends ChangeNotifier {
   scrollVerseBarToCurrent({bool animate = true}) {
     Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
         alignment: 0.5,
-        duration: animate ? Duration(milliseconds: 300) : Duration.zero,
+        duration: animate ? const Duration(milliseconds: 300) : Duration.zero,
         curve: Curves.ease);
   }
 
