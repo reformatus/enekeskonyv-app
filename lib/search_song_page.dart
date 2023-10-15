@@ -1,7 +1,7 @@
-import 'dart:io';
-
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'settings_provider.dart';
 import 'song/song_page.dart';
@@ -9,11 +9,13 @@ import 'song/song_page.dart';
 class SearchVerse {
   final String songKey;
   final int verseIndex;
+  final String verseNumber;
   final String text;
 
   const SearchVerse({
     required this.songKey,
     required this.verseIndex,
+    required this.verseNumber,
     required this.text,
   });
 }
@@ -34,7 +36,8 @@ class MySearchSongPage extends StatefulWidget {
 
 class _MySearchSongPageState extends State<MySearchSongPage> {
   List<SearchVerse> allSearchVerses = [];
-  List<ListTile> searchResults = [];
+  String searchText = '';
+  Function onSubmit = () {};
 
   @override
   void initState() {
@@ -42,168 +45,341 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     // When the page is displayed, a full list of all verses is needed as a
     // search data source.
     songBooks[widget.book.name].forEach((key, value) {
-      var verseNumber = 0;
+      var verseIndex = 0;
       value['texts'].forEach((valueText) {
+        var splitAtPosition = (valueText as String).indexOf('.');
         allSearchVerses.add(SearchVerse(
           songKey: key,
-          verseIndex: verseNumber,
-          text: valueText,
+          verseIndex: verseIndex,
+          verseNumber: valueText.substring(0, splitAtPosition),
+          text: valueText.substring(splitAtPosition + 1).trim(),
         ));
-        verseNumber++;
+        verseIndex++;
       });
     });
   }
 
-  void _updateSearchResults(String searchText) {
-    searchResults = [];
-    String lastSongSeen = '';
+  List<Widget> getSearchResults() {
+    // Jump mode
+    if (searchText.contains(RegExp(r'^\d'))) {
+      try {
+        var searchParts = searchText.split(RegExp(r'[ \.\-/,]'));
+        String songNumber = searchParts[0];
+        if (!allSearchVerses.any((element) => element.songKey == songNumber)) {
+          return [errorMessageTile('Nincs ilyen ének!')];
+        }
+
+        String verseNumber = searchParts.length > 1 ? searchParts[1] : '1';
+
+        SearchVerse foundVerse;
+        try {
+          foundVerse = allSearchVerses.firstWhere((element) =>
+              element.songKey == songNumber &&
+              element.verseNumber == verseNumber);
+        } catch (e) {
+          return [errorMessageTile('Nincs ilyen versszak!')];
+        }
+        return [
+          foundSongTile(
+            songNumber,
+            foundByNumber: true,
+            firstResult: true,
+            [
+              foundVerseTile(
+                foundVerse,
+                foundByNumber: true,
+                foundFirst: true,
+                [TextSpan(text: foundVerse.text)],
+              )
+            ],
+          )
+        ];
+      } catch (e) {
+        return [errorMessageTile('Helytelen formátum!')];
+      }
+    }
+
+    // Search mode
+    if (searchText.replaceAll(RegExp(r'\W'), '').length < 3) {
+      return [
+        ListTile(
+          subtitle: Text(
+            '''
+Kereséshez adj meg legalább 3 betűt.
+
+Ugráshoz add meg az ének számát.
+Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szóközzel elválasztva.''',
+            style: TextStyle(
+                fontStyle: FontStyle.italic,
+                color: Theme.of(context).colorScheme.secondary),
+          ),
+        )
+      ];
+    }
+
+    List<Widget> searchResults = [];
+    bool firstSong = true;
+    bool firstVerse = true;
+    List<Widget> searchResultsFromSong = [];
+
+    String lastSongSeen = "";
+
     for (var element in allSearchVerses) {
       // Continue with next verse if search text is not found in this one.
-      if (!(element.text.toLowerCase().contains(searchText.toLowerCase()))) {
+      if (!(getSearchableText(element.text)
+          .contains(getSearchableText(searchText)))) {
         continue;
       }
-      // Add the song title as a header for its found verses.
-      if (lastSongSeen != element.songKey) {
-        lastSongSeen = element.songKey;
-        searchResults.add(ListTile(
-          title: Text(
-            '${element.songKey}. ${songBooks[widget.book.name][element.songKey]['title']}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          // Song titles should have no left padding.
-          contentPadding: const EdgeInsets.only(
-            left: 3,
-            right: 3,
-          ),
-        ));
+      // Add the song card with its found verses.
+      if (lastSongSeen != element.songKey && lastSongSeen.isNotEmpty) {
+        searchResults.add(
+          foundSongTile(lastSongSeen, searchResultsFromSong,
+              firstResult: firstSong),
+        );
+        firstSong = false;
+        searchResultsFromSong.clear();
       }
+      lastSongSeen = element.songKey;
 
       // Highlight search text by making it bold.
-      final matchPosition =
-          element.text.toLowerCase().indexOf(searchText.toLowerCase());
+      var matchPosition = getSearchableText(element.text, filterLetters: false)
+          .indexOf(getSearchableText(searchText, filterLetters: false));
+
       List<TextSpan> titleSpans = [
-        TextSpan(
-          text: element.text.substring(0, matchPosition),
-        ),
-        TextSpan(
-          text: element.text
-              .substring(matchPosition, matchPosition + searchText.length),
-          style: TextStyle(
-            // This is the boldest possible choice.
-            fontWeight: FontWeight.w900,
-            color: Theme.of(context).colorScheme.primary,
+        if (matchPosition >= 0) ...[
+          TextSpan(
+            text: element.text.substring(0, matchPosition),
           ),
-        ),
-        TextSpan(
-          text: element.text.substring(matchPosition + searchText.length),
-        ),
+          TextSpan(
+            text: element.text
+                .substring(matchPosition, matchPosition + searchText.length),
+            style: TextStyle(
+              // This is the boldest possible choice.
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          TextSpan(
+            text: element.text.substring(matchPosition + searchText.length),
+          ),
+        ],
+        if (matchPosition == -1) TextSpan(text: element.text),
       ];
 
-      searchResults.add(ListTile(
-        title: RichText(
-          text: TextSpan(
-            // Without this explicit color, the search results would be
-            // illegible when the app is in light mode. This makes it legible in
-            // both dark and light modes.
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge!.color,
-            ),
-            children: titleSpans,
-          ),
-        ),
-        // Search result verses should be left-indented.
-        contentPadding: const EdgeInsets.only(
-          left: 15,
-          right: 3,
-        ),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return SongPage(
-                  book: widget.settingsProvider.book,
-                  songIndex: songBooks[widget.book.name]
-                      .keys
-                      .toList()
-                      .indexOf(element.songKey),
-                  verseIndex: element.verseIndex,
-                );
-              },
-            ),
-          );
-        },
-      ));
+      searchResultsFromSong
+          .add(foundVerseTile(element, titleSpans, foundFirst: firstVerse));
+      firstVerse = false;
     }
+    if (lastSongSeen.isNotEmpty) {
+      searchResults.add(foundSongTile(lastSongSeen, searchResultsFromSong,
+          firstResult: firstSong));
+    }
+
+    if (searchResults.isEmpty) {
+      searchResults.add(errorMessageTile('Nincs találat!'));
+    }
+
+    return searchResults;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // To save some screen estate, reuse the page title for the search input
-        // field.
-        title: PlatformAwareTextField(
-          hintText: 'Keresendő szöveg (3+ betű)',
-          onChanged: (searchText) {
-            if (searchText.length >= 3) {
-              setState(() {
-                _updateSearchResults(searchText);
-              });
-            } else {
-              // When less than 3 characters typed, empty the list.
-              if (searchResults.isNotEmpty) {
-                setState(() {
-                  searchResults = [];
-                });
-              }
-            }
+  ListTile foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
+      {bool foundFirst = false, bool foundByNumber = false}) {
+    onTap() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return SongPage(
+              book: widget.settingsProvider.book,
+              songIndex: songBooks[widget.book.name]
+                  .keys
+                  .toList()
+                  .indexOf(element.songKey),
+              verseIndex: element.verseIndex,
+            );
           },
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                return searchResults[index];
-              },
-            ),
+        // request focus to show keyboard when returning from song page
+      ).then((value) => keyboardFocusNode.requestFocus());
+    }
+
+    if (foundFirst) {
+      onSubmit = onTap;
+    }
+    return ListTile(
+      title: RichText(
+        text: TextSpan(
+          // Without this explicit color, the search results would be
+          // illegible when the app is in light mode. This makes it legible in
+          // both dark and light modes.
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge!.color,
           ),
+          children: [
+            if (foundFirst)
+              const WidgetSpan(
+                  child: Padding(
+                padding: EdgeInsets.only(right: 5),
+                child: Icon(
+                  Icons.shortcut,
+                  size: 20,
+                ),
+              )),
+            TextSpan(
+              text: '${element.verseNumber}. ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: foundByNumber
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
+              ),
+            ),
+            ...titleSpans,
+          ],
+        ),
+      ),
+      // Search result verses should be left-indented.
+      contentPadding: const EdgeInsets.only(
+        left: 15,
+        right: 3,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Card foundSongTile(String lastSongSeen, List<Widget> searchResultsFromSong,
+      {bool firstResult = false, bool foundByNumber = false}) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: firstResult ? 10 : 0.5,
+      child: Column(
+        children: [
+          ListTile(
+            title: RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodyLarge!,
+                children: [
+                  TextSpan(
+                    text: '$lastSongSeen. ',
+                    style: foundByNumber
+                        ? TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
+                  ),
+                  TextSpan(
+                      text:
+                          '${songBooks[widget.book.name][lastSongSeen]['title']}'),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            // Song titles should have no left padding.
+            contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+          ),
+          ...searchResultsFromSong,
         ],
       ),
     );
   }
-}
 
-class PlatformAwareTextField extends StatelessWidget {
-  final String hintText;
-  final void Function(String)? onChanged;
+  String getSearchableText(String text, {bool filterLetters = true}) {
+    if (!filterLetters) {
+      return removeDiacritics(text.toLowerCase());
+    }
 
-  const PlatformAwareTextField(
-      {Key? key, required this.hintText, required this.onChanged})
-      : super(key: key);
+    // Replace diacritics with their non-diacritic counterparts.
+    // Remove everything that is not a letter.
+    return removeDiacritics(text)
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\W]', unicode: true), '');
+  }
+
+  Widget errorMessageTile(String error) {
+    return ListTile(
+      title: Text(
+        error,
+        style: TextStyle(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+  }
+
+  FocusNode keyboardFocusNode = FocusNode();
+  TextEditingController textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isIOS
-        ? CupertinoTheme(
-            data: CupertinoThemeData(
-                brightness: SettingsProvider.of(context)
-                    .getCurrentAppBrightness(context)),
-            child: CupertinoTextField(
-              placeholder: hintText,
-              autofocus: true,
-              onChanged: onChanged,
-            ),
-          )
-        : TextField(
-            decoration: InputDecoration(
-              hintText: hintText,
-            ),
+    var searchResults = getSearchResults();
+
+    return Consumer<SettingsProvider>(builder: (context, settings, child) {
+      return Scaffold(
+        appBar: AppBar(
+          // To save some screen estate, reuse the page title for the search input
+          // field.
+          title: TextField(
+            controller: textController,
+            focusNode: keyboardFocusNode,
             autofocus: true,
-            onChanged: onChanged,
-          );
+            autocorrect: false,
+            style: const TextStyle(
+              fontWeight: FontWeight.normal,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'Keresés vagy ugrás (pl: 150,3)',
+            ),
+            keyboardType: settings.searchNumericKeyboard
+                ? const TextInputType.numberWithOptions(
+                    decimal: true,
+                  )
+                : TextInputType.text,
+            textInputAction: TextInputAction.go,
+            onChanged: (e) {
+              setState(() {
+                searchText = e;
+              });
+            },
+            onSubmitted: (e) {
+              textController.clear();
+              /*setState(() {
+                  searchText = '';
+                });*/
+              onSubmit();
+            },
+          ),
+        ),
+        // A button to switch between numeric and normal keyboard.
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'Váltás numerikus és normál billentyűzet közöttttt',
+          onPressed: () {
+            setState(() {
+              settings
+                  .changeSearchNumericKeyboard(!settings.searchNumericKeyboard);
+              keyboardFocusNode.unfocus();
+              Future.delayed(Duration(milliseconds: 100), () {
+                keyboardFocusNode.requestFocus();
+              });
+            });
+          },
+          child: Icon(settings.searchNumericKeyboard
+              ? Icons.keyboard
+              : Icons.pin_outlined),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: searchResults.length,
+                itemBuilder: (context, index) {
+                  return searchResults[index];
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
