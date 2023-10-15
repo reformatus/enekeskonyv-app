@@ -182,7 +182,7 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
     return searchResults;
   }
 
-  ListTile foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
+  Widget foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
       {bool foundFirst = false, bool foundByNumber = false}) {
     onTap() {
       Navigator.of(context).push(
@@ -205,44 +205,71 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
     if (foundFirst) {
       onSubmit = onTap;
     }
-    return ListTile(
-      title: RichText(
-        text: TextSpan(
-          // Without this explicit color, the search results would be
-          // illegible when the app is in light mode. This makes it legible in
-          // both dark and light modes.
-          style: TextStyle(
-            color: Theme.of(context).textTheme.bodyLarge!.color,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: foundFirst
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline,
+              width: foundFirst ? 3 : 1,
+            ),
           ),
+        ),
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        padding: const EdgeInsets.all(7),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (foundFirst)
-              const WidgetSpan(
-                  child: Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Icons.shortcut,
-                  size: 20,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 9),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Icon(
+                        Icons.shortcut,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    Text(
+                      'Megnyitás Enter billentyűvel',
+                      style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).colorScheme.secondary),
+                    ),
+                  ],
                 ),
-              )),
-            TextSpan(
-              text: '${element.verseNumber}. ',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: foundByNumber
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
+              ),
+            RichText(
+              text: TextSpan(
+                // Without this explicit color, the search results would be
+                // illegible when the app is in light mode. This makes it legible in
+                // both dark and light modes.
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                ),
+                children: [
+                  TextSpan(
+                    text: '${element.verseNumber}. ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: foundByNumber
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                  ...titleSpans,
+                ],
               ),
             ),
-            ...titleSpans,
           ],
         ),
       ),
-      // Search result verses should be left-indented.
-      contentPadding: const EdgeInsets.only(
-        left: 15,
-        right: 3,
-      ),
-      onTap: onTap,
     );
   }
 
@@ -250,11 +277,14 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
       {bool firstResult = false, bool foundByNumber = false}) {
     return Card(
       clipBehavior: Clip.antiAlias,
-      elevation: firstResult ? 10 : 0.5,
+      elevation: firstResult ? 10 : 0.7,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            title: RichText(
+          Container(
+            margin:
+                const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 5),
+            child: RichText(
               text: TextSpan(
                 style: Theme.of(context).textTheme.bodyLarge!,
                 children: [
@@ -275,8 +305,6 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            // Song titles should have no left padding.
-            contentPadding: const EdgeInsets.symmetric(horizontal: 6),
           ),
           ...searchResultsFromSong,
         ],
@@ -319,46 +347,64 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
         appBar: AppBar(
           // To save some screen estate, reuse the page title for the search input
           // field.
-          title: TextField(
-            controller: textController,
-            focusNode: keyboardFocusNode,
-            autofocus: true,
-            autocorrect: false,
-            style: const TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
-            decoration: const InputDecoration(
-              hintText: 'Keresés vagy ugrás (pl: 150,3)',
-            ),
-            keyboardType: settings.searchNumericKeyboard
-                ? const TextInputType.numberWithOptions(
-                    decimal: true,
-                  )
-                : TextInputType.text,
-            textInputAction: TextInputAction.go,
-            onChanged: (e) {
-              setState(() {
-                searchText = e;
-              });
-            },
-            onSubmitted: (e) {
-              textController.clear();
-              /*setState(() {
-                  searchText = '';
-                });*/
-              onSubmit();
-            },
+          title: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: textController,
+                  focusNode: keyboardFocusNode,
+                  autofocus: true,
+                  autocorrect: false,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                  ),
+                  keyboardType: settings.searchNumericKeyboard
+                      ? const TextInputType.numberWithOptions(
+                          decimal: true,
+                        )
+                      : TextInputType.text,
+                  textInputAction: TextInputAction.go,
+                  onChanged: (e) {
+                    setState(() {
+                      searchText = e;
+                    });
+                  },
+                  onSubmitted: (e) {
+                    onSubmit();
+                    textController.clear();
+                    setState(() {
+                      searchText = '';
+                    });
+                  },
+                ),
+              ),
+              // A button to clear the search text.
+              IconButton(
+                  onPressed: () {
+                    textController.clear();
+                    setState(() {
+                      searchText = '';
+                    });
+                  },
+                  icon: Icon(
+                    Icons.clear,
+                    color: Theme.of(context).disabledColor,
+                  )),
+            ],
           ),
         ),
         // A button to switch between numeric and normal keyboard.
         floatingActionButton: FloatingActionButton(
-          tooltip: 'Váltás numerikus és normál billentyűzet közöttttt',
+          tooltip: 'Váltás numerikus és normál billentyűzet között',
           onPressed: () {
             setState(() {
               settings
                   .changeSearchNumericKeyboard(!settings.searchNumericKeyboard);
               keyboardFocusNode.unfocus();
-              Future.delayed(Duration(milliseconds: 100), () {
+              Future.delayed(const Duration(milliseconds: 100), () {
                 keyboardFocusNode.requestFocus();
               });
             });
