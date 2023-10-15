@@ -22,15 +22,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Map<String, dynamic> _jsonSongBooks = {};
+  Map<String, dynamic> jsonSongBooks = {};
+  late ScrollController scrollController;
+  bool fabVisible = false;
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
-  Future<void> _readJson() async {
+  Future<void> readJson() async {
     final String response =
         await rootBundle.loadString('assets/enekeskonyv.json');
-    _jsonSongBooks = (await compute(json.decode, response))
+    jsonSongBooks = (await compute(json.decode, response))
         as LinkedHashMap<String, dynamic>;
-    songBooks = _jsonSongBooks;
+    songBooks = jsonSongBooks;
     setState(() {});
   }
 
@@ -38,7 +40,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Read the JSON once, when the app starts.
-    if (songBooks.isEmpty) _readJson();
+    if (songBooks.isEmpty) readJson();
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      setState(() {
+        fabVisible = scrollController.position.pixels > 30;
+      });
+    });
   }
 
   @override
@@ -60,9 +68,21 @@ class _HomePageState extends State<HomePage> {
         // flicking the default book's list when the user already selected a
         // non-default book before starting the app again.
         if (!provider.initialized) {
-          return const Scaffold();
+          return Scaffold(appBar: AppBar(title: const Text('Betöltés...')));
         }
         return Scaffold(
+          floatingActionButton: fabVisible
+              ? FloatingActionButton.small(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return MySearchSongPage(
+                          book: provider.book, settingsProvider: provider);
+                    }),
+                  ),
+                  child: const Icon(Icons.search),
+                  tooltip: 'Keresés vagy ugrás...',
+                )
+              : null,
           appBar: AppBar(
             title: Row(
               children: [
@@ -127,6 +147,7 @@ class _HomePageState extends State<HomePage> {
                   thicknessWhileDragging: 12.0,
                   radius: const Radius.circular(15.0),
                   child: ListView.builder(
+                    controller: scrollController,
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
                     itemCount: songBooks[provider.bookAsString].length,
@@ -139,16 +160,12 @@ class _HomePageState extends State<HomePage> {
                           margin: const EdgeInsets.all(7),
                           semanticContainer: true,
                           child: InkWell(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return MySearchSongPage(
-                                    book: provider.book,
-                                    settingsProvider: provider,
-                                  );
-                                },
-                              ),
-                            ),
+                            onTap: () => Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) {
+                              return MySearchSongPage(
+                                  book: provider.book,
+                                  settingsProvider: provider);
+                            })),
                             child: const ListTile(
                                 leading: Icon(Icons.search),
                                 title: Text('Keresés vagy ugrás...')),
