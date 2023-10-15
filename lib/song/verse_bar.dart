@@ -12,34 +12,31 @@ class VerseBar extends StatefulWidget {
 }
 
 class _VerseBarState extends State<VerseBar> {
-  bool startEllipsis = false;
-  bool endEllipsis = false;
+  bool startArrow = false;
+  bool endArrow = false;
   late ScrollController scrollController;
 
-  updateEndEllipsies(position) {
-    if (position.atEdge) {
-      setState(() {
-        startEllipsis = position.pixels == 0 ? false : true;
-        endEllipsis =
-            !startEllipsis && position.maxScrollExtent > position.pixels;
-      });
-    } else {
-      setState(() {
-        startEllipsis = true;
-        endEllipsis = true;
-      });
-    }
+  updateEndArrows(position) {
+    setState(() {
+      // Only show if verse bar can be scrolled left.
+      // If it's at the left edge, it can't be scrolled left.
+      startArrow = position.pixels != 0;
+
+      // Only show if verse bar can be scrolled right.
+      // If it's at the right edge, it can't be scrolled right.
+      endArrow = position.maxScrollExtent > position.pixels;
+    });
   }
 
   @override
   void initState() {
     scrollController = ScrollController();
     scrollController.addListener(() {
-      updateEndEllipsies(scrollController.position);
+      updateEndArrows(scrollController.position);
     });
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateEndEllipsies(scrollController.position);
+      updateEndArrows(scrollController.position);
       SongStateProvider.of(context).scrollVerseBarToCurrent(animate: false);
     });
   }
@@ -62,7 +59,7 @@ class _VerseBarState extends State<VerseBar> {
                 const SizedBox(width: 40),
                 AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: startEllipsis ? 1 : 0,
+                    opacity: startArrow ? 1 : 0,
                     child: Icon(Icons.chevron_left,
                         color: Theme.of(context).disabledColor)),
                 Expanded(
@@ -96,7 +93,7 @@ class _VerseBarState extends State<VerseBar> {
                 ),
                 AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: endEllipsis ? 1 : 0,
+                    opacity: endArrow ? 1 : 0,
                     child: Icon(Icons.chevron_right,
                         color: Theme.of(context).disabledColor)),
                 // Pin button
