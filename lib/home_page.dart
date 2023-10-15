@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'goto_song_form.dart';
 import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
 import 'settings_provider.dart';
@@ -97,41 +96,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    // @see https://www.youtube.com/watch?v=Xdt8TlwNRAM
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MySearchSongPage(
-                            book: provider.book,
-                            settingsProvider: provider,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.search_outlined),
-                  tooltip: 'Keresés',
-                  key: const Key('_MyHomePageState.SearchSongButton'),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MyGotoSongForm(
-                            book: provider.book,
-                            settingsProvider: provider,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.apps),
-                  tooltip: 'Ugrás énekre',
-                  key: const Key('_MyHomePageState.GotoSongButton'),
-                ),
-                IconButton(
-                  onPressed: () {
                     showDialog(
                       context: context,
                       builder: (context) =>
@@ -159,12 +123,40 @@ class _HomePageState extends State<HomePage> {
                   // is interactive by default). Also, it should be wide enough
                   // to be useful for a finger (to be able to scroll through the
                   // whole list which is quite long).
-                  thickness: 10.0,
+                  thickness: 9.0,
+                  thicknessWhileDragging: 12.0,
+                  radius: const Radius.circular(15.0),
                   child: ListView.builder(
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
                     itemCount: songBooks[provider.bookAsString].length,
                     itemBuilder: (context, i) {
+                      // Display search box as first item.
+                      if (i == 0) {
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 3,
+                          margin: const EdgeInsets.all(7),
+                          semanticContainer: true,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return MySearchSongPage(
+                                    book: provider.book,
+                                    settingsProvider: provider,
+                                  );
+                                },
+                              ),
+                            ),
+                            child: const ListTile(
+                                leading: Icon(Icons.search),
+                                title: Text('Keresés vagy ugrás...')),
+                          ),
+                        );
+                      }
+
+                      i--;
                       return ListTile(
                         title: Text(getSongTitle(
                             songBooks[provider.bookAsString][
