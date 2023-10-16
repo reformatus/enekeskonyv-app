@@ -58,45 +58,64 @@ class _VerseBarState extends State<VerseBar> {
               children: [
                 // Empty box to make the tab bar centered
                 const SizedBox(width: 40),
-                AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: startArrow ? 1 : 0,
-                    child: Icon(Icons.chevron_left,
-                        color: Theme.of(context).disabledColor)),
                 Expanded(
-                  child: Center(
-                    child: FadingEdgeScrollView.fromSingleChildScrollView(
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        scrollDirection: Axis.horizontal,
-                        child: Card(
-                          elevation: 3,
-                          child: TabBar(
-                            indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    fit: StackFit.passthrough,
+                    children: [
+                      Center(
+                        child: FadingEdgeScrollView.fromSingleChildScrollView(
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: Card(
+                              elevation: 3,
+                              child: TabBar(
+                                indicator: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                ),
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                dividerColor: Colors.transparent,
+                                labelPadding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                automaticIndicatorColorAdjustment: false,
+                                controller: state.tabController,
+                                isScrollable: true,
+                                tabs: state.tabs,
+                              ),
                             ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            labelPadding:
-                                const EdgeInsets.symmetric(horizontal: 20),
-                            automaticIndicatorColorAdjustment: false,
-                            controller: state.tabController,
-                            isScrollable: true,
-                            tabs: state.tabs,
                           ),
                         ),
                       ),
-                    ),
+                      Positioned(
+                        left: 0,
+                        child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: startArrow ? 1 : 0,
+                            child: Icon(
+                              Icons.chevron_left,
+                              color: Theme.of(context).disabledColor,
+                              size: 17,
+                            )),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: endArrow ? 1 : 0,
+                            child: Icon(
+                              Icons.chevron_right,
+                              color: Theme.of(context).disabledColor,
+                              size: 17,
+                            )),
+                      ),
+                    ],
                   ),
                 ),
-                AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: endArrow ? 1 : 0,
-                    child: Icon(Icons.chevron_right,
-                        color: Theme.of(context).disabledColor)),
+
                 // Pin button
                 SizedBox(
                   width: 40,
