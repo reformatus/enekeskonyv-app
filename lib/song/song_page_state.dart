@@ -171,10 +171,8 @@ class SongStateProvider extends ChangeNotifier {
         numOfPages: getNumOfPages(book, songKey, context),
         initialIndex: 0);
 
-    Future.delayed(const Duration(milliseconds: 200))
-        .then((value) => scrollVerseBarToCurrent());
-
     scrollController.jumpTo(0);
+    notifyListeners();
     showThenHideVerseBar();
   }
 
