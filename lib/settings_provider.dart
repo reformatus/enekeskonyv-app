@@ -15,6 +15,7 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultIsVerseBarEnabled = true;
   static const bool defaultIsOledTheme = false;
   static const bool defaultSearchNumericKeyboard = false;
+  static const List<String> defaultFavouriteVerses = [];
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -26,6 +27,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
   bool _isOledTheme = defaultIsOledTheme;
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
+  List<String> _favouriteVerses = defaultFavouriteVerses;
 
   bool _initialized = false;
 
@@ -39,6 +41,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get isVerseBarEnabled => _isVerseBarEnabled;
   bool get isOledTheme => _isOledTheme;
   bool get searchNumericKeyboard => _searchNumericKeyboard;
+  List<String> get favouriteVerses => _favouriteVerses;
 
   String get bookAsString {
     switch (_book) {
@@ -71,6 +74,10 @@ class SettingsProvider extends ChangeNotifier {
       case ThemeMode.light:
         return Brightness.light;
     }
+  }
+
+  bool getIsFavouriteVerse(String verse) {
+    return _favouriteVerses.contains(verse);
   }
 
   bool get initialized => _initialized;
@@ -145,6 +152,27 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future clearFavouriteVerses() async {
+    _favouriteVerses.clear();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    notifyListeners();
+  }
+
+  Future addToFavouriteVerses(String verse) async {
+    _favouriteVerses.add(verse);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    notifyListeners();
+  }
+
+  Future removeFromFavouriteVerses(String verse) async {
+    _favouriteVerses.remove(verse);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    notifyListeners();
+  }
+
   Future initialize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -182,8 +210,10 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled =
           prefs.getBool('isVerseBarEnabled') ?? defaultIsVerseBarEnabled;
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
-      _searchNumericKeyboard =
-          prefs.getBool('searchNumericKeyboard') ?? defaultSearchNumericKeyboard;
+      _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
+          defaultSearchNumericKeyboard;
+      _favouriteVerses =
+          prefs.getStringList('favouriteVerses') ?? defaultFavouriteVerses;
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -196,6 +226,13 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled = defaultIsVerseBarEnabled;
       _isOledTheme = defaultIsOledTheme;
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
+      try {
+        // Try favourite verses again, as it's valuable data.
+        _favouriteVerses =
+          prefs.getStringList('favouriteVerses') ?? defaultFavouriteVerses;
+      } catch (e) {
+        _favouriteVerses = defaultFavouriteVerses;
+      }
     }
 
     notifyListeners();
