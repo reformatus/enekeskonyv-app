@@ -46,39 +46,37 @@ class _VerseBarState extends State<VerseBar> {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      if ((settings.scoreDisplay == ScoreDisplay.all) &&
-          (state.tabs.length > 1)) {
-        return Listener(
-          // Making sure the verse bar is shown when the user
-          // interacts with it.
-          onPointerHover: (_) => state.showThenHideVerseBar(),
-          onPointerMove: (_) => state.showThenHideVerseBar(),
-          child: SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                // Favourite button
-                SizedBox(
-                  width: 40,
-                  child: settings.getIsFavouriteVerse(
-                          getVerseId(state.book, state.songKey, state.verse))
-                      ? IconButton(
-                          tooltip: 'Versszak törlése a kedvencek közül',
-                          onPressed: () => settings.removeFromFavouriteVerses(
-                              getVerseId(
-                                  state.book, state.songKey, state.verse)),
-                          icon: const Icon(Icons.star),
-                          color: Theme.of(context).colorScheme.secondary,
-                        )
-                      : IconButton(
-                          tooltip: 'Versszak kedvencekhez adása',
-                          onPressed: () => settings.addToFavouriteVerses(
-                              getVerseId(
-                                  state.book, state.songKey, state.verse)),
-                          icon: const Icon(Icons.star_border),
-                          color: Theme.of(context).disabledColor),
-                ),
-
+      return Listener(
+        // Making sure the verse bar is shown when the user
+        // interacts with it.
+        onPointerHover: (_) => state.showThenHideVerseBar(),
+        onPointerMove: (_) => state.showThenHideVerseBar(),
+        child: SizedBox(
+          height: 50,
+          child: Row(
+            children: [
+              // Favourite button
+              SizedBox(
+                width: 40,
+                child: settings.getIsFavouriteVerse(
+                        getVerseId(state.book, state.songKey, state.verse))
+                    ? IconButton(
+                        tooltip: 'Versszak törlése a kedvencek közül',
+                        onPressed: () => settings.removeFromFavouriteVerses(
+                            getVerseId(state.book, state.songKey, state.verse)),
+                        icon: const Icon(Icons.star),
+                        color: Theme.of(context).colorScheme.secondary,
+                      )
+                    : IconButton(
+                        tooltip: 'Versszak kedvencekhez adása',
+                        onPressed: () => settings.addToFavouriteVerses(
+                            getVerseId(state.book, state.songKey, state.verse)),
+                        icon: const Icon(Icons.star_border),
+                        color: Theme.of(context).disabledColor),
+              ),
+              if ((settings.scoreDisplay == ScoreDisplay.all) &&
+                  (state.tabs.length > 1) &&
+                  settings.isVerseBarEnabled) ...[
                 Expanded(
                   child: Stack(
                     alignment: Alignment.center,
@@ -153,13 +151,11 @@ class _VerseBarState extends State<VerseBar> {
                           ? Theme.of(context).colorScheme.secondary
                           : Theme.of(context).disabledColor),
                 ),
-              ],
-            ),
+              ]
+            ],
           ),
-        );
-      } else {
-        return Container();
-      }
+        ),
+      );
     });
   }
 }

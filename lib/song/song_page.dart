@@ -137,7 +137,8 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
-                                    child: (settings.isVerseBarPinned)
+                                    child: (settings.isVerseBarPinned &&
+                                            settings.isVerseBarEnabled)
                                         // If the verse bar is pinned, we don't
                                         // need to animate it. Also, we use a Column
                                         // so that no content is hidden behind the
@@ -148,9 +149,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 child: buildTabBarView(state,
                                                     orientation, context),
                                               ),
-                                              if (settings.isVerseBarEnabled)
-                                                VerseBar(
-                                                    key: state.verseBarKey),
+                                              VerseBar(key: state.verseBarKey),
                                             ],
                                           )
                                         // If the verse bar is not pinned, we
@@ -165,21 +164,19 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                               // in and out of the screen
                                               // by changing its bottom
                                               // position.
-                                              if (settings.isVerseBarEnabled)
-                                                AnimatedPositioned(
-                                                  duration: const Duration(
-                                                      milliseconds: 300),
-                                                  curve: Curves
-                                                      .easeInOutCubicEmphasized,
-                                                  right: 0,
-                                                  left: 0,
-                                                  bottom:
-                                                      state.isVerseBarVisible
-                                                          ? 0
-                                                          : -70,
-                                                  child: VerseBar(
-                                                      key: state.verseBarKey),
-                                                ),
+                                              AnimatedPositioned(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves
+                                                    .easeInOutCubicEmphasized,
+                                                right: 0,
+                                                left: 0,
+                                                bottom: state.isVerseBarVisible
+                                                    ? 0
+                                                    : -70,
+                                                child: VerseBar(
+                                                    key: state.verseBarKey),
+                                              ),
                                             ],
                                           ),
                                   ),
