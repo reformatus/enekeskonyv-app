@@ -17,7 +17,7 @@ List<List<Widget>> buildPages(
       verseIndex++) {
     // Only display certain info above the first verse.
     if (verseIndex == 0) {
-      page.addAll(getFirstVerseHeader(book, songKey));
+      page.addAll(getFirstVerseHeader(book, songKey, context));
     }
 
     // Add either the score or the text of the current verse, as needed.

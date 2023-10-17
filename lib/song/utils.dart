@@ -4,7 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../settings_provider.dart';
 import 'song_page_state.dart';
 
-List<Widget> getFirstVerseHeader(Book book, String songKey) {
+List<Widget> getFirstVerseHeader(
+    Book book, String songKey, BuildContext context) {
   final List<Widget> firstVerseHeader = [];
   switch (book) {
     // In case of the black book (48), the subtitle and the composer should
@@ -33,38 +34,30 @@ List<Widget> getFirstVerseHeader(Book book, String songKey) {
         ));
       }
       firstVerseHeader.add(
-        Wrap(
-          children: [
-            if (songBooks[book.name][songKey]['poet'] is String) ...[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.edit, size: 18),
-                  Text('${songBooks[book.name][songKey]['poet']}'),
-                  const SizedBox(width: 10)
-                ],
-              )
+        RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.bodyMedium,
+            children: [
+              if (songBooks[book.name][songKey]['poet'] is String) ...[
+                const WidgetSpan(child: Icon(Icons.edit, size: 18)),
+                TextSpan(
+                  text: ' ${songBooks[book.name][songKey]['poet']}  ',
+                ),
+              ],
+              if (songBooks[book.name][songKey]['translator'] is String) ...[
+                const WidgetSpan(child: Icon(Icons.translate, size: 18)),
+                TextSpan(
+                  text: ' ${songBooks[book.name][songKey]['translator']}  ',
+                ),
+              ],
+              if (songBooks[book.name][songKey]['composer'] is String) ...[
+                const WidgetSpan(child: Icon(Icons.music_note, size: 18)),
+                TextSpan(
+                  text: '${songBooks[book.name][songKey]['composer']}  ',
+                ),
+              ],
             ],
-            if (songBooks[book.name][songKey]['translator'] is String) ...[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.translate, size: 18),
-                  Text('${songBooks[book.name][songKey]['translator']}'),
-                  const SizedBox(width: 10)
-                ],
-              )
-            ],
-            if (songBooks[book.name][songKey]['composer'] is String) ...[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.music_note, size: 18),
-                  Text('${songBooks[book.name][songKey]['composer']}'),
-                ],
-              )
-            ],
-          ],
+          ),
         ),
       );
       break;
