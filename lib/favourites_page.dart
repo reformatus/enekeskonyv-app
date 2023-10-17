@@ -12,7 +12,30 @@ class _FavouritesPageState extends State<FavouritesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kedvencek'),
+        title: const Text('Kedvencek'),
+        actions: [
+          // Import button
+          IconButton(
+              tooltip: 'Importálás',
+              onPressed: () {
+                // TODO implement
+              },
+              icon: const Icon(Icons.download)),
+          // Export button
+          IconButton(
+              tooltip: 'Exportálás',
+              onPressed: () {
+                // TODO implement
+              },
+              icon: const Icon(Icons.upload)),
+          // Delete all button
+          IconButton(
+              tooltip: 'Összes törlése',
+              onPressed: () {
+                // TODO implement
+              },
+              icon: const Icon(Icons.delete))
+        ],
       ),
       body: const Center(
         child: Placeholder(),
