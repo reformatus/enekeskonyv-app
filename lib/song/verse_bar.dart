@@ -1,5 +1,6 @@
 import 'package:enekeskonyv/settings_provider.dart';
 import 'package:enekeskonyv/song/song_page_state.dart';
+import 'package:enekeskonyv/util.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +57,28 @@ class _VerseBarState extends State<VerseBar> {
             height: 50,
             child: Row(
               children: [
-                // Empty box to make the tab bar centered
-                const SizedBox(width: 40),
+                // Favourite button
+                SizedBox(
+                  width: 40,
+                  child: settings.getIsFavouriteVerse(
+                          getVerseId(state.book, state.songKey, state.verse))
+                      ? IconButton(
+                          tooltip: 'Versszak törlése a kedvencek közül',
+                          onPressed: () => settings.removeFromFavouriteVerses(
+                              getVerseId(
+                                  state.book, state.songKey, state.verse)),
+                          icon: const Icon(Icons.star),
+                          color: Theme.of(context).colorScheme.secondary,
+                        )
+                      : IconButton(
+                          tooltip: 'Versszak kedvencekhez adása',
+                          onPressed: () => settings.addToFavouriteVerses(
+                              getVerseId(
+                                  state.book, state.songKey, state.verse)),
+                          icon: const Icon(Icons.star_border),
+                          color: Theme.of(context).disabledColor),
+                ),
+
                 Expanded(
                   child: Stack(
                     alignment: Alignment.center,
@@ -69,7 +90,11 @@ class _VerseBarState extends State<VerseBar> {
                             controller: scrollController,
                             scrollDirection: Axis.horizontal,
                             child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               elevation: 3,
+                              clipBehavior: Clip.antiAlias,
                               child: TabBar(
                                 indicator: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
@@ -120,13 +145,14 @@ class _VerseBarState extends State<VerseBar> {
                 SizedBox(
                   width: 40,
                   child: IconButton(
+                      tooltip: 'Versválasztó sáv rögzítése',
                       onPressed: () => settings
                           .changeIsVerseBarPinned(!settings.isVerseBarPinned),
                       icon: const Icon(Icons.push_pin),
                       color: settings.isVerseBarPinned
                           ? Theme.of(context).colorScheme.secondary
                           : Theme.of(context).disabledColor),
-                )
+                ),
               ],
             ),
           ),
