@@ -154,21 +154,45 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
-                        return Card(
-                          clipBehavior: Clip.antiAlias,
-                          elevation: 3,
-                          margin: const EdgeInsets.all(7),
-                          semanticContainer: true,
-                          child: InkWell(
-                            onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) {
-                              return MySearchSongPage(
-                                  book: provider.book,
-                                  settingsProvider: provider);
-                            })),
-                            child: const ListTile(
-                                leading: Icon(Icons.search),
-                                title: Text('Keresés vagy ugrás...')),
+                        return SizedBox(
+                          height: 60,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: Card(
+                                  clipBehavior: Clip.antiAlias,
+                                  elevation: 3,
+                                  margin: const EdgeInsets.all(7),
+                                  semanticContainer: true,
+                                  child: InkWell(
+                                    onTap: () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) {
+                                      return MySearchSongPage(
+                                          book: provider.book,
+                                          settingsProvider: provider);
+                                    })),
+                                    child: const ListTile(
+                                        leading: Icon(Icons.search),
+                                        title: Text('Keresés vagy ugrás...')),
+                                  ),
+                                ),
+                              ),
+                              SizedBox.square(
+                                  dimension: 65,
+                                  child: Card(
+                                    margin: const EdgeInsets.only(
+                                        top: 7, right: 7, bottom: 7),
+                                    elevation: 3,
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: const Center(
+                                        child: Icon(Icons.star),
+                                      ),
+                                    ),
+                                  ))
+                            ],
                           ),
                         );
                       }
