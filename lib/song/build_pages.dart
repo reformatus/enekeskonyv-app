@@ -8,7 +8,7 @@ List<List<Widget>> buildPages(
     Orientation orientation, Book book, String songKey, BuildContext context) {
   // Nested list; a page is just a list of widgets.
   final List<List<Widget>> pages = [];
-  SettingsProvider settingsProvider = SettingsProvider.of(context);
+  SettingsProvider settings = SettingsProvider.of(context);
   // Collects the list items for the current page. When not all verses
   // should have scores displayed, the song consists of one single page.
   var page = <Widget>[];
@@ -21,8 +21,8 @@ List<List<Widget>> buildPages(
     }
 
     // Add either the score or the text of the current verse, as needed.
-    if (settingsProvider.scoreDisplay == ScoreDisplay.all ||
-        (settingsProvider.scoreDisplay == ScoreDisplay.first &&
+    if (settings.scoreDisplay == ScoreDisplay.all ||
+        (settings.scoreDisplay == ScoreDisplay.first &&
             verseIndex == 0)) {
       page.add(getScore(orientation, verseIndex, book, songKey, context));
     } else {
@@ -34,7 +34,7 @@ List<List<Widget>> buildPages(
             text: TextSpan(
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge!.color,
-                fontSize: settingsProvider.fontSize,
+                fontSize: settings.fontSize,
               ),
               children: [
                 // Display verse number (everything before and including
@@ -73,14 +73,14 @@ List<List<Widget>> buildPages(
     // When all verses should have scores displayed, every verse should have
     // its own page, and a new page should start (for the next verse, if
     // any).
-    if (settingsProvider.scoreDisplay == ScoreDisplay.all) {
+    if (settings.scoreDisplay == ScoreDisplay.all) {
       pages.add(page);
       page = <Widget>[];
     }
   }
   // When NOT all verses should have scores displayed, the single page that
   // has been built so far should definitely be displayed.
-  if (settingsProvider.scoreDisplay != ScoreDisplay.all) {
+  if (settings.scoreDisplay != ScoreDisplay.all) {
     pages.add(page);
   }
   return pages;
