@@ -137,8 +137,12 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
+                                    // Only have a separated space for verse bar
+                                    // when it's enabled, visible and pinned.
                                     child: (settings.isVerseBarPinned &&
-                                            settings.isVerseBarEnabled)
+                                            settings.isVerseBarEnabled &&
+                                            settings.scoreDisplay ==
+                                                ScoreDisplay.all)
                                         // If the verse bar is pinned, we don't
                                         // need to animate it. Also, we use a Column
                                         // so that no content is hidden behind the
