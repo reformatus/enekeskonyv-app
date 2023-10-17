@@ -14,27 +14,39 @@ class _FavouritesPageState extends State<FavouritesPage> {
       appBar: AppBar(
         title: const Text('Kedvencek'),
         actions: [
-          // Import button
-          IconButton(
-              tooltip: 'Importálás',
-              onPressed: () {
-                // TODO implement
-              },
-              icon: const Icon(Icons.download)),
-          // Export button
-          IconButton(
-              tooltip: 'Exportálás',
-              onPressed: () {
-                // TODO implement
-              },
-              icon: const Icon(Icons.upload)),
-          // Delete all button
-          IconButton(
-              tooltip: 'Összes törlése',
-              onPressed: () {
-                // TODO implement
-              },
-              icon: const Icon(Icons.delete))
+          PopupMenuButton(
+              itemBuilder: (i) => [
+                    // Import button
+                    PopupMenuItem(
+                      child: const ListTile(
+                        leading: Icon(Icons.content_paste),
+                        title: Text('Importálás'),
+                      ),
+                      onTap: () {
+                        // TODO implement
+                      },
+                    ),
+                    // Export button
+                    PopupMenuItem(
+                      child: const ListTile(
+                        leading: Icon(Icons.copy),
+                        title: Text('Exportálás'),
+                      ),
+                      onTap: () {
+                        // TODO implement
+                      },
+                    ),
+                    // Delete all button
+                    PopupMenuItem(
+                      child: const ListTile(
+                        leading: Icon(Icons.delete),
+                        title: Text('Összes törlése'),
+                      ),
+                      onTap: () {
+                        // TODO implement
+                      },
+                    ),
+                  ])
         ],
       ),
       body: const Center(
