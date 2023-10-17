@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                                     child: InkWell(
                                       onTap: () => Navigator.of(context).push(
                                           MaterialPageRoute(builder: (context) {
-                                        return FavouritesPage();
+                                        return FavouritesPage(context);
                                       })),
                                       child: const Center(
                                         child: Icon(Icons.star),

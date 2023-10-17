@@ -5,14 +5,11 @@ import 'package:provider/provider.dart';
 
 import 'song/song_page.dart';
 
-class FavouritesPage extends StatefulWidget {
-  const FavouritesPage({super.key});
+class FavouritesPage extends StatelessWidget {
+  const FavouritesPage(this.context, {super.key});
 
-  @override
-  State<FavouritesPage> createState() => _FavouritesPageState();
-}
+  final BuildContext context;
 
-class _FavouritesPageState extends State<FavouritesPage> {
   // parse verseId list to data structure
   // Book -> Song -> Verse
   Map<String, Map<String, Set<String>>> getFavourites(List<String> verseIds) {
@@ -34,11 +31,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
     }
 
     return favourites;
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -181,12 +173,8 @@ Ha nem jelenítesz meg minden kottát, az adott versszakot tartsd hosszan lenyom
             ),
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () => setState(
-                () {
-                  settings.removeFromFavouriteVerses(
-                      getVerseId(book, songKey, verseIndex));
-                },
-              ),
+              onPressed: () => settings.removeFromFavouriteVerses(
+                  getVerseId(book, songKey, verseIndex)),
             ),
           ],
         ),
