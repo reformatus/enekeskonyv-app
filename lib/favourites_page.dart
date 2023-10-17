@@ -13,8 +13,8 @@ class FavouritesPage extends StatefulWidget {
 }
 
 class _FavouritesPageState extends State<FavouritesPage> {
-  // book / song / verse
-
+  // parse verseId list to data structure
+  // Book -> Song -> Verse
   Map<String, Map<String, Set<String>>> getFavourites(List<String> verseIds) {
     Map<String, Map<String, Set<String>>> favourites = {};
 
@@ -54,35 +54,32 @@ class _FavouritesPageState extends State<FavouritesPage> {
             actions: [
               PopupMenuButton(
                 itemBuilder: (i) => [
-                  // Import button
-                  PopupMenuItem(
-                    child: const ListTile(
+                  /*// Import button
+                  const PopupMenuItem(
+                    enabled: false,
+                    child: ListTile(
                       leading: Icon(Icons.content_paste),
                       title: Text('Importálás'),
                     ),
-                    onTap: () {
-                      // TODO implement
-                    },
                   ),
                   // Export button
-                  PopupMenuItem(
-                    child: const ListTile(
+                  const PopupMenuItem(
+                    enabled: false,
+                    child: ListTile(
                       leading: Icon(Icons.copy),
                       title: Text('Exportálás'),
                     ),
-                    onTap: () {
-                      // TODO implement
-                    },
-                  ),
+                  ),*/
                   // Delete all button
                   PopupMenuItem(
+                    onTap: () => settings.clearFavouriteVerses(),
                     child: const ListTile(
-                      leading: Icon(Icons.delete),
+                      leading: Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                      ),
                       title: Text('Összes törlése'),
                     ),
-                    onTap: () {
-                      // TODO implement
-                    },
                   ),
                 ],
               )
@@ -92,6 +89,19 @@ class _FavouritesPageState extends State<FavouritesPage> {
             children: [
               bookTile(favourites, Book.black, settings),
               bookTile(favourites, Book.blue, settings),
+              ListTile(
+                subtitle: Text(
+                  '''
+Megjelölhetsz versszakokat kedvencként.
+
+A jelöléshez használd a versválasztó sáv melletti csillag gombot, ha minden kottát megjelenítesz az appban.
+
+Ha nem jelenítesz meg minden kottát, az adott versszakot tartsd hosszan lenyomva a hozzáadáshoz.''',
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
+              )
             ],
           ),
         );
@@ -150,7 +160,6 @@ class _FavouritesPageState extends State<FavouritesPage> {
             );
           },
         ),
-        // request focus to show keyboard when returning from song page
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -167,7 +176,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
           children: [
             Expanded(
               child: Text(
-                '${songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0]}. vers',
+                '${songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0]}. versszak',
               ),
             ),
             IconButton(
