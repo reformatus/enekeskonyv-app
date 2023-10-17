@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
+import 'package:enekeskonyv/favourites_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -186,7 +187,10 @@ class _HomePageState extends State<HomePage> {
                                     elevation: 3,
                                     clipBehavior: Clip.antiAlias,
                                     child: InkWell(
-                                      onTap: () {},
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return FavouritesPage();
+                                      })),
                                       child: const Center(
                                         child: Icon(Icons.star),
                                       ),
