@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../settings_provider.dart';
+import '../util.dart';
 import 'utils.dart';
 
 List<List<Widget>> buildPages(
@@ -20,39 +21,73 @@ List<List<Widget>> buildPages(
       page.addAll(getFirstVerseHeader(book, songKey, context));
     }
 
+    var verseId = getVerseId(book, songKey, verseIndex);
+
     // Add either the score or the text of the current verse, as needed.
     if (settings.scoreDisplay == ScoreDisplay.all ||
-        (settings.scoreDisplay == ScoreDisplay.first &&
-            verseIndex == 0)) {
-      page.add(getScore(orientation, verseIndex, book, songKey, context));
+        (settings.scoreDisplay == ScoreDisplay.first && verseIndex == 0)) {
+      Widget score = getScore(orientation, verseIndex, book, songKey, context);
+
+      // If song is displayed on single page, apply favourite functionality
+      if (settings.scoreDisplay != ScoreDisplay.all) {
+        page.add(
+          GestureDetector(
+            onLongPress: settings.getIsFavouriteVerse(verseId)
+                ? () => settings.removeFromFavouriteVerses(verseId)
+                : () => settings.addToFavouriteVerses(verseId),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (settings.getIsFavouriteVerse(verseId))
+                  const Icon(Icons.star, size: 18),
+                score,
+              ],
+            ),
+          ),
+        );
+        // Otherwise just display a passive sheet widget
+      } else {
+        page.add(score);
+      }
     } else {
       page.add(
-        Padding(
-          // Add space between verses.
-          padding: const EdgeInsets.only(bottom: 8),
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge!.color,
-                fontSize: settings.fontSize,
+        GestureDetector(
+          onLongPress: settings.getIsFavouriteVerse(verseId)
+              ? () => settings.removeFromFavouriteVerses(verseId)
+              : () => settings.addToFavouriteVerses(verseId),
+          child: Padding(
+            // Add space between verses.
+            padding: const EdgeInsets.only(bottom: 8),
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                  fontSize: settings.fontSize,
+                ),
+                children: [
+                  if (settings.getIsFavouriteVerse(verseId))
+                    const WidgetSpan(
+                      child: Padding(
+                          padding: EdgeInsets.only(bottom: 1.5, right: 3),
+                          child: Icon(Icons.star, size: 15)),
+                    ),
+                  // Display verse number (everything before and including
+                  // the first dot) in bold.
+                  TextSpan(
+                    text:
+                        '${songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0]}.',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  // Display rest of verse text normally (split at dots,
+                  // skip the first slice, join the rest).
+                  TextSpan(
+                    text: songBooks[book.name][songKey]['texts'][verseIndex]
+                        .split('.')
+                        .skip(1)
+                        .join('.'),
+                  ),
+                ],
               ),
-              children: [
-                // Display verse number (everything before and including
-                // the first dot) in bold.
-                TextSpan(
-                  text:
-                      '${songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0]}.',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                // Display rest of verse text normally (split at dots,
-                // skip the first slice, join the rest).
-                TextSpan(
-                  text: songBooks[book.name][songKey]['texts'][verseIndex]
-                      .split('.')
-                      .skip(1)
-                      .join('.'),
-                ),
-              ],
             ),
           ),
         ),
