@@ -15,7 +15,6 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultIsVerseBarEnabled = true;
   static const bool defaultIsOledTheme = false;
   static const bool defaultSearchNumericKeyboard = false;
-  static const List<String> defaultFavouriteVerses = [];
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -27,7 +26,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
   bool _isOledTheme = defaultIsOledTheme;
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
-  List<String> _favouriteVerses = defaultFavouriteVerses;
+  List<String> _favouriteVerses = [];
 
   bool _initialized = false;
 
@@ -212,8 +211,7 @@ class SettingsProvider extends ChangeNotifier {
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
       _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
           defaultSearchNumericKeyboard;
-      _favouriteVerses =
-          prefs.getStringList('favouriteVerses') ?? defaultFavouriteVerses;
+      _favouriteVerses = prefs.getStringList('favouriteVerses') ?? [];
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -228,10 +226,9 @@ class SettingsProvider extends ChangeNotifier {
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
       try {
         // Try favourite verses again, as it's valuable data.
-        _favouriteVerses =
-          prefs.getStringList('favouriteVerses') ?? defaultFavouriteVerses;
+        _favouriteVerses = prefs.getStringList('favouriteVerses') ?? [];
       } catch (e) {
-        _favouriteVerses = defaultFavouriteVerses;
+        _favouriteVerses = [];
       }
     }
 
