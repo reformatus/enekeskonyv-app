@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     scrollController = ScrollController();
     scrollController.addListener(() {
       setState(() {
-        fabVisible = scrollController.position.pixels > 30;
+        fabVisible = scrollController.position.pixels > 40;
       });
     });
   }
@@ -139,6 +139,7 @@ class _HomePageState extends State<HomePage> {
           ),
           body: (songBooks.isEmpty)
               ? null
+              // TODO check why this does not work on android
               : CupertinoScrollbar(
                   // Using CupertinoScrollbar on Android too (looks better and
                   // is interactive by default). Also, it should be wide enough
@@ -155,10 +156,8 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
-                        return SizedBox(
-                          height: 60,
+                        return IntrinsicHeight(
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Expanded(
                                 child: Card(
@@ -173,29 +172,39 @@ class _HomePageState extends State<HomePage> {
                                           book: provider.book,
                                           settingsProvider: provider);
                                     })),
-                                    child: const ListTile(
-                                        leading: Icon(Icons.search),
-                                        title: Text('Keresés vagy ugrás...')),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Icon(Icons.search),
+                                        ),
+                                        Text('Keresés vagy ugrás...',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge)
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              SizedBox.square(
-                                  dimension: 65,
-                                  child: Card(
-                                    margin: const EdgeInsets.only(
-                                        top: 7, right: 7, bottom: 7),
-                                    elevation: 3,
-                                    clipBehavior: Clip.antiAlias,
-                                    child: InkWell(
-                                      onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) {
-                                        return FavouritesPage(context);
-                                      })),
-                                      child: const Center(
-                                        child: Icon(Icons.star),
-                                      ),
-                                    ),
-                                  ))
+                              Card(
+                                margin: const EdgeInsets.only(
+                                    top: 7, right: 7, bottom: 7),
+                                elevation: 3,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return FavouritesPage(context);
+                                  })),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(child: Icon(Icons.star)),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         );
