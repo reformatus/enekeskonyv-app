@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                     controller: scrollController,
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: songBooks[provider.bookAsString].length,
+                    itemCount: songBooks[provider.bookAsString].length + 1,
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
