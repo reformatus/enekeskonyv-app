@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 Map<String, dynamic> songBooks = {};
 
@@ -15,6 +16,8 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultIsVerseBarEnabled = true;
   static const bool defaultIsOledTheme = false;
   static const bool defaultSearchNumericKeyboard = false;
+  static const String defaultSelectedCue = 'Kedvencek';
+  static const String defaultCueStore = '{"Kedvencek": []}';
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -26,7 +29,8 @@ class SettingsProvider extends ChangeNotifier {
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
   bool _isOledTheme = defaultIsOledTheme;
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
-  List<String> _favouriteVerses = [];
+  String _selectedCue = defaultSelectedCue;
+  Map _cueStore = jsonDecode(defaultCueStore);
 
   bool _initialized = false;
 
@@ -40,7 +44,8 @@ class SettingsProvider extends ChangeNotifier {
   bool get isVerseBarEnabled => _isVerseBarEnabled;
   bool get isOledTheme => _isOledTheme;
   bool get searchNumericKeyboard => _searchNumericKeyboard;
-  List<String> get favouriteVerses => _favouriteVerses;
+  String get selectedCue => _selectedCue;
+  Map get cueStore => _cueStore;
 
   String get bookAsString {
     switch (_book) {
@@ -75,9 +80,7 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
-  bool getIsFavouriteVerse(String verse) {
-    return _favouriteVerses.contains(verse);
-  }
+  List<String>? getCueContentOf(String cue) => _cueStore[cue]?.cast<String>();
 
   bool get initialized => _initialized;
 
@@ -151,24 +154,63 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future clearFavouriteVerses() async {
-    _favouriteVerses.clear();
+  Future changeSelectedCue(String value) async {
+    _selectedCue = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    await prefs.setString('selectedCue', value);
     notifyListeners();
   }
 
-  Future addToFavouriteVerses(String verse) async {
-    _favouriteVerses.add(verse);
+  Future saveCue(String cue, List<String> verses) {
+    _cueStore[cue] = verses;
+    final SharedPreferences prefs =
+        SharedPreferences.getInstance() as SharedPreferences;
+    return prefs.setString('setStore', jsonEncode(_cueStore));
+  }
+
+  Future clearCue(String cue) async {
+    if (cue == 'Kedvencek') {
+      _cueStore[cue] = [];
+    } else {
+      _cueStore.remove(cue);
+    }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    await prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
-  Future removeFromFavouriteVerses(String verse) async {
-    _favouriteVerses.remove(verse);
+  Future addToCue(String cue, String verse) async {
+    if (_cueStore[cue] == null) {
+      _cueStore[cue] = [];
+    }
+    _cueStore[cue].add(verse);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favouriteVerses', _favouriteVerses);
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future removeAllInstancesFromCue(String cue, String verse) async {
+    _cueStore[cue].removeWhere((item) => item == verse);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future removeFromCueAt(String cue, int index) async {
+    _cueStore[cue].removeAt(index);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future reorderCue(String cue, int oldIndex, int newIndex) async {
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = _cueStore[cue].removeAt(oldIndex);
+    _cueStore[cue].insert(newIndex, item);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
@@ -211,7 +253,9 @@ class SettingsProvider extends ChangeNotifier {
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
       _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
           defaultSearchNumericKeyboard;
-      _favouriteVerses = prefs.getStringList('favouriteVerses') ?? [];
+      _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
+      _cueStore = jsonDecode(
+          prefs.getString('setStore') ?? jsonDecode(defaultCueStore));
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -224,12 +268,8 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled = defaultIsVerseBarEnabled;
       _isOledTheme = defaultIsOledTheme;
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
-      try {
-        // Try favourite verses again, as it's valuable data.
-        _favouriteVerses = prefs.getStringList('favouriteVerses') ?? [];
-      } catch (e) {
-        _favouriteVerses = [];
-      }
+      _selectedCue = selectedCue;
+      _cueStore = jsonDecode(defaultCueStore);
     }
 
     notifyListeners();
