@@ -59,19 +59,29 @@ class _VerseBarState extends State<VerseBar> {
                 // Favourite button
                 SizedBox(
                   width: 40,
-                  child: settings.getIsFavouriteVerse(
+                  child: settings.getIsInSelectedCue(
                           getVerseId(state.book, state.songKey, state.verse))
-                      ? IconButton(
-                          tooltip: 'Versszak törlése a kedvencek közül',
-                          onPressed: () => settings.removeFromFavouriteVerses(
+                      ? GestureDetector(
+                          onLongPress: () => settings.addToCue(
+                              settings.selectedCue,
                               getVerseId(
                                   state.book, state.songKey, state.verse)),
-                          icon: const Icon(Icons.star),
-                          color: Theme.of(context).colorScheme.secondary,
+                          child: IconButton(
+                            tooltip:
+                                'Versszak törlése a kiválasztott listából\n(Hosszú gombnyomással mégegyszer hozzáadhatod a listához)',
+                            onPressed: () => settings.removeAllInstancesFromCue(
+                                settings.selectedCue,
+                                getVerseId(
+                                    state.book, state.songKey, state.verse)),
+                            icon: const Icon(Icons.star),
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
                         )
                       : IconButton(
-                          tooltip: 'Versszak kedvencekhez adása',
-                          onPressed: () => settings.addToFavouriteVerses(
+                          tooltip:
+                              'Versszak hozzáadása a kiválasztott listához',
+                          onPressed: () => settings.addToCue(
+                              settings.selectedCue,
                               getVerseId(
                                   state.book, state.songKey, state.verse)),
                           icon: const Icon(Icons.star_border),

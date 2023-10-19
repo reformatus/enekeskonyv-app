@@ -32,13 +32,14 @@ List<List<Widget>> buildPages(
       if (settings.scoreDisplay != ScoreDisplay.all) {
         page.add(
           GestureDetector(
-            onLongPress: settings.getIsFavouriteVerse(verseId)
-                ? () => settings.removeFromFavouriteVerses(verseId)
-                : () => settings.addToFavouriteVerses(verseId),
+            onLongPress: settings.getIsInSelectedCue(verseId)
+                ? () => settings.removeAllInstancesFromCue(
+                    settings.selectedCue, verseId)
+                : () => settings.addToCue(settings.selectedCue, verseId),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (settings.getIsFavouriteVerse(verseId))
+                if (settings.getIsInSelectedCue(verseId))
                   const Icon(Icons.star, size: 18),
                 score,
               ],
@@ -52,9 +53,10 @@ List<List<Widget>> buildPages(
     } else {
       page.add(
         GestureDetector(
-          onLongPress: settings.getIsFavouriteVerse(verseId)
-              ? () => settings.removeFromFavouriteVerses(verseId)
-              : () => settings.addToFavouriteVerses(verseId),
+          onLongPress: settings.getIsInSelectedCue(verseId)
+              ? () => settings.removeAllInstancesFromCue(
+                  settings.selectedCue, verseId)
+              : () => settings.addToCue(settings.selectedCue, verseId),
           child: Padding(
             // Add space between verses.
             padding: const EdgeInsets.only(bottom: 8),
@@ -65,7 +67,7 @@ List<List<Widget>> buildPages(
                   fontSize: settings.fontSize,
                 ),
                 children: [
-                  if (settings.getIsFavouriteVerse(verseId))
+                  if (settings.getIsInSelectedCue(verseId))
                     const WidgetSpan(
                       child: Padding(
                           padding: EdgeInsets.only(bottom: 1.5, right: 3),

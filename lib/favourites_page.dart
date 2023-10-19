@@ -1,5 +1,4 @@
 import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,7 +35,7 @@ class FavouritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Map<String, Map<String, Set<String>>> favourites =
-        getFavourites(SettingsProvider.of(context).favouriteVerses);
+        getFavourites(SettingsProvider.of(context).getSelectedCueContent());
 
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
@@ -64,7 +63,7 @@ class FavouritesPage extends StatelessWidget {
                   ),*/
                   // Delete all button
                   PopupMenuItem(
-                    onTap: () => settings.clearFavouriteVerses(),
+                    onTap: () => settings.clearCue(settings.selectedCue),
                     child: const ListTile(
                       leading: Icon(
                         Icons.delete_forever,
@@ -122,7 +121,7 @@ Ha nem jelenítesz meg minden kottát, az adott versszakot tartsd hosszan lenyom
               songKey,
               verses
                   .map((verseIndex) =>
-                      verseTile(book, songKey, int.parse(verseIndex), settings))
+                      verseTile(book, songKey, int.parse(verseIndex), 1, settings)) // TOOD replace 1 with actual cue index
                   .toList(),
             );
           }).toList(),
@@ -134,7 +133,7 @@ Ha nem jelenítesz meg minden kottát, az adott versszakot tartsd hosszan lenyom
   }
 
   Widget verseTile(
-      Book book, String songKey, int verseIndex, SettingsProvider settings) {
+      Book book, String songKey, int verseIndex, int cueIndex, SettingsProvider settings) {
     return InkWell(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
@@ -173,8 +172,7 @@ Ha nem jelenítesz meg minden kottát, az adott versszakot tartsd hosszan lenyom
             ),
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () => settings.removeFromFavouriteVerses(
-                  getVerseId(book, songKey, verseIndex)),
+              onPressed: () => settings.removeFromCueAt(settings.selectedCue, cueIndex),
             ),
           ],
         ),

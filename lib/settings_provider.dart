@@ -11,10 +11,10 @@ class SettingsProvider extends ChangeNotifier {
   static const double defaultFontSize = 14.0;
   static const ThemeMode defaultAppThemeMode = ThemeMode.system;
   static const ThemeMode defaultSheetThemeMode = ThemeMode.light;
+  static const bool defaultIsOledTheme = false;
   static const bool defaultTapNavigation = true;
   static const bool defaultIsVerseBarPinned = false;
   static const bool defaultIsVerseBarEnabled = true;
-  static const bool defaultIsOledTheme = false;
   static const bool defaultSearchNumericKeyboard = false;
   static const String defaultSelectedCue = 'Kedvencek';
   static const String defaultCueStore = '{"Kedvencek": []}';
@@ -24,10 +24,10 @@ class SettingsProvider extends ChangeNotifier {
   double _fontSize = defaultFontSize;
   ThemeMode _appThemeMode = defaultAppThemeMode;
   ThemeMode _sheetThemeMode = defaultSheetThemeMode;
+  bool _isOledTheme = defaultIsOledTheme;
   bool _tapNavigation = defaultTapNavigation;
   bool _isVerseBarPinned = defaultIsVerseBarPinned;
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
-  bool _isOledTheme = defaultIsOledTheme;
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
   String _selectedCue = defaultSelectedCue;
   Map _cueStore = jsonDecode(defaultCueStore);
@@ -39,10 +39,10 @@ class SettingsProvider extends ChangeNotifier {
   double get fontSize => _fontSize;
   ThemeMode get appThemeMode => _appThemeMode;
   ThemeMode get sheetThemeMode => _sheetThemeMode;
+  bool get isOledTheme => _isOledTheme;
   bool get tapNavigation => _tapNavigation;
   bool get isVerseBarPinned => _isVerseBarPinned;
   bool get isVerseBarEnabled => _isVerseBarEnabled;
-  bool get isOledTheme => _isOledTheme;
   bool get searchNumericKeyboard => _searchNumericKeyboard;
   String get selectedCue => _selectedCue;
   Map get cueStore => _cueStore;
@@ -81,6 +81,10 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   List<String>? getCueContentOf(String cue) => _cueStore[cue]?.cast<String>();
+  List<String> getSelectedCueContent() => getCueContentOf(_selectedCue) ?? [];
+  bool getIsInCue(String cue, String verse) =>
+      _cueStore[cue]?.contains(verse) ?? false;
+  bool getIsInSelectedCue(String verse) => getIsInCue(_selectedCue, verse);
 
   bool get initialized => _initialized;
 
@@ -91,6 +95,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //! Theming
   Future changeScoreDisplay(ScoreDisplay value) async {
     _scoreDisplay = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,6 +124,14 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeIsOledTheme(bool value) async {
+    _isOledTheme = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isOledTheme', value);
+    notifyListeners();
+  }
+
+  //! Interaction
   Future changeTapNavigation(bool value) async {
     _tapNavigation = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -140,13 +153,6 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future changeIsOledTheme(bool value) async {
-    _isOledTheme = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isOledTheme', value);
-    notifyListeners();
-  }
-
   Future changeSearchNumericKeyboard(bool value) async {
     _searchNumericKeyboard = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -154,6 +160,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //! Cuelists
   Future changeSelectedCue(String value) async {
     _selectedCue = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
