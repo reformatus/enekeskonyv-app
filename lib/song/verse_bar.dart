@@ -61,21 +61,14 @@ class _VerseBarState extends State<VerseBar> {
                   width: 40,
                   child: settings.getIsInSelectedCue(
                           getVerseId(state.book, state.songKey, state.verse))
-                      ? GestureDetector(
-                          onLongPress: () => settings.addToCue(
+                      ? IconButton(
+                          tooltip: 'Versszak törlése a kiválasztott listából',
+                          onPressed: () => settings.removeAllInstancesFromCue(
                               settings.selectedCue,
                               getVerseId(
                                   state.book, state.songKey, state.verse)),
-                          child: IconButton(
-                            tooltip:
-                                'Versszak törlése a kiválasztott listából\n(Hosszú gombnyomással mégegyszer hozzáadhatod a listához)',
-                            onPressed: () => settings.removeAllInstancesFromCue(
-                                settings.selectedCue,
-                                getVerseId(
-                                    state.book, state.songKey, state.verse)),
-                            icon: const Icon(Icons.star),
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
+                          icon: const Icon(Icons.star),
+                          color: Theme.of(context).colorScheme.secondary,
                         )
                       : IconButton(
                           tooltip:
