@@ -150,7 +150,9 @@ class _VerseBarState extends State<VerseBar> {
                         tooltip: 'Versválasztó sáv rögzítése',
                         onPressed: () => settings
                             .changeIsVerseBarPinned(!settings.isVerseBarPinned),
-                        icon: const Icon(Icons.push_pin),
+                        icon: settings.isVerseBarPinned
+                            ? const Icon(Icons.push_pin)
+                            : const Icon(Icons.push_pin_outlined),
                         color: settings.isVerseBarPinned
                             ? Theme.of(context).colorScheme.secondary
                             : Theme.of(context).disabledColor),
