@@ -1,4 +1,5 @@
 // Builds the pages for the current song's verses.
+import 'package:enekeskonyv/song/song_page_state.dart';
 import 'package:flutter/material.dart';
 
 import '../settings_provider.dart';
@@ -7,6 +8,7 @@ import 'utils.dart';
 
 List<List<Widget>> buildPages(
     Orientation orientation, Book book, String songKey, BuildContext context) {
+  var state = SongStateProvider.of(context);
   // Nested list; a page is just a list of widgets.
   final List<List<Widget>> pages = [];
   SettingsProvider settings = SettingsProvider.of(context);
@@ -24,12 +26,13 @@ List<List<Widget>> buildPages(
     var verseId = getVerseId(book, songKey, verseIndex);
 
     // Add either the score or the text of the current verse, as needed.
-    if (settings.scoreDisplay == ScoreDisplay.all ||
+    if (state.inCue ||
+        settings.scoreDisplay == ScoreDisplay.all ||
         (settings.scoreDisplay == ScoreDisplay.first && verseIndex == 0)) {
       Widget score = getScore(orientation, verseIndex, book, songKey, context);
 
       // If song is displayed on single page, apply favourite functionality
-      if (settings.scoreDisplay != ScoreDisplay.all) {
+      if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue)) {
         page.add(
           GestureDetector(
             onLongPress: settings.getIsInSelectedCue(verseId)
@@ -110,24 +113,23 @@ List<List<Widget>> buildPages(
     // When all verses should have scores displayed, every verse should have
     // its own page, and a new page should start (for the next verse, if
     // any).
-    if (settings.scoreDisplay == ScoreDisplay.all) {
+    if (settings.scoreDisplay == ScoreDisplay.all || state.inCue) {
       pages.add(page);
       page = <Widget>[];
     }
   }
   // When NOT all verses should have scores displayed, the single page that
   // has been built so far should definitely be displayed.
-  if (settings.scoreDisplay != ScoreDisplay.all) {
+  if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue)) {
     pages.add(page);
   }
   return pages;
 }
 
-int getNumOfPages(Book book, String songKey, BuildContext context) {
-  SettingsProvider settingsProvider = SettingsProvider.of(context);
+int getNumOfPages(Book book, String songKey, BuildContext context, bool inCue) {
   // When all verses should have scores displayed, every verse should have
   // its own page.
-  if (settingsProvider.scoreDisplay == ScoreDisplay.all) {
+  if (SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all || inCue) {
     return songBooks[book.name][songKey]['texts'].length;
   }
   // When not all verses should have scores displayed, the song consists of

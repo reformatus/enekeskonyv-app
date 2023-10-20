@@ -17,11 +17,15 @@ class SongPage extends StatefulWidget {
     required this.book,
     required this.songIndex,
     this.verseIndex = 0,
+    this.initialCueIndex,
   }) : super(key: key);
 
   final Book book;
   final int songIndex;
   final int verseIndex;
+
+  /// When null, we are not in cue
+  final int? initialCueIndex;
 
   @override
   State<SongPage> createState() => _SongPageState();
@@ -47,6 +51,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
         book: widget.book,
         vsync: this,
         context: context,
+        cueIndex: widget.initialCueIndex,
       ),
       child: Consumer2<SettingsProvider, SongStateProvider>(
           builder: (context, settings, state, child) {
@@ -101,7 +106,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                   // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
                                   expandedHeight: 57,
                                   title: Text(
-                                    getSongTitle(songBooks[widget.book.name]
+                                    getSongTitle(songBooks[state.book.name]
                                         [state.songKey]),
                                     style: const TextStyle(fontSize: 18),
                                     maxLines: 2,

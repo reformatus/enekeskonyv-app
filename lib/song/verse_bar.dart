@@ -1,6 +1,6 @@
-import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/song/song_page_state.dart';
-import 'package:enekeskonyv/util.dart';
+import '../settings_provider.dart';
+import 'song_page_state.dart';
+import '../util.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +46,7 @@ class _VerseBarState extends State<VerseBar> {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      if (settings.scoreDisplay == ScoreDisplay.all) {
+      if (settings.scoreDisplay == ScoreDisplay.all || state.inCue) {
         return Listener(
           // Making sure the verse bar is shown when the user
           // interacts with it.
