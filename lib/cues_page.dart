@@ -172,35 +172,32 @@ class FavouritesPage extends StatelessWidget {
                     ),
                   ),
                   margin: const EdgeInsets.only(left: 20),
-                  padding: const EdgeInsets.all(7),
-                  child: RichText(
-                    text: TextSpan(
-                      // Without this explicit color, the search results would be
-                      // illegible when the app is in light mode. This makes it legible in
-                      // both dark and light modes.
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge!.color,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: '$verseNumber. ',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(11),
+                  child: Row(
+                    children: [
+                      Text('$verseNumber. ',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Expanded(
+                        child: Text(
+                          verseText,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
                         ),
-                        TextSpan(text: verseText)
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 35),
-            child: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () =>
-                  settings.removeFromCueAt(settings.selectedCue, cueIndex),
-            ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () =>
+                settings.removeFromCueAt(settings.selectedCue, cueIndex),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 3),
+            child: Icon(Icons.drag_handle),
           ),
         ],
       ),
