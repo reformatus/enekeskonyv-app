@@ -73,6 +73,7 @@ class ControllerButtons extends StatelessWidget {
         children: [
           if (state.cueIndex! > 0)
             IconButton.filled(
+                tooltip: 'Vissza',
                 onPressed: () => state.changeToVerseIdInCue(
                     settings.cueStore[settings.selectedCue]
                         [state.cueIndex! - 1],
@@ -97,7 +98,7 @@ class ControllerButtons extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        'Kedvencek',
+                        settings.selectedCue,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary),
                         softWrap: false,
@@ -122,6 +123,7 @@ class ControllerButtons extends StatelessWidget {
           if (state.cueIndex! <
               settings.cueStore[settings.selectedCue].length - 1)
             IconButton.filled(
+                tooltip: 'Tovább',
                 onPressed: () => state.changeToVerseIdInCue(
                     settings.cueStore[settings.selectedCue]
                         [state.cueIndex! + 1],
