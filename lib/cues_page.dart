@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:enekeskonyv/search_song_page.dart';
+
 import 'settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,45 +43,64 @@ class FavouritesPage extends StatelessWidget {
         return Scaffold(
             appBar: AppBar(
               title: const Text('Kedvencek'),
-              actions: [
-                PopupMenuButton(
-                  itemBuilder: (i) => [
-                    /*// Import button
-                  const PopupMenuItem(
-                    enabled: false,
-                    child: ListTile(
-                      leading: Icon(Icons.content_paste),
-                      title: Text('Importálás'),
+            ),
+            body: Column(
+              children: [
+                Material(
+                  elevation: 5,
+                  child: Container(
+                    height: 36,
+                    margin: EdgeInsets.all(3),
+                    padding: EdgeInsets.all(3),
+                    child: ListView(
+                      clipBehavior: Clip.none,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        ElevatedButton.icon(
+                          label: const Text('Lista beolvasás'),
+                          onPressed: null, // TODO
+                          icon: const Icon(Icons.qr_code_scanner),
+                        ),
+                        ElevatedButton.icon(
+                          label: const Text('Ének hozzáfűzése'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MySearchSongPage(
+                                book: settings.book,
+                                settingsProvider: settings,
+                                addToCueSearch: true,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.manage_search),
+                        ),
+                        ElevatedButton.icon(
+                          label: const Text('Új lista'),
+                          onPressed: null, // TODO
+                          icon: const Icon(Icons.post_add),
+                        ),
+                        ElevatedButton.icon(
+                          label: const Text('Lista törlése'),
+                          onPressed: () =>
+                              settings.clearCue(settings.selectedCue),
+                          icon: const Icon(Icons.delete_forever,
+                              color: Colors.red),
+                        ),
+                      ],
                     ),
                   ),
-                  // Export button
-                  const PopupMenuItem(
-                    enabled: false,
-                    child: ListTile(
-                      leading: Icon(Icons.copy),
-                      title: Text('Exportálás'),
-                    ),
-                  ),*/
-                    // Delete all button
-                    PopupMenuItem(
-                      onTap: () => settings.clearCue(settings.selectedCue),
-                      child: const ListTile(
-                        leading: Icon(
-                          Icons.delete_forever,
-                          color: Colors.red,
-                        ),
-                        title: Text('Összes törlése'),
-                      ),
-                    ),
-                  ],
-                )
+                ),
+                Expanded(
+                  child: ReorderableListView(
+                    onReorder: (oldIndex, newIndex) => settings.reorderCue(
+                        settings.selectedCue, oldIndex, newIndex),
+                    physics:
+                        Platform.isIOS ? const BouncingScrollPhysics() : null,
+                    children: getVerseTiles(settings),
+                  ),
+                ),
               ],
-            ),
-            body: ReorderableListView(
-              onReorder: (oldIndex, newIndex) =>
-                  settings.reorderCue(settings.selectedCue, oldIndex, newIndex),
-              physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
-              children: getVerseTiles(settings),
             ));
       },
     );
