@@ -168,10 +168,9 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future saveCue(String cue, List<String> verses) {
+  Future saveCue(String cue, List<String> verses) async {
     _cueStore[cue] = verses;
-    final SharedPreferences prefs =
-        SharedPreferences.getInstance() as SharedPreferences;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString('setStore', jsonEncode(_cueStore));
   }
 
