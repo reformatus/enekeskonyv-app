@@ -40,10 +40,15 @@ List<List<Widget>> buildPages(
                     settings.selectedCue, verseId)
                 : () => settings.addToCue(settings.selectedCue, verseId),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (settings.getIsInSelectedCue(verseId))
-                  const Icon(Icons.star, size: 18),
+                  const Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(Icons.star, size: 18),
+                    ],
+                  ),
                 score,
               ],
             ),
@@ -71,10 +76,10 @@ List<List<Widget>> buildPages(
                 ),
                 children: [
                   if (settings.getIsInSelectedCue(verseId))
-                    const WidgetSpan(
+                    WidgetSpan(
                       child: Padding(
-                          padding: EdgeInsets.only(bottom: 1.5, right: 3),
-                          child: Icon(Icons.star, size: 15)),
+                          padding: const EdgeInsets.only(bottom: 1.5, right: 3),
+                          child: Icon(Icons.star, size: settings.fontSize)),
                     ),
                   // Display verse number (everything before and including
                   // the first dot) in bold.
