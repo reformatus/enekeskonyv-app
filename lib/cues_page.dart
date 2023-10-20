@@ -146,8 +146,12 @@ class FavouritesPage extends StatelessWidget {
           FilledButton(
             onPressed: () {
               settings.clearCue(settings.selectedCue);
-              settings.changeSelectedCue(settings.cueStore.keys
-                  .firstWhere((cue) => cue != settings.selectedCue));
+              try {
+                settings.changeSelectedCue(settings.cueStore.keys
+                    .firstWhere((cue) => cue != settings.selectedCue));
+              } catch (_) {
+                settings.changeSelectedCue(SettingsProvider.defaultSelectedCue);
+              }
               Navigator.pop(context);
             },
             child: const Text('Törlés'),
