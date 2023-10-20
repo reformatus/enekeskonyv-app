@@ -63,10 +63,13 @@ class _VerseBarState extends State<VerseBar> {
                           getVerseId(state.book, state.songKey, state.verse))
                       ? IconButton(
                           tooltip: 'Versszak törlése a kiválasztott listából',
-                          onPressed: () => settings.removeAllInstancesFromCue(
-                              settings.selectedCue,
-                              getVerseId(
-                                  state.book, state.songKey, state.verse)),
+                          onPressed: () {
+                            settings.removeAllInstancesFromCue(
+                                settings.selectedCue,
+                                getVerseId(
+                                    state.book, state.songKey, state.verse));
+                            if (state.inCue) Navigator.pop(context);
+                          },
                           icon: const Icon(Icons.star),
                           color: Theme.of(context).colorScheme.secondary,
                         )
