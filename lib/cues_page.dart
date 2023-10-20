@@ -42,7 +42,31 @@ class FavouritesPage extends StatelessWidget {
       builder: (context, settings, child) {
         return Scaffold(
             appBar: AppBar(
-              title: const Text('Kedvencek'),
+              title: settings.cueStore.keys.length > 1
+                  ? DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        isExpanded: true,
+                        value: settings.selectedCue,
+                        onChanged: (value) =>
+                            settings.changeSelectedCue(value as String),
+                        items: settings.cueStore.keys
+                            .map((cue) => DropdownMenuItem(
+                                  value: cue,
+                                  child: Text(
+                                    cue,
+                                    softWrap: false,
+                                    overflow: TextOverflow.fade,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  : Text(
+                      settings.selectedCue,
+                    ),
             ),
             body: Column(
               children: [
@@ -77,32 +101,13 @@ class FavouritesPage extends StatelessWidget {
                         ),
                         ElevatedButton.icon(
                           label: const Text('Új lista'),
-                          onPressed: null, // TODO
+                          onPressed: () => showNewCueDialog(context, settings),
                           icon: const Icon(Icons.post_add),
                         ),
                         ElevatedButton.icon(
                           label: const Text('Lista törlése'),
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                              title: const Text('Lista törlése'),
-                              content: Text(
-                                  'Biztosan törölni szeretnéd a(z) ${settings.selectedCue} listát?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Mégse'),
-                                ),
-                                FilledButton(
-                                  onPressed: () {
-                                    settings.clearCue(settings.selectedCue);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Törlés'),
-                                ),
-                              ],
-                            ),
-                          ),
+                          onPressed: () =>
+                              showDeleteCueDialog(context, settings),
                           icon: const Icon(Icons.delete_forever,
                               color: Colors.red),
                         ),
@@ -125,11 +130,78 @@ class FavouritesPage extends StatelessWidget {
     );
   }
 
+  Future<dynamic> showDeleteCueDialog(
+      BuildContext context, SettingsProvider settings) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Lista törlése'),
+        content: Text(
+            'Biztosan törölni szeretnéd a(z) ${settings.selectedCue} listát?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Mégse'),
+          ),
+          FilledButton(
+            onPressed: () {
+              settings.clearCue(settings.selectedCue);
+              settings.changeSelectedCue(settings.cueStore.keys
+                  .firstWhere((cue) => cue != settings.selectedCue));
+              Navigator.pop(context);
+            },
+            child: const Text('Törlés'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<dynamic> showNewCueDialog(
+      BuildContext context, SettingsProvider settings) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController controller = TextEditingController();
+
+        onTap(String text) {
+          settings.saveCue(text, []);
+          settings.changeSelectedCue(text);
+          Navigator.pop(context);
+        }
+
+        return AlertDialog(
+          title: const Text('Új lista'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Lista neve',
+            ),
+            autofocus: true,
+            onSubmitted: (text) => onTap(text),
+            textInputAction: TextInputAction.done,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Mégse'),
+            ),
+            FilledButton(
+              onPressed: () => onTap(controller.text),
+              child: const Text('Létrehozás'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<Widget> getVerseTiles(SettingsProvider settings) {
     List<Widget> verseTiles = [];
 
     int i = 0;
-    String lastBook = "";
+    // Set to selected book so first time it's not displayed redundantly
+    String lastBook = settings.book.name;
     String lastSong = "";
     for (String verseId in settings.getSelectedCueContent()) {
       List<String> parts = verseId.split('/');
