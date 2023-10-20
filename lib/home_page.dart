@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:enekeskonyv/favourites_page.dart';
+import 'cues_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
