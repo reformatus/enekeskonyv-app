@@ -73,7 +73,7 @@ class ControllerButtons extends StatelessWidget {
         children: [
           if (state.cueIndex! > 0)
             IconButton.filled(
-                tooltip: 'Vissza',
+                tooltip: 'Előző listaelem',
                 onPressed: () => state.changeToVerseIdInCue(
                     settings.cueStore[settings.selectedCue]
                         [state.cueIndex! - 1],
@@ -123,7 +123,7 @@ class ControllerButtons extends StatelessWidget {
           if (state.cueIndex! <
               settings.cueStore[settings.selectedCue].length - 1)
             IconButton.filled(
-                tooltip: 'Tovább',
+                tooltip: 'Következő listaelem',
                 onPressed: () => state.changeToVerseIdInCue(
                     settings.cueStore[settings.selectedCue]
                         [state.cueIndex! + 1],
