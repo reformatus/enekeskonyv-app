@@ -1,4 +1,5 @@
 import 'package:diacritic/diacritic.dart';
+import 'package:enekeskonyv/util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,10 +25,12 @@ class MySearchSongPage extends StatefulWidget {
     Key? key,
     required this.book,
     required this.settingsProvider,
+    this.addToCueSearch = false,
   }) : super(key: key);
 
   final Book book;
   final SettingsProvider settingsProvider;
+  final bool addToCueSearch;
 
   @override
   State<MySearchSongPage> createState() => _MySearchSongPageState();
@@ -103,11 +106,17 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
       return [
         ListTile(
           subtitle: Text(
-            '''
+            !widget.addToCueSearch
+                ? '''
 Kereséshez adj meg legalább 3 betűt.
 
 Ugráshoz add meg az ének számát.
-Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szóközzel elválasztva.''',
+Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szóközzel elválasztva.'''
+                : '''
+A találatokat azonnal hozzáfűzheted a kiválasztott listához.
+
+Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
+''',
             style: TextStyle(
                 fontStyle: FontStyle.italic,
                 color: Theme.of(context).colorScheme.secondary),
@@ -184,24 +193,41 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
   Widget foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
       {bool foundFirst = false, bool foundByNumber = false}) {
     onTap() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) {
-            return SongPage(
-              book: widget.settingsProvider.book,
-              songIndex: songBooks[widget.book.name]
-                  .keys
-                  .toList()
-                  .indexOf(element.songKey),
-
-              verseIndex: 
-                  element.verseIndex
-
-            );
-          },
-        ),
-        // request focus to show keyboard when returning from song page
-      ).then((value) => keyboardFocusNode.requestFocus());
+      if (!widget.addToCueSearch) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return SongPage(
+                  book: widget.settingsProvider.book,
+                  songIndex: songBooks[widget.book.name]
+                      .keys
+                      .toList()
+                      .indexOf(element.songKey),
+                  verseIndex: element.verseIndex);
+            },
+          ),
+          // request focus to show keyboard when returning from song page
+        ).then((value) => keyboardFocusNode.requestFocus());
+      } else {
+        widget.settingsProvider
+            .addToCue(
+                widget.settingsProvider.selectedCue,
+                getVerseId(widget.settingsProvider.book, element.songKey,
+                    element.verseIndex))
+            .then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              content: Text('Hozzáfűzve a kiválasztott listához',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          keyboardFocusNode.requestFocus();
+        });
+      }
     }
 
     if (foundFirst) {
@@ -233,13 +259,15 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
                     Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: Icon(
-                        Icons.shortcut,
+                        !widget.addToCueSearch ? Icons.shortcut : Icons.add,
                         size: 20,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     Text(
-                      'Megnyitás Enter billentyűvel',
+                      !widget.addToCueSearch
+                          ? 'Megnyitás Enter billentyűvel'
+                          : 'Listához fűzés az Enter billentyűvel',
                       style: TextStyle(
                           fontStyle: FontStyle.italic,
                           color: Theme.of(context).colorScheme.secondary),
@@ -415,17 +443,31 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
               ? Icons.keyboard
               : Icons.pin_outlined),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  return searchResults[index];
-                },
+        body: ListView.builder(
+          itemCount: searchResults.length,
+          itemBuilder: (context, index) {
+            return searchResults[index];
+          },
+        ),
+        bottomNavigationBar: Material(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          elevation: 10,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.manage_search,
+                  color: Theme.of(context).colorScheme.primary),
+              Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'Hozzáfűzés: ${settings.selectedCue}',
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
