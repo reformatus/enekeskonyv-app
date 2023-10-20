@@ -50,8 +50,8 @@ class FavouritesPage extends StatelessWidget {
                   elevation: 5,
                   child: Container(
                     height: 36,
-                    margin: EdgeInsets.all(3),
-                    padding: EdgeInsets.all(3),
+                    margin: const EdgeInsets.all(3),
+                    padding: const EdgeInsets.all(3),
                     child: ListView(
                       clipBehavior: Clip.none,
                       scrollDirection: Axis.horizontal,
@@ -82,8 +82,27 @@ class FavouritesPage extends StatelessWidget {
                         ),
                         ElevatedButton.icon(
                           label: const Text('Lista törlése'),
-                          onPressed: () =>
-                              settings.clearCue(settings.selectedCue),
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: const Text('Lista törlése'),
+                              content: Text(
+                                  'Biztosan törölni szeretnéd a(z) ${settings.selectedCue} listát?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Mégse'),
+                                ),
+                                FilledButton(
+                                  onPressed: () {
+                                    settings.clearCue(settings.selectedCue);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Törlés'),
+                                ),
+                              ],
+                            ),
+                          ),
                           icon: const Icon(Icons.delete_forever,
                               color: Colors.red),
                         ),
