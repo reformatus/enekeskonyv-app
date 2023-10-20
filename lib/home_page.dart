@@ -85,37 +85,36 @@ class _HomePageState extends State<HomePage> {
                 )
               : null,
           appBar: AppBar(
-            title: Row(
-              children: [
-                Expanded(
-                  child: Tooltip(
-                    message: 'Válassz énekeskönyvet',
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<Book>(
-                        isExpanded: true,
-                        value: provider.book,
-                        items: Book.values
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  '${e.displayName} énekeskönyv',
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => provider.changeBook(value!),
-                      ),
-                    ),
-                  ),
+            title: Tooltip(
+              message: 'Válassz énekeskönyvet',
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<Book>(
+                  value: provider.book,
+                  isExpanded: true,
+                  items: Book.values
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            '${e.displayName} énekeskönyv',
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => provider.changeBook(value!),
                 ),
-                IconButton(
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: IconButton(
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -128,8 +127,8 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Beállítások',
                   key: const Key('_MyHomePageState.SettingsButton'),
                 ),
-              ],
-            ),
+              ),
+            ],
             bottom: (songBooks.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
@@ -189,19 +188,22 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                               ),
-                              Card(
-                                margin: const EdgeInsets.only(
-                                    top: 7, right: 7, bottom: 7),
-                                elevation: 3,
-                                clipBehavior: Clip.antiAlias,
-                                child: InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) {
-                                    return FavouritesPage(context);
-                                  })),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Center(child: Icon(Icons.star)),
+                              Tooltip(
+                                message: 'Kedvencek és listák',
+                                child: Card(
+                                  margin: const EdgeInsets.only(
+                                      top: 7, right: 7, bottom: 7),
+                                  elevation: 3,
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    onTap: () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) {
+                                      return FavouritesPage(context);
+                                    })),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Center(child: Icon(Icons.star)),
+                                    ),
                                   ),
                                 ),
                               )
