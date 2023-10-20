@@ -33,9 +33,6 @@ class SongStateProvider extends ChangeNotifier {
     required BuildContext context,
     required this.cueIndex,
   }) {
-    print('''
-numOfPages: ${getNumOfPages(book, songKey, context, cueIndex != null)}
-initialIndex: $verse''');
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context, inCue),
@@ -229,7 +226,7 @@ initialIndex: $verse''');
 
     scrollController.jumpTo(0);
     notifyListeners();
-    
+
     showThenHideVerseBar();
     scrollVerseBarToCurrent(animate: false);
   }
