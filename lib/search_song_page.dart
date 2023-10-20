@@ -193,13 +193,10 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
                   .keys
                   .toList()
                   .indexOf(element.songKey),
-              // HACK Could be better handled on song page.
-              // Maybe even implement scrolling to matching verse there
-              // when showing texts?
-              verseIndex: (SettingsProvider.of(context).scoreDisplay ==
-                      ScoreDisplay.all)
-                  ? element.verseIndex
-                  : 0,
+
+              verseIndex: 
+                  element.verseIndex
+
             );
           },
         ),
