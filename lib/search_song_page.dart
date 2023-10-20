@@ -459,7 +459,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
               Icon(Icons.manage_search,
                   color: Theme.of(context).colorScheme.primary),
               Padding(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 child: Text(
                   'Hozzáfűzés: ${settings.selectedCue}',
                   style:

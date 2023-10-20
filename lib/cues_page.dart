@@ -56,7 +56,7 @@ class FavouritesPage extends StatelessWidget {
                                     cue,
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.normal),
                                   ),
