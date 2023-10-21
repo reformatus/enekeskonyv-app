@@ -2,39 +2,16 @@ import 'dart:io';
 
 import 'package:enekeskonyv/search_song_page.dart';
 
-import 'settings_provider.dart';
+import '../settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'song/song_page.dart';
+import '../song/song_page.dart';
 
-class FavouritesPage extends StatelessWidget {
-  const FavouritesPage(this.context, {super.key});
+class CuesPage extends StatelessWidget {
+  const CuesPage(this.context, {super.key});
 
   final BuildContext context;
-
-  // parse verseId list to data structure
-  // Book -> Song -> Verse
-  Map<String, Map<String, Set<String>>> getFavourites(List<String> verseIds) {
-    Map<String, Map<String, Set<String>>> favourites = {};
-
-    for (String id in verseIds) {
-      List<String> parts = id.split('/');
-      String book = parts[0];
-      String song = parts[1];
-      String verse = parts[2];
-
-      if (!favourites.containsKey(book)) {
-        favourites[book] = {};
-      }
-      if (!favourites[book]!.containsKey(song)) {
-        favourites[book]![song] = {};
-      }
-      favourites[book]![song]!.add(verse);
-    }
-
-    return favourites;
-  }
 
   @override
   Widget build(BuildContext context) {
