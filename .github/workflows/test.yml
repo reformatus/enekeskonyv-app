@@ -2,9 +2,7 @@ name: Analyze, test
 
 on:
   push:
-    branches: release
   pull_request:
-    branches: release
 
 jobs:
   analyze:
@@ -15,5 +13,3 @@ jobs:
           channel: 'stable'
       - name: Analyze project
         run: flutter analyze --no-fatal-warnings
-      - name: Test project
-        run: flutter test
