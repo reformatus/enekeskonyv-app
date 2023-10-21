@@ -6,6 +6,6 @@ String getSongTitle(LinkedHashMap song) {
   return (song['number'] != null ? song['number'] + ': ' : '') + song['title'];
 }
 
-String getVerseId(Book book, String songKey, int verse) {
-  return '${book.name}/$songKey/$verse';
+String getVerseId(Book book, String songKey, int verseIndex) {
+  return '${book.name}/$songKey/$verseIndex';
 }
