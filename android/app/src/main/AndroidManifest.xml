@@ -31,7 +31,7 @@
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
-                <data android:host="reformatus.github.io" />
+                <data android:host="l.reflabs.hu" />
                 <data android:launchMode="singleInstance" />
             </intent-filter>
         </activity>
