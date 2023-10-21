@@ -63,10 +63,7 @@ class SongStateProvider extends ChangeNotifier {
 
     tabController.addListener(() {
       verse = tabController.index;
-      Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
-          alignment: 0.5,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.ease);
+      scrollVerseBarToCurrent();
       showThenHideVerseBar();
       notifyListeners();
     });
@@ -150,12 +147,6 @@ class SongStateProvider extends ChangeNotifier {
             numOfPages: getNumOfPages(book, songKey, context),
             initialIndex: verse);
 
-        // Scroll verseBar immediately to selected verse (useful when changing
-        // verses backwards and going to last verse in previous song)
-        Future.delayed(const Duration(milliseconds: 200)).then((value) =>
-            Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
-                alignment: 0.5, duration: Duration.zero));
-
         scrollController.jumpTo(0);
       } else {
         tabController.animateTo(verse);
@@ -180,13 +171,8 @@ class SongStateProvider extends ChangeNotifier {
         numOfPages: getNumOfPages(book, songKey, context),
         initialIndex: 0);
 
-    Future.delayed(const Duration(milliseconds: 200)).then((value) =>
-        Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
-            alignment: 0.5,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease));
-
     scrollController.jumpTo(0);
+    notifyListeners();
     showThenHideVerseBar();
   }
 
@@ -204,6 +190,13 @@ class SongStateProvider extends ChangeNotifier {
     } else {
       return verse > 0;
     }
+  }
+
+  scrollVerseBarToCurrent({bool animate = true}) {
+    Scrollable.ensureVisible(tabKeys[verse]!.currentContext!,
+        alignment: 0.5,
+        duration: animate ? const Duration(milliseconds: 300) : Duration.zero,
+        curve: Curves.ease);
   }
 
   static SongStateProvider of(BuildContext context) {

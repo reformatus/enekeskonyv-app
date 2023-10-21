@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'goto_song_form.dart';
 import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
 import 'settings_provider.dart';
@@ -23,15 +22,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Map<String, dynamic> _jsonSongBooks = {};
+  Map<String, dynamic> jsonSongBooks = {};
+  late ScrollController scrollController;
+  bool fabVisible = false;
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
-  Future<void> _readJson() async {
+  Future<void> readJson() async {
     final String response =
         await rootBundle.loadString('assets/enekeskonyv.json');
-    _jsonSongBooks = (await compute(json.decode, response))
+    jsonSongBooks = (await compute(json.decode, response))
         as LinkedHashMap<String, dynamic>;
-    songBooks = _jsonSongBooks;
+    songBooks = jsonSongBooks;
     setState(() {});
   }
 
@@ -39,7 +40,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Read the JSON once, when the app starts.
-    if (songBooks.isEmpty) _readJson();
+    if (songBooks.isEmpty) readJson();
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      setState(() {
+        fabVisible = scrollController.position.pixels > 30;
+      });
+    });
   }
 
   @override
@@ -61,9 +68,21 @@ class _HomePageState extends State<HomePage> {
         // flicking the default book's list when the user already selected a
         // non-default book before starting the app again.
         if (!provider.initialized) {
-          return const Scaffold();
+          return Scaffold(appBar: AppBar(title: const Text('Betöltés...')));
         }
         return Scaffold(
+          floatingActionButton: fabVisible
+              ? FloatingActionButton.small(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return MySearchSongPage(
+                          book: provider.book, settingsProvider: provider);
+                    }),
+                  ),
+                  tooltip: 'Keresés vagy ugrás...',
+                  child: const Icon(Icons.search),
+                )
+              : null,
           appBar: AppBar(
             title: Row(
               children: [
@@ -74,71 +93,26 @@ class _HomePageState extends State<HomePage> {
                       child: DropdownButton<Book>(
                         isExpanded: true,
                         value: provider.book,
-                        items: [
-                          DropdownMenuItem(
-                            value: Book.blue,
-                            child: Text(
-                              '${Book.blue.displayName} énekeskönyv',
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 20,
+                        items: Book.values
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  '${e.displayName} énekeskönyv',
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: Book.black,
-                            child: Text(
-                              '${Book.black.displayName} énekeskönyv',
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ],
+                            )
+                            .toList(),
                         onChanged: (value) => provider.changeBook(value!),
                       ),
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    // @see https://www.youtube.com/watch?v=Xdt8TlwNRAM
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MySearchSongPage(
-                            book: provider.book,
-                            settingsProvider: provider,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.search_outlined),
-                  tooltip: 'Keresés',
-                  key: const Key('_MyHomePageState.SearchSongButton'),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return MyGotoSongForm(
-                            book: provider.book,
-                            settingsProvider: provider,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.apps),
-                  tooltip: 'Ugrás énekre',
-                  key: const Key('_MyHomePageState.GotoSongButton'),
                 ),
                 IconButton(
                   onPressed: () {
@@ -169,13 +143,37 @@ class _HomePageState extends State<HomePage> {
                   // is interactive by default). Also, it should be wide enough
                   // to be useful for a finger (to be able to scroll through the
                   // whole list which is quite long).
-                  thickness: 10.0,
+                  thickness: 9.0,
+                  thicknessWhileDragging: 12.0,
+                  radius: const Radius.circular(15.0),
                   child: ListView.builder(
-                    
+                    controller: scrollController,
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
                     itemCount: songBooks[provider.bookAsString].length,
                     itemBuilder: (context, i) {
+                      // Display search box as first item.
+                      if (i == 0) {
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 3,
+                          margin: const EdgeInsets.all(7),
+                          semanticContainer: true,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) {
+                              return MySearchSongPage(
+                                  book: provider.book,
+                                  settingsProvider: provider);
+                            })),
+                            child: const ListTile(
+                                leading: Icon(Icons.search),
+                                title: Text('Keresés vagy ugrás...')),
+                          ),
+                        );
+                      }
+
+                      i--;
                       return ListTile(
                         title: Text(getSongTitle(
                             songBooks[provider.bookAsString][
