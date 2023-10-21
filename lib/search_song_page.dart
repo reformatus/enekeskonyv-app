@@ -449,7 +449,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
             return searchResults[index];
           },
         ),
-        bottomNavigationBar: Material(
+        bottomSheet: Material(
           color: Theme.of(context).colorScheme.secondaryContainer,
           elevation: 10,
           child: Row(
