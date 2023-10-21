@@ -32,7 +32,6 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="l.reflabs.hu" />
-                <data android:launchMode="singleInstance" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
