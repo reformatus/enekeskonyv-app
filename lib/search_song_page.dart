@@ -1,12 +1,10 @@
-import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'settings_provider.dart';
-import 'song_page.dart';
+import 'song/song_page.dart';
 
 class SearchVerse {
   final String songKey;
@@ -23,12 +21,10 @@ class SearchVerse {
 class MySearchSongPage extends StatefulWidget {
   const MySearchSongPage({
     Key? key,
-    required this.songBooks,
     required this.book,
     required this.settingsProvider,
   }) : super(key: key);
 
-  final LinkedHashMap<String, dynamic> songBooks;
   final Book book;
   final SettingsProvider settingsProvider;
 
@@ -45,7 +41,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     super.initState();
     // When the page is displayed, a full list of all verses is needed as a
     // search data source.
-    widget.songBooks[widget.book.name].forEach((key, value) {
+    songBooks[widget.book.name].forEach((key, value) {
       var verseNumber = 0;
       value['texts'].forEach((valueText) {
         allSearchVerses.add(SearchVerse(
@@ -71,7 +67,7 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
         lastSongSeen = element.songKey;
         searchResults.add(ListTile(
           title: Text(
-            '${element.songKey}. ${widget.songBooks[widget.book.name][element.songKey]['title']}',
+            '${element.songKey}. ${songBooks[widget.book.name][element.songKey]['title']}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -125,13 +121,12 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return MySongPage(
-                  songBooks: widget.songBooks,
+                return SongPage(
                   book: widget.settingsProvider.book,
-                  songIndex: widget.songBooks[widget.book.name].keys
+                  songIndex: songBooks[widget.book.name]
+                      .keys
                       .toList()
                       .indexOf(element.songKey),
-                  settingsProvider: widget.settingsProvider,
                   verseIndex: element.verseIndex,
                 );
               },

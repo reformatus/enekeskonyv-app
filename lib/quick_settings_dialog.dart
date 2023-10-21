@@ -1,28 +1,21 @@
-import 'dart:collection';
 import 'dart:io';
 
-import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'song_page.dart';
+import 'settings_provider.dart';
+import 'song/song_page.dart';
 
 class QuickSettingsDialog extends StatelessWidget {
-  final LinkedHashMap<String, dynamic> songBooks;
   final Map? songData;
   final Book? book;
   final int verseNumber;
 
   const QuickSettingsDialog(
-      {Key? key,
-      required this.songBooks,
-      this.songData,
-      this.book,
-      this.verseNumber = 0})
+      {Key? key, this.songData, this.book, this.verseNumber = 0})
       : super(key: key);
 
   @override
@@ -42,7 +35,6 @@ class QuickSettingsDialog extends StatelessWidget {
                   const SettingsSectionTitle('Kapcsolódó'),
                   ...songData!['links'].map(
                     (e) => RelatedTile(
-                      songBooks: songBooks,
                       songLink: e['link']!,
                       relatedReason: e['text']!,
                       provider: provider,
@@ -146,6 +138,26 @@ class QuickSettingsDialog extends StatelessWidget {
                     }),
                   ),
                 ),
+                if (provider.getCurrentAppBrightness(context) ==
+                        Brightness.dark ||
+                    provider.getCurrentSheetBrightness(context) ==
+                        Brightness.dark)
+                  ListTile(
+                    title: const Text('Teljesen fekete háttér'),
+                    trailing: Platform.isIOS
+                        ? CupertinoSwitch(
+                            value: provider.isOledTheme,
+                            onChanged: (value) {
+                              provider.changeIsOledTheme(value);
+                            },
+                          )
+                        : Switch(
+                            value: provider.isOledTheme,
+                            onChanged: (value) {
+                              provider.changeIsOledTheme(value);
+                            },
+                          ),
+                  ),
                 const SettingsSectionTitle(
                   'Navigáció',
                   subtitle: true,
@@ -166,6 +178,23 @@ class QuickSettingsDialog extends StatelessWidget {
                           },
                         ),
                 ),
+                if (provider.scoreDisplay == ScoreDisplay.all)
+                  ListTile(
+                    title: const Text('Versszakválasztó sáv'),
+                    trailing: Platform.isIOS
+                        ? CupertinoSwitch(
+                            value: provider.isVerseBarEnabled,
+                            onChanged: (value) {
+                              provider.changeIsVerseBarEnabled(value);
+                            },
+                          )
+                        : Switch(
+                            value: provider.isVerseBarEnabled,
+                            onChanged: (value) {
+                              provider.changeIsVerseBarEnabled(value);
+                            },
+                          ),
+                  ),
                 if (songData != null) ...[
                   const Divider(
                     endIndent: 70,
@@ -199,14 +228,12 @@ Csatolhatsz képet is.""",
 
 class RelatedTile extends StatelessWidget {
   const RelatedTile({
-    required this.songBooks,
     required this.songLink,
     required this.relatedReason,
     required this.provider,
     Key? key,
   }) : super(key: key);
 
-  final LinkedHashMap<String, dynamic> songBooks;
   final String songLink;
   final String relatedReason;
   final SettingsProvider provider;
@@ -233,11 +260,9 @@ class RelatedTile extends StatelessWidget {
         Navigator.of(context).pop();
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
-            return MySongPage(
-              songBooks: songBooks,
+            return SongPage(
               book: book,
               songIndex: songBooks[book.name].keys.toList().indexOf(songId),
-              settingsProvider: provider,
             );
           },
         ));

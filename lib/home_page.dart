@@ -2,33 +2,28 @@ import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:enekeskonyv/quick_settings_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'settings_provider.dart';
 import 'goto_song_form.dart';
+import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
-import 'song_page.dart';
+import 'settings_provider.dart';
+import 'song/song_page.dart';
 import 'util.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  LinkedHashMap<String, dynamic> _jsonSongBooks = LinkedHashMap();
-  late final LinkedHashMap<String, dynamic> songBooks;
+class _HomePageState extends State<HomePage> {
+  Map<String, dynamic> _jsonSongBooks = {};
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> _readJson() async {
@@ -44,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     // Read the JSON once, when the app starts.
-    _readJson();
+    if (songBooks.isEmpty) _readJson();
   }
 
   @override
@@ -117,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MySearchSongPage(
-                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -135,7 +129,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MyGotoSongForm(
-                            songBooks: songBooks,
                             book: provider.book,
                             settingsProvider: provider,
                           );
@@ -153,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       context: context,
                       builder: (context) =>
                           // Not in song context, therefore no links, thanks.
-                          QuickSettingsDialog(songBooks: songBooks),
+                          const QuickSettingsDialog(),
                     );
                   },
                   icon: const Icon(Icons.settings),
@@ -162,14 +155,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            bottom: (_jsonSongBooks.isEmpty)
+            bottom: (songBooks.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
                     child: LinearProgressIndicator(),
                   )
                 : null,
           ),
-          body: (_jsonSongBooks.isEmpty)
+          body: (songBooks.isEmpty)
               ? null
               : CupertinoScrollbar(
                   // Using CupertinoScrollbar on Android too (looks better and
@@ -178,25 +171,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   // whole list which is quite long).
                   thickness: 10.0,
                   child: ListView.builder(
+                    
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: _jsonSongBooks[provider.bookAsString].length,
+                    itemCount: songBooks[provider.bookAsString].length,
                     itemBuilder: (context, i) {
                       return ListTile(
                         title: Text(getSongTitle(
-                            _jsonSongBooks[provider.bookAsString][
-                                _jsonSongBooks[provider.bookAsString]
+                            songBooks[provider.bookAsString][
+                                songBooks[provider.bookAsString]
                                     .keys
                                     .elementAt(i)])),
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return MySongPage(
-                                  songBooks: songBooks,
+                                return SongPage(
                                   book: provider.book,
                                   songIndex: i,
-                                  settingsProvider: provider,
                                 );
                               },
                             ),
