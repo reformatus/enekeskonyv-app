@@ -5,11 +5,13 @@ import 'home_page.dart';
 import 'settings_provider.dart';
 
 void main() async {
-  runApp(const MyApp());
+  runApp(const Enekeskonyv());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+final navigatorKey = GlobalKey<NavigatorState>();
+
+class Enekeskonyv extends StatelessWidget {
+  const Enekeskonyv({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -18,6 +20,7 @@ class MyApp extends StatelessWidget {
       create: (_) => SettingsProvider()..initialize(),
       child: Consumer<SettingsProvider>(builder: (context, settings, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
           theme: ThemeData(
