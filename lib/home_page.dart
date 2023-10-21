@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'cues_page.dart';
+import 'package:app_links/app_links.dart';
+
+import 'cues/cues_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +30,53 @@ class _HomePageState extends State<HomePage> {
   late ScrollController scrollController;
   bool fabVisible = false;
 
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  Future<void> initDeepLinks() async {
+    _appLinks = AppLinks();
+
+    // Check initial link if app was in cold state (terminated)
+    final appLink = await _appLinks.getInitialAppLink();
+    if (appLink != null) {
+      print('getInitialAppLink: $appLink');
+      openAppLink(appLink);
+    }
+
+    // Handle link when app is in warm state (front or background)
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      print('onAppLink: $uri');
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text('Deeplink data'),
+              content: Text(uri.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ));
+    /*try {
+      switch (uri.path.split('/').first) {
+        case 'l':
+          break;
+        case 's':
+          break;
+        default:
+      }
+    } catch (e, s) {
+      // ignore: avoid_print
+      print('Error while handling deepling: $e\n$s');
+    }*/
+  }
+
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> readJson() async {
     final String response =
@@ -35,6 +85,7 @@ class _HomePageState extends State<HomePage> {
         as LinkedHashMap<String, dynamic>;
     songBooks = jsonSongBooks;
     setState(() {});
+    initDeepLinks();
   }
 
   @override
@@ -48,6 +99,13 @@ class _HomePageState extends State<HomePage> {
         fabVisible = scrollController.position.pixels > 40;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -198,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                                   child: InkWell(
                                     onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(builder: (context) {
-                                      return FavouritesPage(context);
+                                      return CuesPage(context);
                                     })),
                                     child: const Padding(
                                       padding: EdgeInsets.all(10),
