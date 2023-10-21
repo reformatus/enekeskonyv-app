@@ -95,9 +95,15 @@ class _HomePageState extends State<HomePage> {
     if (songBooks.isEmpty) readJson();
     scrollController = ScrollController();
     scrollController.addListener(() {
-      setState(() {
-        fabVisible = scrollController.position.pixels > 40;
-      });
+      if (scrollController.position.pixels > 40 && !fabVisible) {
+        setState(() {
+          fabVisible = true;
+        });
+      } else if (scrollController.position.pixels <= 40 && fabVisible) {
+        setState(() {
+          fabVisible = false;
+        });
+      }
     });
   }
 
@@ -196,15 +202,11 @@ class _HomePageState extends State<HomePage> {
           ),
           body: (songBooks.isEmpty)
               ? null
-              // TODO check why this does not work on android
-              : CupertinoScrollbar(
-                  // Using CupertinoScrollbar on Android too (looks better and
-                  // is interactive by default). Also, it should be wide enough
-                  // to be useful for a finger (to be able to scroll through the
-                  // whole list which is quite long).
-                  thickness: 9.0,
-                  thicknessWhileDragging: 12.0,
-                  radius: const Radius.circular(15.0),
+              : Scrollbar(
+                  thickness: 10,
+                  interactive: true,
+                  radius: const Radius.circular(10),
+                  controller: scrollController,
                   child: ListView.builder(
                     controller: scrollController,
                     physics:
