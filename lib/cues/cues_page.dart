@@ -107,17 +107,21 @@ class CuesPage extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.all(6),
                         children: [
+                          /* // TODO later
                           ElevatedButton.icon(
                             label: const Text('Lista beolvasás'),
-                            onPressed: null, // TODO
+                            onPressed: null,
                             icon: const Icon(Icons.qr_code_scanner),
-                          ),
+                          ),*/
                           const SizedBox(width: 5),
                           ElevatedButton.icon(
                             label: const Text('Megosztás'),
-                            onPressed: () => showShareDialog(
-                                context, settings.selectedCue,
-                                cueContent: settings.getSelectedCueContent()),
+                            onPressed: settings.getSelectedCueContent().isEmpty
+                                ? null
+                                : () => showShareDialog(
+                                    context, settings.selectedCue,
+                                    cueContent:
+                                        settings.getSelectedCueContent()),
                             icon: const Icon(Icons.share),
                           ),
                           const SizedBox(width: 5),
