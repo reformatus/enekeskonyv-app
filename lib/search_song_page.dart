@@ -39,6 +39,8 @@ class MySearchSongPage extends StatefulWidget {
 class _MySearchSongPageState extends State<MySearchSongPage> {
   List<SearchVerse> allSearchVerses = [];
   String searchText = '';
+
+  /// Function that gets called when user presses Enter in the search field.
   Function onSubmit = () {};
 
   @override
@@ -115,7 +117,7 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
                 : '''
 A találatokat azonnal hozzáfűzheted a kiválasztott listához.
 
-Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
+Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
 ''',
             style: TextStyle(
                 fontStyle: FontStyle.italic,
@@ -225,7 +227,6 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
               duration: const Duration(seconds: 2),
             ),
           );
-          keyboardFocusNode.requestFocus();
         });
       }
     }
@@ -266,8 +267,8 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
                     ),
                     Text(
                       !widget.addToCueSearch
-                          ? 'Megnyitás Enter billentyűvel'
-                          : 'Listához fűzés az Enter billentyűvel',
+                          ? 'Megnyitás Kész gombbal'
+                          : 'Listához fűzés Kész gombbal',
                       style: TextStyle(
                           fontStyle: FontStyle.italic,
                           color: Theme.of(context).colorScheme.secondary),
@@ -396,15 +397,16 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
                           decimal: true,
                         )
                       : TextInputType.text,
-                  textInputAction: TextInputAction.go,
                   onChanged: (e) {
                     setState(() {
                       searchText = e;
                     });
                   },
+                  // Prevent keyboard from closing on submit
+                  onEditingComplete: () {},
                   onSubmitted: (e) {
                     onSubmit();
-                    textController.clear();
+                    textController.text = '';
                     setState(() {
                       searchText = '';
                     });
@@ -434,6 +436,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
               settings
                   .changeSearchNumericKeyboard(!settings.searchNumericKeyboard);
               keyboardFocusNode.unfocus();
+              // Some delay necessary. Exact amount unknowable, this seems fine for now.
               Future.delayed(const Duration(milliseconds: 100), () {
                 keyboardFocusNode.requestFocus();
               });
@@ -449,26 +452,28 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
             return searchResults[index];
           },
         ),
-        bottomSheet: Material(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          elevation: 10,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(Icons.manage_search,
-                  color: Theme.of(context).colorScheme.primary),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  'Hozzáfűzés: ${settings.selectedCue}',
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+        bottomSheet: widget.addToCueSearch
+            ? Material(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                elevation: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.manage_search,
+                        color: Theme.of(context).colorScheme.primary),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        'Hozzáfűzés: ${settings.selectedCue}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
+              )
+            : null,
       );
     });
   }
