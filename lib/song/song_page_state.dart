@@ -202,7 +202,7 @@ class SongStateProvider extends ChangeNotifier {
 
   changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context,
       TickerProvider vsync) {
-    var parts = verseId.split('/');
+    var parts = verseId.split('.');
     Book book = Book.values.firstWhere((b) => b.name == parts[0]);
     String songKey = parts[1];
     int verseIndex = int.parse(parts[2]);

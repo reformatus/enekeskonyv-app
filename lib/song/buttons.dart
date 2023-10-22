@@ -137,7 +137,7 @@ class ControllerButtons extends StatelessWidget {
   }
 
   Widget cueVerseLinkText(String verseId, SongStateProvider state) {
-    var parts = verseId.split('/');
+    var parts = verseId.split('.');
     var book = parts[0];
     var songKey = parts[1];
     var verseIndex = int.parse(parts[2]);

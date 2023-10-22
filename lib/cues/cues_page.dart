@@ -185,7 +185,7 @@ class CuesPage extends StatelessWidget {
     String lastBook = settings.book.name;
     String lastSong = "";
     for (String verseId in settings.getSelectedCueContent()) {
-      List<String> parts = verseId.split('/');
+      List<String> parts = verseId.split('.');
       String bookName = parts[0];
       String songKey = parts[1];
       int verseIndex = int.parse(parts[2]);
