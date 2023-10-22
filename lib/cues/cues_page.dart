@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:enekeskonyv/search_song_page.dart';
+import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 
 import '../settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,10 @@ import 'package:provider/provider.dart';
 import '../song/song_page.dart';
 
 class CuesPage extends StatelessWidget {
-  const CuesPage(this.context, {super.key});
+  CuesPage(this.context, {super.key});
 
   final BuildContext context;
+  final GlobalKey dropdownKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -19,76 +21,112 @@ class CuesPage extends StatelessWidget {
       builder: (context, settings, child) {
         return Scaffold(
             appBar: AppBar(
-              title: settings.cueStore.keys.length > 1
-                  ? DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                        isExpanded: true,
-                        value: settings.selectedCue,
-                        onChanged: (value) =>
-                            settings.changeSelectedCue(value as String),
-                        items: settings.cueStore.keys
-                            .map((cue) => DropdownMenuItem(
-                                  value: cue,
-                                  child: Text(
-                                    cue,
-                                    softWrap: false,
-                                    overflow: TextOverflow.fade,
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    )
-                  : Text(
-                      settings.selectedCue,
+                title: DropdownButtonHideUnderline(
+              child: DropdownButton<String?>(
+                key: dropdownKey,
+                isExpanded: true,
+                value: settings.selectedCue,
+                onChanged: (value) {
+                  if (value == null) {
+                    showNewCueDialog(context, settings);
+                    return;
+                  }
+                  settings.changeSelectedCue(value);
+                },
+                selectedItemBuilder: (context) {
+                  // Need to insert an element to the beginning of the list
+                  // to account for New button
+                  return ['', ...settings.cueStore.keys]
+                      .map((cue) => Center(
+                            widthFactor: 1,
+                            child: Text(
+                              settings.selectedCue,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.normal),
+                            ),
+                          ))
+                      .toList();
+                },
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(Icons.add,
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                        Text(
+                          'Új lista',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ],
                     ),
-            ),
+                  ),
+                  ...settings.cueStore.keys
+                      .map((cue) => DropdownMenuItem<String?>(
+                            value: cue,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  cue,
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.normal),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () => showDeleteCueDialog(
+                                      cue, context, settings),
+                                )
+                              ],
+                            ),
+                          ))
+                      .toList()
+                ],
+              ),
+            )),
             body: Column(
               children: [
                 Material(
                   elevation: 5,
-                  child: Container(
-                    height: 36,
-                    margin: const EdgeInsets.all(3),
-                    padding: const EdgeInsets.all(3),
-                    child: ListView(
-                      clipBehavior: Clip.none,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        ElevatedButton.icon(
-                          label: const Text('Lista beolvasás'),
-                          onPressed: null, // TODO
-                          icon: const Icon(Icons.qr_code_scanner),
-                        ),
-                        ElevatedButton.icon(
-                          label: const Text('Ének hozzáfűzése'),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MySearchSongPage(
-                                book: settings.book,
-                                settingsProvider: settings,
-                                addToCueSearch: true,
+                  child: SizedBox(
+                    height: 45,
+                    child: FadingEdgeScrollView.fromScrollView(
+                      shouldDisposeScrollController: true,
+                      child: ListView(
+                        controller: ScrollController(),
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.all(6),
+                        children: [
+                          ElevatedButton.icon(
+                            label: const Text('Lista beolvasás'),
+                            onPressed: null, // TODO
+                            icon: const Icon(Icons.qr_code_scanner),
+                          ),
+                          ElevatedButton.icon(
+                            label: const Text('Ének hozzáfűzés'),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MySearchSongPage(
+                                  book: settings.book,
+                                  settingsProvider: settings,
+                                  addToCueSearch: true,
+                                ),
                               ),
                             ),
+                            icon: const Icon(Icons.manage_search),
                           ),
-                          icon: const Icon(Icons.manage_search),
-                        ),
-                        ElevatedButton.icon(
-                          label: const Text('Új lista'),
-                          onPressed: () => showNewCueDialog(context, settings),
-                          icon: const Icon(Icons.post_add),
-                        ),
-                        ElevatedButton.icon(
-                          label: const Text('Lista törlése'),
-                          onPressed: () =>
-                              showDeleteCueDialog(context, settings),
-                          icon: const Icon(Icons.delete_forever,
-                              color: Colors.red),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -108,13 +146,12 @@ class CuesPage extends StatelessWidget {
   }
 
   Future<dynamic> showDeleteCueDialog(
-      BuildContext context, SettingsProvider settings) {
+      String cueName, BuildContext context, SettingsProvider settings) {
     return showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Lista törlése'),
-        content: Text(
-            'Biztosan törölni szeretnéd a(z) ${settings.selectedCue} listát?'),
+        content: Text('Biztosan törölni szeretnéd a(z) $cueName listát?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -122,14 +159,15 @@ class CuesPage extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () {
-              settings.clearCue(settings.selectedCue);
+              settings.clearCue(cueName);
               try {
-                settings.changeSelectedCue(settings.cueStore.keys
-                    .firstWhere((cue) => cue != settings.selectedCue));
+                settings.changeSelectedCue(
+                    settings.cueStore.keys.firstWhere((cue) => cue != cueName));
               } catch (_) {
                 settings.changeSelectedCue(SettingsProvider.defaultSelectedCue);
               }
               Navigator.pop(context);
+              Navigator.pop(dropdownKey.currentContext!);
             },
             child: const Text('Törlés'),
           ),
@@ -146,6 +184,23 @@ class CuesPage extends StatelessWidget {
         TextEditingController controller = TextEditingController();
 
         onTap(String text) {
+          text = text.trim();
+
+          if (settings.cueStore.containsKey(text)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('A(z) $text lista már létezik!')),
+            );
+            Navigator.pop(context);
+            return;
+          }
+          if (text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('A lista neve nem lehet üres!')),
+            );
+            Navigator.pop(context);
+            return;
+          }
+
           settings.saveCue(text, []);
           settings.changeSelectedCue(text);
           Navigator.pop(context);
