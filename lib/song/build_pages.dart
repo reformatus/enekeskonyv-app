@@ -3,7 +3,7 @@ import 'package:enekeskonyv/song/song_page_state.dart';
 import 'package:flutter/material.dart';
 
 import '../settings_provider.dart';
-import '../util.dart';
+import '../utils.dart';
 import 'utils.dart';
 
 List<List<Widget>> buildPages(

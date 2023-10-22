@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
-import '../util.dart';
+import '../utils.dart';
 import 'build_pages.dart';
 import 'buttons.dart';
 import 'song_page_state.dart';

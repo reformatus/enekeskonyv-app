@@ -16,7 +16,7 @@ import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
-import 'util.dart';
+import 'utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

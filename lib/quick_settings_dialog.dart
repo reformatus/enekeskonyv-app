@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'settings_provider.dart';
 import 'song/song_page.dart';
-import 'util.dart';
+import 'utils.dart';
 
 class QuickSettingsDialog extends StatelessWidget {
   final Map? songData;

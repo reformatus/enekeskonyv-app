@@ -1,6 +1,6 @@
 import '../settings_provider.dart';
 import 'song_page_state.dart';
-import '../util.dart';
+import '../utils.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
