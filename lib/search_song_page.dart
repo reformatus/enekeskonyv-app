@@ -460,12 +460,16 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.manage_search,
-                        color: Theme.of(context).colorScheme.primary),
                     Padding(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.manage_search,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    Flexible(
                       child: Text(
                         'Hozzáfűzés: ${settings.selectedCue}',
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary),
                       ),
