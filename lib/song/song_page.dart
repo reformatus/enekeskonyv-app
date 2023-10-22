@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
@@ -35,6 +36,20 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   bool _listenerAdded = false;
 
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom]);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // When the NestedScrollView-covered area (the whole screen/page without the
     // appBar and the bottomNavigationBar) gets tapped, page either to the
@@ -66,74 +81,70 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           _listenerAdded = true;
         }
 
-        return Scaffold(
-          // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-          body: OrientationBuilder(
-            builder: (context, orientation) {
-              return SafeArea(
-                child: Container(
-                  // Prevent screen artifacts (single-pixel line with opposing
-                  // color) on certain devices.
-                  margin: const EdgeInsets.only(
-                    top: 1.0,
-                    bottom: 1.0,
-                  ),
-                  child: Flex(
-                    direction: orientation == Orientation.portrait
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    children: [
-                      Expanded(
-                        child: NestedScrollView(
-                          controller: state.scrollController,
-                          headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                            return [
-                              SliverOverlapAbsorber(
-                                handle: NestedScrollView
-                                    .sliverOverlapAbsorberHandleFor(context),
-                                sliver: SliverAppBar(
-                                  // Instead of the back button on the left, use
-                                  // this to go home immediately.
-                                  leading: IconButton(
-                                    tooltip: 'Főoldal',
-                                    icon: const Icon(Icons.menu_book),
-                                    onPressed: () {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context, '/', (route) => false);
-                                    },
-                                  ),
-                                  pinned: orientation == Orientation.portrait,
-                                  // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                                  expandedHeight: 57,
-                                  title: Text(
-                                    getSongTitle(songBooks[state.book.name]
-                                        [state.songKey]),
-                                    style: const TextStyle(fontSize: 18),
-                                    maxLines: 2,
+        return Theme(
+          data: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+                seedColor:
+                    state.book == Book.black ? Colors.amber : Colors.blue,
+                brightness: settings.getCurrentSheetBrightness(context),
+                background: settings.isOledTheme &&
+                        settings.getCurrentSheetBrightness(context) ==
+                            Brightness.dark
+                    ? Colors.black
+                    : null),
+          ),
+          child: Scaffold(
+            // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+            body: OrientationBuilder(
+              builder: (context, orientation) {
+                return SafeArea(
+                  child: Container(
+                    // Prevent screen artifacts (single-pixel line with opposing
+                    // color) on certain devices.
+                    margin: const EdgeInsets.only(
+                      top: 1.0,
+                      bottom: 1.0,
+                    ),
+                    child: Flex(
+                      direction: orientation == Orientation.portrait
+                          ? Axis.vertical
+                          : Axis.horizontal,
+                      children: [
+                        Expanded(
+                          child: NestedScrollView(
+                            controller: state.scrollController,
+                            headerSliverBuilder:
+                                ((context, innerBoxIsScrolled) {
+                              return [
+                                SliverOverlapAbsorber(
+                                  handle: NestedScrollView
+                                      .sliverOverlapAbsorberHandleFor(context),
+                                  sliver: SliverAppBar(
+                                    // Instead of the back button on the left, use
+                                    // this to go home immediately.
+                                    leading: IconButton(
+                                      tooltip: 'Főoldal',
+                                      icon: const Icon(Icons.menu_book),
+                                      onPressed: () {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context, '/', (route) => false);
+                                      },
+                                    ),
+                                    pinned: orientation == Orientation.portrait,
+                                    // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                                    expandedHeight: 57,
+                                    title: Text(
+                                      getSongTitle(songBooks[state.book.name]
+                                          [state.songKey]),
+                                      style: const TextStyle(fontSize: 18),
+                                      maxLines: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ];
-                          }),
-                          body: Theme(
-                            data: ThemeData(
-                              useMaterial3: true,
-                              colorScheme: ColorScheme.fromSeed(
-                                  seedColor: state.book == Book.black
-                                      ? Colors.amber
-                                      : Colors.blue,
-                                  brightness: settings
-                                      .getCurrentSheetBrightness(context),
-                                  background: settings.isOledTheme &&
-                                          settings.getCurrentSheetBrightness(
-                                                  context) ==
-                                              Brightness.dark
-                                      ? Colors.black
-                                      : null),
-                            ),
-                            // Needs a separate [Material] and [Builder] for
-                            // providing a new BuildContext to children properly.
-                            child: Builder(
+                              ];
+                            }),
+                            body: Builder(
                               builder: (BuildContext context) {
                                 return Material(
                                   child: GestureDetector(
@@ -195,18 +206,18 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                      ),
-                      ControllerButtons(
-                        orientation: orientation,
-                        vsync: this,
-                      ),
-                    ],
+                        ControllerButtons(
+                          orientation: orientation,
+                          vsync: this,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
+            key: const Key('_MySongPageState'),
           ),
-          key: const Key('_MySongPageState'),
         );
       }),
     );

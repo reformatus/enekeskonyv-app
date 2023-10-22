@@ -17,43 +17,29 @@ class ControllerButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      return Theme(
-        data: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: state.book == Book.black ? Colors.amber : Colors.blue,
-              brightness: settings.getCurrentSheetBrightness(context),
-              background: settings.isOledTheme &&
-                      settings.getCurrentSheetBrightness(context) ==
-                          Brightness.dark
-                  ? Colors.black
-                  : null),
-        ),
-        child: Builder(
-          builder: (BuildContext context) {
-            return Material(
-              color: Theme.of(context).colorScheme.background,
-              child: Flex(
-                direction: orientation == Orientation.portrait
-                    ? Axis.vertical
-                    : Axis.horizontal,
-                children: [
-                  Flex(
-                    direction: orientation == Orientation.portrait
-                        ? Axis.horizontal
-                        : Axis.vertical,
-                    // Make the buttons "justified" (ie. use all the
-                    // screen width).
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children:
-                        controllerButtons(settings, state, context, vsync),
-                  ),
-                  if (state.inCue) cueButtons(context, state, settings),
-                ],
-              ),
-            );
-          },
-        ),
+      return Builder(
+        builder: (BuildContext context) {
+          return Material(
+            color: Theme.of(context).colorScheme.background,
+            child: Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: [
+                Flex(
+                  direction: orientation == Orientation.portrait
+                      ? Axis.horizontal
+                      : Axis.vertical,
+                  // Make the buttons "justified" (ie. use all the
+                  // screen width).
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: controllerButtons(settings, state, context, vsync),
+                ),
+                if (state.inCue) cueButtons(context, state, settings),
+              ],
+            ),
+          );
+        },
       );
     });
   }
