@@ -85,8 +85,8 @@ Verse parseVerseId(String verseId) {
 
   List<String> parts = verseId.split('.');
 
-  if (parts.length < 2) {
-    throw 'Könyv vagy ének nincs megadva.';
+  if (parts.length < 3) {
+    throw 'Könyv, ének vagy versszak nincs megadva.';
   }
 
   String bookName = parts[0];
@@ -101,7 +101,13 @@ Verse parseVerseId(String verseId) {
   int songIndex = songBooks[bookName].keys.toList().indexOf(songKey);
   if (songIndex == -1) throw 'Ének nem található.';
 
-  int? verseIndex = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+  int verseIndex;
+  try {
+    verseIndex = int.parse(parts[2]);
+  } catch (_) {
+    throw 'Versszakszám érvénytelen.';
+  }
+
   if (songBooks[bookName][songKey].length <= verseIndex) {
     throw 'Versszak nem található.';
   }
