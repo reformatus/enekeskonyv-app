@@ -140,8 +140,36 @@ Future showShareDialog(BuildContext context, String title,
                 fontSize: 13,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 15),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.help_outline),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Bezárás'),
+                        ),
+                      ],
+                      title: const Text('Mi ez?'),
+                      content: const Text('''
+Ez a QR kód az alatta látható linket tartalmazza.
+
+Ha valaki beolvassa a kódot, és telepítve van neki ez az alkalmazás, akkor az alkalmazás megnyitja a linkben található versszakot, vagy a linkben található lista tartalmát elmenti a listái közé.
+Ha valaki beolvassa a kódot, és nincs telepítve neki ez az alkalmazás, akkor átirányításra kerül az alkalmazásboltba, ahol telepítheti.
+
+A linket közvetlenül is megoszthatod.'''),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Wrap(
+              alignment: WrapAlignment.center,
               children: [
                 ElevatedButton.icon(
                   label: const Text('Megosztás'),
