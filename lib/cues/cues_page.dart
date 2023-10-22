@@ -74,13 +74,15 @@ class CuesPage extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  cue,
-                                  softWrap: false,
-                                  overflow: TextOverflow.fade,
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal),
+                                Expanded(
+                                  child: Text(
+                                    cue,
+                                    softWrap: false,
+                                    overflow: TextOverflow.fade,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.normal),
+                                  ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete),
