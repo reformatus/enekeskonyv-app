@@ -24,7 +24,7 @@ class QuickSettingsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
-      builder: (context, provider, child) {
+      builder: (context, settings, child) {
         return Dialog(
           backgroundColor: Theme.of(context).canvasColor,
           child: Padding(
@@ -40,7 +40,7 @@ class QuickSettingsDialog extends StatelessWidget {
                     (e) => RelatedTile(
                       songLink: e['link']!,
                       relatedReason: e['text']!,
-                      provider: provider,
+                      provider: settings,
                     ),
                   ),
                   const Divider(
@@ -65,9 +65,9 @@ class QuickSettingsDialog extends StatelessWidget {
                             ScoreDisplay.none:
                                 Text(getScoreDisplayName(ScoreDisplay.none)),
                           },
-                          groupValue: provider.scoreDisplay,
+                          groupValue: settings.scoreDisplay,
                           onValueChanged: (ScoreDisplay? value) {
-                            provider.changeScoreDisplay(
+                            settings.changeScoreDisplay(
                                 value ?? SettingsProvider.defaultScoreDisplay);
                           },
                         ),
@@ -78,9 +78,9 @@ class QuickSettingsDialog extends StatelessWidget {
                           RadioListTile<ScoreDisplay>(
                             title: Text(getScoreDisplayName(ScoreDisplay.all)),
                             value: ScoreDisplay.all,
-                            groupValue: provider.scoreDisplay,
+                            groupValue: settings.scoreDisplay,
                             onChanged: (ScoreDisplay? value) {
-                              provider.changeScoreDisplay(value ??
+                              settings.changeScoreDisplay(value ??
                                   SettingsProvider.defaultScoreDisplay);
                             },
                           ),
@@ -88,18 +88,18 @@ class QuickSettingsDialog extends StatelessWidget {
                             title:
                                 Text(getScoreDisplayName(ScoreDisplay.first)),
                             value: ScoreDisplay.first,
-                            groupValue: provider.scoreDisplay,
+                            groupValue: settings.scoreDisplay,
                             onChanged: (ScoreDisplay? value) {
-                              provider.changeScoreDisplay(value ??
+                              settings.changeScoreDisplay(value ??
                                   SettingsProvider.defaultScoreDisplay);
                             },
                           ),
                           RadioListTile<ScoreDisplay>(
                             title: Text(getScoreDisplayName(ScoreDisplay.none)),
                             value: ScoreDisplay.none,
-                            groupValue: provider.scoreDisplay,
+                            groupValue: settings.scoreDisplay,
                             onChanged: (ScoreDisplay? value) {
-                              provider.changeScoreDisplay(value ??
+                              settings.changeScoreDisplay(value ??
                                   SettingsProvider.defaultScoreDisplay);
                             },
                           ),
@@ -112,7 +112,7 @@ class QuickSettingsDialog extends StatelessWidget {
                 ListTile(
                   title: const Text('Alkalmazás témája'),
                   trailing: DropdownButton<ThemeMode>(
-                    value: provider.appThemeMode,
+                    value: settings.appThemeMode,
                     items: ThemeMode.values
                         .map((brightnessSetting) => DropdownMenuItem(
                               value: brightnessSetting,
@@ -120,7 +120,7 @@ class QuickSettingsDialog extends StatelessWidget {
                             ))
                         .toList(),
                     onChanged: ((value) {
-                      provider.changeAppBrightnessSetting(
+                      settings.changeAppBrightnessSetting(
                           value ?? SettingsProvider.defaultAppThemeMode);
                     }),
                   ),
@@ -128,7 +128,7 @@ class QuickSettingsDialog extends StatelessWidget {
                 ListTile(
                   title: const Text('Kotta témája'),
                   trailing: DropdownButton<ThemeMode>(
-                    value: provider.sheetThemeMode,
+                    value: settings.sheetThemeMode,
                     items: ThemeMode.values
                         .map((brightnessSetting) => DropdownMenuItem(
                               value: brightnessSetting,
@@ -136,28 +136,28 @@ class QuickSettingsDialog extends StatelessWidget {
                             ))
                         .toList(),
                     onChanged: ((value) {
-                      provider.changeSheetBrightnessSetting(
+                      settings.changeSheetBrightnessSetting(
                           value ?? SettingsProvider.defaultSheetThemeMode);
                     }),
                   ),
                 ),
-                if (provider.getCurrentAppBrightness(context) ==
+                if (settings.getCurrentAppBrightness(context) ==
                         Brightness.dark ||
-                    provider.getCurrentSheetBrightness(context) ==
+                    settings.getCurrentSheetBrightness(context) ==
                         Brightness.dark)
                   ListTile(
                     title: const Text('Teljesen fekete háttér'),
                     trailing: Platform.isIOS
                         ? CupertinoSwitch(
-                            value: provider.isOledTheme,
+                            value: settings.isOledTheme,
                             onChanged: (value) {
-                              provider.changeIsOledTheme(value);
+                              settings.changeIsOledTheme(value);
                             },
                           )
                         : Switch(
-                            value: provider.isOledTheme,
+                            value: settings.isOledTheme,
                             onChanged: (value) {
-                              provider.changeIsOledTheme(value);
+                              settings.changeIsOledTheme(value);
                             },
                           ),
                   ),
@@ -169,32 +169,32 @@ class QuickSettingsDialog extends StatelessWidget {
                   title: const Text('Versszak- és énekváltás koppintással'),
                   trailing: Platform.isIOS
                       ? CupertinoSwitch(
-                          value: provider.tapNavigation,
+                          value: settings.tapNavigation,
                           onChanged: (value) {
-                            provider.changeTapNavigation(value);
+                            settings.changeTapNavigation(value);
                           },
                         )
                       : Switch(
-                          value: provider.tapNavigation,
+                          value: settings.tapNavigation,
                           onChanged: (value) {
-                            provider.changeTapNavigation(value);
+                            settings.changeTapNavigation(value);
                           },
                         ),
                 ),
-                if (provider.scoreDisplay == ScoreDisplay.all)
+                if (settings.scoreDisplay == ScoreDisplay.all)
                   ListTile(
                     title: const Text('Versszakválasztó sáv'),
                     trailing: Platform.isIOS
                         ? CupertinoSwitch(
-                            value: provider.isVerseBarEnabled,
+                            value: settings.isVerseBarEnabled,
                             onChanged: (value) {
-                              provider.changeIsVerseBarEnabled(value);
+                              settings.changeIsVerseBarEnabled(value);
                             },
                           )
                         : Switch(
-                            value: provider.isVerseBarEnabled,
+                            value: settings.isVerseBarEnabled,
                             onChanged: (value) {
-                              provider.changeIsVerseBarEnabled(value);
+                              settings.changeIsVerseBarEnabled(value);
                             },
                           ),
                   ),
