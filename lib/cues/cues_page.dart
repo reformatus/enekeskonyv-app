@@ -55,7 +55,7 @@ class CuesPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8),
                           child: Icon(Icons.add,
                               color: Theme.of(context).colorScheme.primary),
                         ),
@@ -82,7 +82,7 @@ class CuesPage extends StatelessWidget {
                                       fontWeight: FontWeight.normal),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.delete),
+                                  icon: const Icon(Icons.delete),
                                   onPressed: () => showDeleteCueDialog(
                                       cue, context, settings),
                                 )
@@ -111,6 +111,7 @@ class CuesPage extends StatelessWidget {
                             onPressed: null, // TODO
                             icon: const Icon(Icons.qr_code_scanner),
                           ),
+                          const SizedBox(width: 5),
                           ElevatedButton.icon(
                             label: const Text('Ének hozzáfűzés'),
                             onPressed: () => Navigator.push(
@@ -291,7 +292,7 @@ class CuesPage extends StatelessWidget {
               children: [
                 if (newBook) ...[
                   Container(
-                    margin: const EdgeInsets.only(left: 15, top: 15),
+                    margin: const EdgeInsets.only(left: 15, top: 20),
                     child: Text(
                       '${book.displayName} énekeskönyv',
                       style: TextStyle(
@@ -304,7 +305,7 @@ class CuesPage extends StatelessWidget {
                 if (newSong)
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 15, top: 10, bottom: 5),
+                        const EdgeInsets.only(left: 15, top: 15, bottom: 5),
                     child: Text(
                       '$songKey. ${songBooks[bookName][songKey]['title']}',
                       style: Theme.of(context).textTheme.bodyLarge,
@@ -338,10 +339,13 @@ class CuesPage extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () =>
-                settings.removeFromCueAt(settings.selectedCue, cueIndex),
+          SizedBox(
+            height: 35,
+            child: IconButton(
+              icon: const Icon(Icons.delete, size: 20),
+              onPressed: () =>
+                  settings.removeFromCueAt(settings.selectedCue, cueIndex),
+            ),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 3),
