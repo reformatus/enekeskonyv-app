@@ -6,12 +6,12 @@ import 'dart:io';
 import 'package:app_links/app_links.dart';
 
 import 'cues/cues_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'cues/link.dart';
 import 'quick_settings_dialog.dart';
 import 'search_song_page.dart';
 import 'settings_provider.dart';
@@ -36,45 +36,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> initDeepLinks() async {
     _appLinks = AppLinks();
 
-    // Check initial link if app was in cold state (terminated)
-    final appLink = await _appLinks.getInitialAppLink();
-    if (appLink != null) {
-      print('getInitialAppLink: $appLink');
-      openAppLink(appLink);
-    }
-
-    // Handle link when app is in warm state (front or background)
-    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      print('onAppLink: $uri');
-      openAppLink(uri);
-    });
-  }
-
-  void openAppLink(Uri uri) {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text('Deeplink data'),
-              content: Text(uri.toString()),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ));
-    /*try {
-      switch (uri.path.split('/').first) {
-        case 'l':
-          break;
-        case 's':
-          break;
-        default:
+    _linkSubscription = _appLinks.allUriLinkStream.listen((uri) {
+      var error = openAppLink(uri, context);
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(error),
+          duration: const Duration(seconds: 5),
+        ));
       }
-    } catch (e, s) {
-      // ignore: avoid_print
-      print('Error while handling deepling: $e\n$s');
-    }*/
+    });
   }
 
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
@@ -177,7 +147,7 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.only(right: 5),
                 child: IconButton(
                   onPressed: () {
                     showDialog(
