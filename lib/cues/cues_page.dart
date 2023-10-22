@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:enekeskonyv/search_song_page.dart';
+import 'package:enekeskonyv/search_page.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 
 import '../settings_provider.dart';
@@ -132,7 +132,7 @@ class CuesPage extends StatelessWidget {
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MySearchSongPage(
+                                builder: (context) => SearchPage(
                                   book: settings.book,
                                   settingsProvider: settings,
                                   addToCueSearch: true,

@@ -20,8 +20,8 @@ class SearchVerse {
   });
 }
 
-class MySearchSongPage extends StatefulWidget {
-  const MySearchSongPage({
+class SearchPage extends StatefulWidget {
+  const SearchPage({
     Key? key,
     required this.book,
     required this.settingsProvider,
@@ -33,10 +33,10 @@ class MySearchSongPage extends StatefulWidget {
   final bool addToCueSearch;
 
   @override
-  State<MySearchSongPage> createState() => _MySearchSongPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _MySearchSongPageState extends State<MySearchSongPage> {
+class _SearchPageState extends State<SearchPage> {
   List<SearchVerse> allSearchVerses = [];
   String searchText = '';
 

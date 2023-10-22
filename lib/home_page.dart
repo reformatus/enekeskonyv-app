@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 
 import 'cues/link.dart';
 import 'quick_settings_dialog.dart';
-import 'search_song_page.dart';
+import 'search_page.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
 import 'utils.dart';
@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> {
               ? FloatingActionButton.small(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) {
-                      return MySearchSongPage(
+                      return SearchPage(
                           book: provider.book, settingsProvider: provider);
                     }),
                   ),
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                                   child: InkWell(
                                     onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(builder: (context) {
-                                      return MySearchSongPage(
+                                      return SearchPage(
                                           book: provider.book,
                                           settingsProvider: provider);
                                     })),
