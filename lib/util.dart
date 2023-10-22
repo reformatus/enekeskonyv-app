@@ -10,9 +10,3 @@ String getSongTitle(LinkedHashMap song) {
 String getVerseId(Book book, String songKey, int verseIndex) {
   return '${book.name}.$songKey.$verseIndex';
 }
-/*
-Record parseVerseId(String verseId) {
-  List<String> parts = verseId.split('/');
-  return Record(parts[0], parts[1], int.parse(parts[2]));
-}
-*/
