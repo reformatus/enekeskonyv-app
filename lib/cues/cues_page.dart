@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:enekeskonyv/search_page.dart';
+import '../search_page.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 
 import '../settings_provider.dart';

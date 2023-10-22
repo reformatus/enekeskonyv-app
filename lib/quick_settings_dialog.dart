@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:enekeskonyv/cues/link.dart';
+import 'cues/link.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

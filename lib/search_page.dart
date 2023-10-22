@@ -1,5 +1,5 @@
 import 'package:diacritic/diacritic.dart';
-import 'package:enekeskonyv/utils.dart';
+import 'utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

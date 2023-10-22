@@ -1,5 +1,5 @@
-import 'package:enekeskonyv/cues/cues_page.dart';
-import 'package:enekeskonyv/settings_provider.dart';
+import 'cues_page.dart';
+import '../settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
