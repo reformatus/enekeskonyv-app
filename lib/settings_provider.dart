@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -220,9 +221,12 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future initialize() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+  late PackageInfo packageInfo;
 
+  Future initialize() async {
+    packageInfo = await PackageInfo.fromPlatform();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       //! Book selection.
       // First try migrating from previous version.
