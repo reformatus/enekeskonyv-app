@@ -262,6 +262,9 @@ class SettingsProvider extends ChangeNotifier {
       _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
       _cueStore = jsonDecode(
           prefs.getString('setStore') ?? jsonDecode(defaultCueStore));
+      if (!cueStore.containsKey(_selectedCue)) {
+        _selectedCue = defaultSelectedCue;
+      }
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -274,7 +277,7 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled = defaultIsVerseBarEnabled;
       _isOledTheme = defaultIsOledTheme;
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
-      _selectedCue = selectedCue;
+      _selectedCue = defaultSelectedCue;
       _cueStore = jsonDecode(defaultCueStore);
     }
 
