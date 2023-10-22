@@ -34,7 +34,10 @@ String? openAppLink(Uri uri, BuildContext context) {
       );
       return null;
     case 'c': // Cue
+      var settings = SettingsProvider.of(context);
+
       List<String> parts;
+
       try {
         parts = uri.queryParameters['c']!.split(',');
       } catch (e) {
@@ -48,6 +51,14 @@ String? openAppLink(Uri uri, BuildContext context) {
         return 'Helytelen link: Listanév hiányzik vagy érvénytelen';
       }
 
+      int i = 2;
+      if (settings.cueStore.keys.contains(cueName)) {
+        while (settings.cueStore.keys.contains('$cueName-$i')) {
+          i++;
+        }
+        cueName = '$cueName-$i';
+      }
+
       List<String> cueContent;
       cueContent = parts.sublist(1);
       if (cueContent.isEmpty) return 'Helytelen link: Üres lista';
@@ -59,7 +70,6 @@ String? openAppLink(Uri uri, BuildContext context) {
           return 'Helytelen link: Lista érvénytelen versszakot tartalmaz:\n"$element" - $e';
         }
       }
-      var settings = SettingsProvider.of(context);
       settings.saveCue(cueName, cueContent);
       settings.changeSelectedCue(cueName);
 
