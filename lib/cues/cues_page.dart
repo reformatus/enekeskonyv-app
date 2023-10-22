@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:enekeskonyv/search_song_page.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
-import 'package:flutter/services.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../song/song_page.dart';
+import 'link.dart';
 
 class CuesPage extends StatelessWidget {
   CuesPage(this.context, {super.key});
@@ -118,9 +116,8 @@ class CuesPage extends StatelessWidget {
                           ElevatedButton.icon(
                             label: const Text('Megosztás'),
                             onPressed: () => showShareDialog(
-                                context,
-                                settings.selectedCue,
-                                settings.getSelectedCueContent()),
+                                context, settings.selectedCue,
+                                cueContent: settings.getSelectedCueContent()),
                             icon: const Icon(Icons.share),
                           ),
                           const SizedBox(width: 5),
@@ -155,79 +152,6 @@ class CuesPage extends StatelessWidget {
               ],
             ));
       },
-    );
-  }
-
-  Future showShareDialog(
-      BuildContext context, String cueName, List<String> cueContent) {
-    String linkToShare =
-        'https://reflabs.hu/?c=${[cueName, ...cueContent].join(',')}';
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => SimpleDialog(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(child: Text('$cueName megosztása')),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-        titlePadding: const EdgeInsets.only(left: 25, top: 15, right: 15),
-        contentPadding: const EdgeInsets.all(25),
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 200,
-                width: 200,
-                child: QrImageView(
-                  data: linkToShare,
-                  version: QrVersions.auto,
-                  eyeStyle: QrEyeStyle(
-                      eyeShape: QrEyeShape.circle,
-                      color: Theme.of(context).colorScheme.secondary),
-                  dataModuleStyle: QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.circle,
-                      color: Theme.of(context).colorScheme.secondary),
-                  gapless: false,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                linkToShare,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    label: const Text('Megosztás'),
-                    onPressed: () => Share.share(linkToShare),
-                    icon: const Icon(Icons.share),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    label: const Text('Másolás'),
-                    onPressed: () =>
-                        Clipboard.setData(ClipboardData(text: linkToShare)),
-                    icon: const Icon(Icons.copy),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
