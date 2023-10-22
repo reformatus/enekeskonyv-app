@@ -145,13 +145,32 @@ class CuesPage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: ReorderableListView(
-                    onReorder: (oldIndex, newIndex) => settings.reorderCue(
-                        settings.selectedCue, oldIndex, newIndex),
-                    physics:
-                        Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    children: getVerseTiles(settings),
-                  ),
+                  child: settings.getSelectedCueContent().isEmpty
+                      ? ListTile(
+                          subtitle: Text(
+                            '''
+Itt jelennek meg a Kedvencként jelölt énekek.
+Több listát is készíthetsz a felső sávra koppintva.
+
+Hogy hozzáadj egy versszakot az itt kiválasztott listához, nyomd meg a versválasztó sáv melletti csillag gombot, ha minden kottát megjelenítesz az appban. Ugyanígy el is távolíthatod.
+Ha nem jelenítesz meg minden kottát, a kívánt versszakot tartsd hosszan lenyomva a hozzáadáshoz. Ugyanígy el is távolíthatod.
+
+Listáidat meg is tudod osztani.''',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        )
+                      : ReorderableListView(
+                          onReorder: (oldIndex, newIndex) =>
+                              settings.reorderCue(
+                                  settings.selectedCue, oldIndex, newIndex),
+                          physics: Platform.isIOS
+                              ? const BouncingScrollPhysics()
+                              : null,
+                          children: getVerseTiles(settings),
+                        ),
                 ),
               ],
             ));
