@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:enekeskonyv/cues/link.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
@@ -8,14 +9,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'settings_provider.dart';
 import 'song/song_page.dart';
+import 'util.dart';
 
 class QuickSettingsDialog extends StatelessWidget {
   final Map? songData;
+  final String? songKey;
   final Book? book;
-  final int verseNumber;
+  final int verseIndex;
 
   const QuickSettingsDialog(
-      {Key? key, this.songData, this.book, this.verseNumber = 0})
+      {Key? key, this.songKey, this.songData, this.book, this.verseIndex = 0})
       : super(key: key);
 
   @override
@@ -201,14 +204,21 @@ class QuickSettingsDialog extends StatelessWidget {
                     indent: 70,
                   ),
                   ElevatedButton.icon(
+                    onPressed: () => showShareDialog(
+                        context, '${songData?['number']} / ${verseIndex + 1}.',
+                        verseId: getVerseId(book!, songKey!, verseIndex)),
+                    icon: const Icon(Icons.share),
+                    label: const Text('Megosztás'),
+                  ),
+                  ElevatedButton.icon(
                     onPressed: () {
                       launchUrl(Uri.parse(Mailto(
                         to: ['reflabs.enekeskonyv@gmail.com'],
                         subject:
-                            'Hibajelentés: ${songData?['number']} / ${verseNumber + 1}. vers (${book?.name} könyv)',
+                            'Hibajelentés: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)',
                         body: """
-Kérlek, írd le a hibát: Kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
-Csatolhatsz képet is.""",
+                  Kérlek, írd le a hibát: Kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
+                  Csatolhatsz képet is.""",
                       ).toString()));
 
                       Navigator.pop(context);

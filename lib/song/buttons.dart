@@ -197,9 +197,10 @@ class ControllerButtons extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) => QuickSettingsDialog(
+              songKey: state.songKey,
               songData: songBooks[state.book.name][state.songKey],
               book: state.book,
-              verseNumber: state.verse,
+              verseIndex: state.verse,
             ),
           );
         },
