@@ -276,8 +276,12 @@ by RefLabs''',
                                 const SizedBox(width: 5),
                                 TextButton.icon(
                                   label: const Text('Licenszek'),
-                                  onPressed: () =>
-                                      showLicensePage(context: context),
+                                  onPressed: () => showLicensePage(
+                                      context: context,
+                                      applicationName:
+                                          'Református Énekeskönyv (21/48)',
+                                      applicationVersion:
+                                          '${settings.packageInfo.version}+${settings.packageInfo.buildNumber}'),
                                   icon: const Icon(Icons.gavel),
                                 ),
                               ],
