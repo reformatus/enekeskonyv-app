@@ -104,7 +104,9 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     }
 
     // Search mode
-    if (searchText.replaceAll(RegExp(r'\W'), '').length < 3) {
+    // RegEx here: to remove all non-letters when considering search string length (unicode aware)
+    // This precise method is necessary, because simply entring 3 whitespace characters would match all verses.
+    if (searchText.replaceAll(RegExp(r'\P{L}', unicode: true), '').length < 3) {
       return [
         ListTile(
           subtitle: Text(
