@@ -344,7 +344,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd az Enter billentyűt.
 
   String getSearchableText(String text, {bool filterLetters = true}) {
     if (!filterLetters) {
-      return removeDiacritics(text.toLowerCase());
+      return removeDiacritics(text).toLowerCase();
     }
 
     // Replace diacritics with their non-diacritic counterparts.
