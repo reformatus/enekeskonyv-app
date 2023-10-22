@@ -221,6 +221,14 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future factoryReset() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    await initialize();
+    notifyListeners();
+  }
+
   late PackageInfo packageInfo;
 
   Future initialize() async {

@@ -284,6 +284,34 @@ by RefLabs''',
                                           '${settings.packageInfo.version}+${settings.packageInfo.buildNumber}'),
                                   icon: const Icon(Icons.gavel),
                                 ),
+                                TextButton.icon(
+                                  label: const Text('Visszaállítás'),
+                                  onPressed: () => showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Visszaállítás'),
+                                      content: const Text(
+                                          'Biztosan törölsz minden alkalmazásadatot? Ez a beállításokat és a listákat is törli!'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text('Mégse'),
+                                        ),
+                                        FilledButton(
+                                          onPressed: () {
+                                            settings.factoryReset().then(
+                                                (value) =>
+                                                    Navigator.pop(context));
+                                          },
+                                          child: const Text('Végleges törlés!'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.replay_outlined,
+                                      color: Colors.red),
+                                ),
                               ],
                             ),
                           ),
