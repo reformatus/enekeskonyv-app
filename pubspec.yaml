@@ -3,7 +3,7 @@ description: Református énekeskönyv (21-es kék és 48-as fekete)
 
 publish_to: 'none'
 
-version: 2.6.5+26
+version: 2.6.5+27
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
