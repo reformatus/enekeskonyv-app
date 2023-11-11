@@ -98,11 +98,11 @@ class _HomePageState extends State<HomePage> {
     // yet). To prevent errors below, let's display a throbber instead.
 
     return Consumer<SettingsProvider>(
-      builder: (context, provider, child) {
+      builder: (context, settings, child) {
         // Do not show the list before the provider is initialized to avoid
         // flicking the default book's list when the user already selected a
         // non-default book before starting the app again.
-        if (!provider.initialized) {
+        if (!settings.initialized) {
           return Scaffold(appBar: AppBar(title: const Text('Betöltés...')));
         }
         return Scaffold(
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) {
                       return SearchPage(
-                          book: provider.book, settingsProvider: provider);
+                          book: settings.book, settingsProvider: settings);
                     }),
                   ),
                   tooltip: 'Keresés vagy ugrás...',
@@ -119,11 +119,20 @@ class _HomePageState extends State<HomePage> {
                 )
               : null,
           appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarBrightness: settings.getCurrentAppBrightness(context),
+              statusBarIconBrightness:
+                  settings.getCurrentAppBrightness(context) == Brightness.light
+                      ? Brightness.dark
+                      : Brightness.light,
+              systemNavigationBarColor:
+                  Theme.of(context).colorScheme.background,
+            ),
             title: Tooltip(
               message: 'Válassz énekeskönyvet',
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<Book>(
-                  value: provider.book,
+                  value: settings.book,
                   isExpanded: true,
                   items: Book.values
                       .map(
@@ -141,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       )
                       .toList(),
-                  onChanged: (value) => provider.changeBook(value!),
+                  onChanged: (value) => settings.changeBook(value!),
                 ),
               ),
             ),
@@ -181,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                     controller: scrollController,
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: songBooks[provider.bookAsString].length + 1,
+                    itemCount: songBooks[settings.bookAsString].length + 1,
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
@@ -198,8 +207,8 @@ class _HomePageState extends State<HomePage> {
                                     onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(builder: (context) {
                                       return SearchPage(
-                                          book: provider.book,
-                                          settingsProvider: provider);
+                                          book: settings.book,
+                                          settingsProvider: settings);
                                     })),
                                     child: Row(
                                       crossAxisAlignment:
@@ -245,8 +254,8 @@ class _HomePageState extends State<HomePage> {
                       i--;
                       return ListTile(
                         title: Text(getSongTitle(
-                            songBooks[provider.bookAsString][
-                                songBooks[provider.bookAsString]
+                            songBooks[settings.bookAsString][
+                                songBooks[settings.bookAsString]
                                     .keys
                                     .elementAt(i)])),
                         onTap: () {
@@ -254,7 +263,7 @@ class _HomePageState extends State<HomePage> {
                             MaterialPageRoute(
                               builder: (context) {
                                 return SongPage(
-                                  book: provider.book,
+                                  book: settings.book,
                                   songIndex: i,
                                 );
                               },
