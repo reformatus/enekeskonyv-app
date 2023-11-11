@@ -66,6 +66,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   List<Widget> getSearchResults() {
+    // Reset the function to prevent "ghost-calling" with keyboard after submit, with no results.
+    onSubmit = () {};
+
     // Jump mode
     if (searchText.contains(RegExp(r'^\d'))) {
       try {
