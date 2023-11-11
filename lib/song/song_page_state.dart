@@ -242,7 +242,7 @@ class SongStateProvider extends ChangeNotifier {
     this.book = book;
     song = songBooks[book.name].keys.toList().indexOf(songKey);
     verse = verseIndex;
-    this._cueIndex = cueIndex;
+    _cueIndex = cueIndex;
 
     //ensure a new versebar state is created
     verseBarKey = GlobalKey();
