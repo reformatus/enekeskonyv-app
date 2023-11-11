@@ -95,25 +95,40 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
 
 void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
     TickerProvider vsync) {
+  var settings = SettingsProvider.of(context);
+  var state = SongStateProvider.of(context);
+
   // Only do anything if tap navigation is enabled.
-  if (!SettingsProvider.of(context).tapNavigation) return;
+  if (!settings.tapNavigation) return;
 
   // Bail out early if tap ended more than 3.0 away from where it started.
   if ((details.globalPosition - tapDownPosition).distance > 3.0) return;
 
   if ((MediaQuery.of(context).size.width / 2) > details.globalPosition.dx) {
-    // Go backward (to the previous verse).
-    SongStateProvider.of(context).switchVerse(
-        next: false,
-        settingsProvider: SettingsProvider.of(context),
-        context: context,
-        vsync: vsync);
+    if (state.inCue) {
+      if (state.cueElementExists(settings, next: false)) {
+        state.advanceCue(context, settings, vsync, backward: true);
+      }
+    } else {
+      // Go backward (to the previous verse).
+      state.switchVerse(
+          next: false,
+          settingsProvider: SettingsProvider.of(context),
+          context: context,
+          vsync: vsync);
+    }
   } else {
-    // Go forward (to the next verse).
-    SongStateProvider.of(context).switchVerse(
-        next: true,
-        settingsProvider: SettingsProvider.of(context),
-        context: context,
-        vsync: vsync);
+    if (state.inCue) {
+      if (state.cueElementExists(settings, next: true)) {
+        state.advanceCue(context, settings, vsync);
+      }
+    } else {
+      // Go forward (to the next verse).
+      state.switchVerse(
+          next: true,
+          settingsProvider: SettingsProvider.of(context),
+          context: context,
+          vsync: vsync);
+    }
   }
 }

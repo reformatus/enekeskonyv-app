@@ -22,8 +22,14 @@ class SongStateProvider extends ChangeNotifier {
   Map<int, GlobalKey> tabKeys = {};
   GlobalKey verseBarKey = GlobalKey();
 
-  int? cueIndex;
-  get inCue => cueIndex != null;
+  int? _cueIndex;
+  int? get cueIndex => _cueIndex;
+  set cueIndex(int? value) {
+    _cueIndex = value;
+    notifyListeners();
+  }
+
+  get inCue => _cueIndex != null;
 
   SongStateProvider({
     required this.song,
@@ -31,8 +37,8 @@ class SongStateProvider extends ChangeNotifier {
     required this.book,
     required TickerProvider vsync,
     required BuildContext context,
-    required this.cueIndex,
-  }) {
+    required int? cueIndex,
+  }) : _cueIndex = cueIndex {
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context, inCue),
@@ -200,7 +206,33 @@ class SongStateProvider extends ChangeNotifier {
     }
   }
 
-  changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context,
+  bool cueElementExists(SettingsProvider settings, {required bool next}) {
+    if (next) {
+      return _cueIndex! < settings.cueStore[settings.selectedCue].length - 1;
+    } else {
+      return _cueIndex! > 0;
+    }
+  }
+
+  void advanceCue(
+      BuildContext context, SettingsProvider settings, TickerProvider vsync,
+      {bool backward = false}) {
+    if (backward) {
+      changeToVerseIdInCue(
+          settings.cueStore[settings.selectedCue][_cueIndex! - 1],
+          _cueIndex! - 1,
+          context,
+          vsync);
+    } else {
+      changeToVerseIdInCue(
+          settings.cueStore[settings.selectedCue][_cueIndex! + 1],
+          _cueIndex! + 1,
+          context,
+          vsync);
+    }
+  }
+
+  void changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context,
       TickerProvider vsync) {
     var parts = verseId.split('.');
     Book book = Book.values.firstWhere((b) => b.name == parts[0]);
@@ -210,7 +242,7 @@ class SongStateProvider extends ChangeNotifier {
     this.book = book;
     song = songBooks[book.name].keys.toList().indexOf(songKey);
     verse = verseIndex;
-    this.cueIndex = cueIndex;
+    this._cueIndex = cueIndex;
 
     //ensure a new versebar state is created
     verseBarKey = GlobalKey();

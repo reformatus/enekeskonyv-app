@@ -57,22 +57,18 @@ class ControllerButtons extends StatelessWidget {
         // screen width).
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (state.cueIndex! > 0)
+          if (state.cueElementExists(settings, next: false))
             IconButton.filled(
                 tooltip: 'Előző listaelem',
-                onPressed: () => state.changeToVerseIdInCue(
-                    settings.cueStore[settings.selectedCue]
-                        [state.cueIndex! - 1],
-                    state.cueIndex! - 1,
-                    context,
-                    vsync),
+                onPressed: () =>
+                    state.advanceCue(context, settings, vsync, backward: true),
                 icon: const Icon(Icons.keyboard_double_arrow_left)),
           Expanded(
             child: RotatedBox(
               quarterTurns: orientation == Orientation.portrait ? 0 : 1,
               child: Row(
                 children: [
-                  if (state.cueIndex! > 0)
+                  if (state.cueElementExists(settings, next: false))
                     Padding(
                       padding: const EdgeInsets.only(left: 5),
                       child: cueVerseLinkText(
@@ -81,20 +77,23 @@ class ControllerButtons extends StatelessWidget {
                           state),
                     ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        settings.selectedCue,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        textAlign: TextAlign.center,
+                    child: GestureDetector(
+                      // Exit cuelist when tapping on name
+                      onTap: () => state.cueIndex = null,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          settings.selectedCue,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary),
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ),
-                  if (state.cueIndex! <
-                      settings.cueStore[settings.selectedCue].length - 1)
+                  if (state.cueElementExists(settings, next: true))
                     Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: cueVerseLinkText(
@@ -106,16 +105,10 @@ class ControllerButtons extends StatelessWidget {
               ),
             ),
           ),
-          if (state.cueIndex! <
-              settings.cueStore[settings.selectedCue].length - 1)
+          if (state.cueElementExists(settings, next: true))
             IconButton.filled(
                 tooltip: 'Következő listaelem',
-                onPressed: () => state.changeToVerseIdInCue(
-                    settings.cueStore[settings.selectedCue]
-                        [state.cueIndex! + 1],
-                    state.cueIndex! + 1,
-                    context,
-                    vsync),
+                onPressed: () => state.advanceCue(context, settings, vsync),
                 icon: const Icon(Icons.keyboard_double_arrow_right)),
         ],
       ),
