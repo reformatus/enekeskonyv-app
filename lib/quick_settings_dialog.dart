@@ -226,7 +226,7 @@ class QuickSettingsDialog extends StatelessWidget {
                       ElevatedButton.icon(
                         onPressed: () {
                           launchUrl(Uri.parse(Mailto(
-                            to: ['reflabs.enekeskonyv@gmail.com'],
+                            to: ['app@reflabs.hu'],
                             subject: songData != null
                                 ? 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)'
                                 : 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}',
