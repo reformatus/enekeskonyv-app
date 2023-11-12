@@ -4,7 +4,7 @@
 <dict>
   <key>com.apple.developer.associated-domains</key>
   <array>
-    <string>applinks:l.reflabs.hu</string>
+    <string>applinks:reflabs.hu</string>
   </array>
 </dict>
 </plist>
