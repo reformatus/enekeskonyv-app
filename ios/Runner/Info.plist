@@ -56,5 +56,7 @@
 		<array>
 			<string>mailto</string>
 		</array>
-	</dict>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+</dict>
 </plist>
