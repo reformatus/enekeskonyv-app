@@ -4,13 +4,12 @@ import 'dart:convert' show json;
 import 'dart:io';
 
 import 'package:app_links/app_links.dart';
-
-import 'cues/cues_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'cues/cues_page.dart';
 import 'cues/link.dart';
 import 'quick_settings_dialog.dart';
 import 'search_page.dart';

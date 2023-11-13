@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'cues/link.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'cues/link.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
 import 'utils.dart';

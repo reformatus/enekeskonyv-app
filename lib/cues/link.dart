@@ -1,12 +1,12 @@
-import 'cues_page.dart';
-import '../settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../settings_provider.dart';
 import '../song/song_page.dart';
 import '../utils.dart';
+import 'cues_page.dart';
 
 String? openAppLink(Uri uri, BuildContext context) {
   if (uri.host != 'reflabs.hu' || uri.queryParameters.isEmpty) {

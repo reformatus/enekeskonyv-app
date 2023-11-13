@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import '../search_page.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
-
-import '../settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../search_page.dart';
+import '../settings_provider.dart';
 import '../song/song_page.dart';
 import 'link.dart';
 
