@@ -474,11 +474,13 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                       ? Icons.keyboard
                       : Icons.pin_outlined),
                 ),
-          body: ListView.builder(
-            itemCount: searchResults.length,
-            itemBuilder: (context, index) {
-              return searchResults[index];
-            },
+          body: SafeArea(
+            child: ListView.builder(
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                return searchResults[index];
+              },
+            ),
           ),
           bottomSheet: Column(
             mainAxisSize: MainAxisSize.min,

@@ -193,59 +193,61 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
-                        return IntrinsicHeight(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  clipBehavior: Clip.antiAlias,
-                                  elevation: 3,
-                                  margin: const EdgeInsets.all(7),
-                                  semanticContainer: true,
-                                  child: InkWell(
-                                    onTap: () => Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) {
-                                      return SearchPage(
-                                          book: settings.book,
-                                          settingsProvider: settings);
-                                    })),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: Icon(Icons.search),
-                                        ),
-                                        Text('Keresés vagy ugrás...',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge)
-                                      ],
+                        return SafeArea(
+                          child: IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    elevation: 3,
+                                    margin: const EdgeInsets.all(7),
+                                    semanticContainer: true,
+                                    child: InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return SearchPage(
+                                            book: settings.book,
+                                            settingsProvider: settings);
+                                      })),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child: Icon(Icons.search),
+                                          ),
+                                          Text('Keresés vagy ugrás...',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge)
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Tooltip(
-                                message: 'Kedvencek és listák',
-                                child: Card(
-                                  margin: const EdgeInsets.only(
-                                      top: 7, right: 7, bottom: 7),
-                                  elevation: 3,
-                                  clipBehavior: Clip.antiAlias,
-                                  child: InkWell(
-                                    onTap: () => Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) {
-                                      return CuesPage(context);
-                                    })),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Center(child: Icon(Icons.star)),
+                                Tooltip(
+                                  message: 'Kedvencek és listák',
+                                  child: Card(
+                                    margin: const EdgeInsets.only(
+                                        top: 7, right: 7, bottom: 7),
+                                    elevation: 3,
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return CuesPage(context);
+                                      })),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Center(child: Icon(Icons.star)),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            ],
+                                )
+                              ],
+                            ),
                           ),
                         );
                       }
