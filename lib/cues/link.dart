@@ -149,6 +149,7 @@ Future showShareDialog(BuildContext context, String title,
                   onPressed: () => showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
+                      scrollable: true,
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
@@ -158,11 +159,15 @@ Future showShareDialog(BuildContext context, String title,
                       title: const Text('Mi ez?'),
                       content: const Text('''
 Ez a QR kód az alatta látható linket tartalmazza.
+Bármilyen QR-olvasó alkalmazással beolvasható. A legtöbb telefon beépített kamerája is tud QR kódot olvasni.
 
-Ha valaki beolvassa a kódot, és telepítve van neki ez az alkalmazás, akkor az alkalmazás megnyitja a linkben található versszakot, vagy a linkben található lista tartalmát elmenti a listái közé.
-Ha valaki beolvassa a kódot, és nincs telepítve neki ez az alkalmazás, akkor átirányításra kerül az alkalmazásboltba, ahol telepítheti.
+A linket közvetlenül is megoszthatod (például elküldheted üzenetként).
 
-A linket közvetlenül is megoszthatod.'''),
+Ha a linket megnyitó telefonon telepítve van az alkalmazás:
+Az alkalmazás megnyitja a linkben található versszakot, vagy a linkben található listát elmenti a listák közé.
+
+Ha a linket megnyitó telefonon nincs telepítve az alkalmazás:
+Átirányítjuk a megfelelő alkalmazásboltba, ahol telepítheti az alkalmazást.'''),
                     ),
                   ),
                 )
