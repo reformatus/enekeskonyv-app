@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
@@ -79,18 +80,31 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                     ? Colors.black
                     : null),
           ),
-          child: Scaffold(
-            // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-            body: OrientationBuilder(
-              builder: (context, orientation) {
-                return SafeArea(
-                  child: Container(
-                    // Prevent screen artifacts (single-pixel line with opposing
-                    // color) on certain devices.
-                    margin: const EdgeInsets.only(
-                      top: 1.0,
-                      bottom: 1.0,
-                    ),
+          // Needed builder to make theme part of context
+          child: Builder(builder: (context) {
+            return Scaffold(
+              // Even though this is not visible, it is necessary to update
+              // the color brightness of the system's status bar automatically.
+              appBar: PreferredSize(
+                preferredSize: const Size(0, 0),
+                child: AppBar(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                    statusBarBrightness:
+                        settings.getCurrentSheetBrightness(context),
+                    statusBarIconBrightness:
+                        settings.getCurrentSheetBrightness(context) ==
+                                Brightness.light
+                            ? Brightness.dark
+                            : Brightness.light,
+                    systemNavigationBarColor:
+                        Theme.of(context).colorScheme.background,
+                  ),
+                ),
+              ),
+              // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+              body: OrientationBuilder(
+                builder: (context, orientation) {
+                  return SafeArea(
                     child: Flex(
                       direction: orientation == Orientation.portrait
                           ? Axis.vertical
@@ -197,12 +211,12 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-            key: const Key('_MySongPageState'),
-          ),
+                  );
+                },
+              ),
+              key: const Key('_MySongPageState'),
+            );
+          }),
         );
       }),
     );
