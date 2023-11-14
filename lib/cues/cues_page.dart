@@ -50,6 +50,9 @@ class CuesPage extends StatelessWidget {
                       .toList();
                 },
                 items: [
+                  // The first item of the dropdown is the new cue button
+                  // Due to this being an actual dropdown element, we later
+                  // have to do some index shuffling to get the correct cue
                   DropdownMenuItem<String?>(
                     value: null,
                     child: Row(
@@ -67,6 +70,7 @@ class CuesPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // And then the rest follows
                   ...settings.cueStore.keys
                       .map((cue) => DropdownMenuItem<String?>(
                             value: cue,
@@ -101,76 +105,83 @@ class CuesPage extends StatelessWidget {
                   elevation: 5,
                   child: SizedBox(
                     height: 45,
-                    child: FadingEdgeScrollView.fromScrollView(
-                      shouldDisposeScrollController: true,
-                      child: ListView(
-                        controller: ScrollController(),
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.all(6),
-                        children: [
-                          /* // TODO later
-                          ElevatedButton.icon(
-                            label: const Text('Lista beolvasás'),
-                            onPressed: null,
-                            icon: const Icon(Icons.qr_code_scanner),
-                          ),*/
-                          const SizedBox(width: 5),
-                          ElevatedButton.icon(
-                            label: const Text('Megosztás'),
-                            onPressed: settings.getSelectedCueContent().isEmpty
-                                ? null
-                                : () => showShareDialog(
-                                    context, settings.selectedCue,
-                                    cueContent:
-                                        settings.getSelectedCueContent()),
-                            icon: const Icon(Icons.share),
-                          ),
-                          const SizedBox(width: 5),
-                          ElevatedButton.icon(
-                            label: const Text('Ének hozzáfűzés'),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SearchPage(
-                                  book: settings.book,
-                                  settingsProvider: settings,
-                                  addToCueSearch: true,
+                    child: SafeArea(
+                      child: FadingEdgeScrollView.fromScrollView(
+                        shouldDisposeScrollController: true,
+                        child: ListView(
+                          controller: ScrollController(),
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.all(6),
+                          children: [
+                            /* // TODO #50
+                            ElevatedButton.icon(
+                              label: const Text('Lista beolvasás'),
+                              onPressed: null,
+                              icon: const Icon(Icons.qr_code_scanner),
+                            ),*/
+                            const SizedBox(width: 5),
+                            ElevatedButton.icon(
+                              label: const Text('Megosztás'),
+                              onPressed:
+                                  settings.getSelectedCueContent().isEmpty
+                                      ? null
+                                      : () => showShareDialog(
+                                          context, settings.selectedCue,
+                                          cueContent:
+                                              settings.getSelectedCueContent()),
+                              icon: const Icon(Icons.share),
+                            ),
+                            const SizedBox(width: 5),
+                            ElevatedButton.icon(
+                              label: const Text('Ének hozzáfűzés'),
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchPage(
+                                    book: settings.book,
+                                    settingsProvider: settings,
+                                    addToCueSearch: true,
+                                  ),
                                 ),
                               ),
+                              icon: const Icon(Icons.manage_search),
                             ),
-                            icon: const Icon(Icons.manage_search),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
                 Expanded(
                   child: settings.getSelectedCueContent().isEmpty
-                      ? ListTile(
-                          subtitle: Text(
-                            '''
-Itt jelennek meg a Kedvencként jelölt énekek.
-Több listát is készíthetsz a felső sávra koppintva.
+                      ? SafeArea(
+                          child: ListTile(
+                            subtitle: Text(
+                              '''
+Itt jelennek meg a Kedvencként jelölt versszakok.
+${settings.scoreDisplay == ScoreDisplay.all ? 'Kedvencnek jelöléshez használd a csillag gombot a kotta bal alsó sarkában.' : 'Kedvencnek jelöléshez nyomd hosszan a kívánt versszakot.'}
 
-Hogy hozzáadj egy versszakot az itt kiválasztott listához, nyomd meg a versválasztó sáv melletti csillag gombot, ha minden kottát megjelenítesz az appban. Ugyanígy el is távolíthatod.
-Ha nem jelenítesz meg minden kottát, a kívánt versszakot tartsd hosszan lenyomva a hozzáadáshoz. Ugyanígy el is távolíthatod.
-
-Listáidat meg is tudod osztani.''',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontStyle: FontStyle.italic,
+Tippek:
+- Több listát is készíthetsz a felső sávra koppintva. Mindig a fent kiválasztott listát szerkesztheted az ének oldalán.
+- A listáidat meg is oszthatod. Ha egy más által készített lista linkjét megnyitod, azt hozzáadjuk a listáidhoz.
+- Ha egy versszakot többször hozzá szeretnél adni, vagy csak gyorsan szeretnél haladni, használd az Ének hozzáfűzés gombot a felső sávban.''',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                         )
-                      : ReorderableListView(
-                          onReorder: (oldIndex, newIndex) =>
-                              settings.reorderCue(
-                                  settings.selectedCue, oldIndex, newIndex),
-                          physics: Platform.isIOS
-                              ? const BouncingScrollPhysics()
-                              : null,
-                          children: getVerseTiles(settings),
+                      : SafeArea(
+                          child: ReorderableListView(
+                            onReorder: (oldIndex, newIndex) =>
+                                settings.reorderCue(
+                                    settings.selectedCue, oldIndex, newIndex),
+                            physics: Platform.isIOS
+                                ? const BouncingScrollPhysics()
+                                : null,
+                            children: getVerseTiles(settings),
+                          ),
                         ),
                 ),
               ],
