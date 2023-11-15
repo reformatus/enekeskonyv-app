@@ -14,8 +14,6 @@ void main() async {
   runApp(const Enekeskonyv());
 }
 
-final navigatorKey = GlobalKey<NavigatorState>();
-
 class Enekeskonyv extends StatelessWidget {
   const Enekeskonyv({Key? key}) : super(key: key);
 
@@ -26,7 +24,6 @@ class Enekeskonyv extends StatelessWidget {
       create: (_) => SettingsProvider()..initialize(),
       child: Consumer<SettingsProvider>(builder: (context, settings, child) {
         return MaterialApp(
-          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
           theme: ThemeData(

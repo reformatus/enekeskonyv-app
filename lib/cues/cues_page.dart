@@ -324,7 +324,6 @@ Tippek:
               );
             },
           ),
-          // request focus to show keyboard when returning from song page
         );
       },
       child: Row(
