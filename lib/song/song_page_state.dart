@@ -153,7 +153,7 @@ class SongStateProvider extends ChangeNotifier {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
-        //ensure a new versebar state is created
+        // Ensure a new versebar state is created
         verseBarKey = GlobalKey();
 
         initTabController(
@@ -177,7 +177,7 @@ class SongStateProvider extends ChangeNotifier {
     next ? song++ : song--;
     verse = 0;
 
-    //ensure a new versebar state is created
+    // Ensure a new versebar state is created
     verseBarKey = GlobalKey();
 
     initTabController(
@@ -244,7 +244,7 @@ class SongStateProvider extends ChangeNotifier {
     verse = verseIndex;
     _cueIndex = cueIndex;
 
-    //ensure a new versebar state is created
+    // Ensure that a new versebar state is created
     verseBarKey = GlobalKey();
 
     initTabController(

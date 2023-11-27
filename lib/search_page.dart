@@ -215,7 +215,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                   verseIndex: element.verseIndex);
             },
           ),
-          // request focus to show keyboard when returning from song page
+          // Request focus to show keyboard when returning from song page
         ).then((value) => keyboardFocusNode.requestFocus());
       } else {
         widget.settingsProvider
