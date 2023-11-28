@@ -102,6 +102,7 @@ class _VerseBarState extends State<VerseBar> {
                                 elevation: 3,
                                 clipBehavior: Clip.antiAlias,
                                 child: TabBar(
+                                  tabAlignment: TabAlignment.start,
                                   indicator: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: Theme.of(context)
