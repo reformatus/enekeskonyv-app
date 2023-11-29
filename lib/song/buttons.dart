@@ -17,42 +17,121 @@ class ControllerButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      return Theme(
-        data: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: state.book == Book.black ? Colors.amber : Colors.blue,
-              brightness: settings.getCurrentSheetBrightness(context),
-              background: settings.isOledTheme &&
-                      settings.getCurrentSheetBrightness(context) ==
-                          Brightness.dark
-                  ? Colors.black
-                  : null),
-        ),
-        child: Builder(
-          builder: (BuildContext context) {
-            return Material(
-              color: Theme.of(context).colorScheme.background,
-              child: Flex(
-                direction: orientation == Orientation.portrait
-                    ? Axis.horizontal
-                    : Axis.vertical,
-                // Make the buttons "justified" (ie. use all the
-                // screen width).
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: controllerButtons(settings, state, context, vsync),
-              ),
-            );
-          },
-        ),
+      return Builder(
+        builder: (BuildContext context) {
+          return Material(
+            color: Theme.of(context).colorScheme.background,
+            child: Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: [
+                Flex(
+                  direction: orientation == Orientation.portrait
+                      ? Axis.horizontal
+                      : Axis.vertical,
+                  // Make the buttons "justified" (ie. use all the
+                  // screen width).
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: controllerButtons(settings, state, context, vsync),
+                ),
+                if (state.inCue) cueButtons(context, state, settings),
+              ],
+            ),
+          );
+        },
       );
     });
+  }
+
+  Card cueButtons(BuildContext context, SongStateProvider state,
+      SettingsProvider settings) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      shape: const StadiumBorder(),
+      child: Flex(
+        direction: orientation == Orientation.portrait
+            ? Axis.horizontal
+            : Axis.vertical,
+        // Make the buttons "justified" (ie. use all the
+        // screen width).
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (state.cueElementExists(settings, next: false))
+            IconButton.filled(
+                tooltip: 'Előző listaelem',
+                onPressed: () =>
+                    state.advanceCue(context, settings, vsync, backward: true),
+                icon: const Icon(Icons.keyboard_double_arrow_left)),
+          Expanded(
+            child: RotatedBox(
+              quarterTurns: orientation == Orientation.portrait ? 0 : 1,
+              child: Row(
+                children: [
+                  if (state.cueElementExists(settings, next: false))
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5),
+                      child: cueVerseLinkText(
+                          settings.cueStore[settings.selectedCue]
+                              [state.cueIndex! - 1],
+                          state),
+                    ),
+                  Expanded(
+                    child: GestureDetector(
+                      // Exit cuelist when tapping on name
+                      onTap: () => state.cueIndex = null,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          settings.selectedCue,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary),
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (state.cueElementExists(settings, next: true))
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: cueVerseLinkText(
+                          settings.cueStore[settings.selectedCue]
+                              [state.cueIndex! + 1],
+                          state),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (state.cueElementExists(settings, next: true))
+            IconButton.filled(
+                tooltip: 'Következő listaelem',
+                onPressed: () => state.advanceCue(context, settings, vsync),
+                icon: const Icon(Icons.keyboard_double_arrow_right)),
+        ],
+      ),
+    );
+  }
+
+  Widget cueVerseLinkText(String verseId, SongStateProvider state) {
+    var parts = verseId.split('.');
+    var book = parts[0];
+    var songKey = parts[1];
+    var verseIndex = int.parse(parts[2]);
+
+    List<String> toDisplay = [
+      if (state.book.name != book) '($book)',
+      '$songKey/${songBooks[book][songKey]['texts'][verseIndex].split('.')[0]}'
+    ];
+    return Text(toDisplay.join(' '));
   }
 
   List<Widget> controllerButtons(SettingsProvider settings,
       SongStateProvider state, BuildContext context, TickerProvider vsync) {
     return [
-      if (settings.scoreDisplay == ScoreDisplay.all)
+      if (settings.scoreDisplay == ScoreDisplay.all || state.inCue)
         IconButton(
           key: const Key('_MySongPageState.IconButton.prevVerse'),
           onPressed: state.verseExists(next: false)
@@ -81,7 +160,7 @@ class ControllerButtons extends StatelessWidget {
         alignment: Alignment.bottomRight,
         context: context,
       ),
-      if (settings.scoreDisplay != ScoreDisplay.all)
+      if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue))
         IconButton(
           onPressed: settings.fontSize < 40.0
               ? () => settings.changeFontSize(settings.fontSize + 2.0)
@@ -97,14 +176,15 @@ class ControllerButtons extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) => QuickSettingsDialog(
+              songKey: state.songKey,
               songData: songBooks[state.book.name][state.songKey],
               book: state.book,
-              verseNumber: state.verse,
+              verseIndex: state.verse,
             ),
           );
         },
       ),
-      if (settings.scoreDisplay != ScoreDisplay.all)
+      if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue))
         IconButton(
           onPressed: settings.fontSize > 10.0
               ? () => {settings.changeFontSize(settings.fontSize - 2.0)}
@@ -127,7 +207,7 @@ class ControllerButtons extends StatelessWidget {
         alignment: Alignment.topRight,
         context: context,
       ),
-      if (settings.scoreDisplay == ScoreDisplay.all)
+      if (settings.scoreDisplay == ScoreDisplay.all || state.inCue)
         IconButton(
           key: const Key('_MySongPageState.IconButton.nextVerse'),
           onPressed: state.verseExists(next: true)

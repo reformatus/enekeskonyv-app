@@ -1,8 +1,10 @@
-import 'package:enekeskonyv/settings_provider.dart';
-import 'package:enekeskonyv/song/song_page_state.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../settings_provider.dart';
+import '../utils.dart';
+import 'song_page_state.dart';
 
 class VerseBar extends StatefulWidget {
   const VerseBar({super.key});
@@ -45,8 +47,7 @@ class _VerseBarState extends State<VerseBar> {
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
         builder: (context, settings, state, child) {
-      if ((settings.scoreDisplay == ScoreDisplay.all) &&
-          (state.tabs.length > 1)) {
+      if (settings.scoreDisplay == ScoreDisplay.all || state.inCue) {
         return Listener(
           // Making sure the verse bar is shown when the user
           // interacts with it.
@@ -56,83 +57,118 @@ class _VerseBarState extends State<VerseBar> {
             height: 50,
             child: Row(
               children: [
-                // Empty box to make the tab bar centered
-                const SizedBox(width: 40),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    fit: StackFit.passthrough,
-                    children: [
-                      Center(
-                        child: FadingEdgeScrollView.fromSingleChildScrollView(
-                          child: SingleChildScrollView(
-                            controller: scrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: Card(
-                              elevation: 3,
-                              child: TabBar(
-                                indicator: BoxDecoration(
+                // Favourite button
+                SizedBox(
+                  width: 40,
+                  child: settings.getIsInSelectedCue(
+                          getVerseId(state.book, state.songKey, state.verse))
+                      ? IconButton(
+                          tooltip: 'Versszak törlése a kiválasztott listából',
+                          onPressed: () {
+                            settings.removeAllInstancesFromCue(
+                                settings.selectedCue,
+                                getVerseId(
+                                    state.book, state.songKey, state.verse));
+                            if (state.inCue) Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.star),
+                          color: Theme.of(context).colorScheme.secondary,
+                        )
+                      : IconButton(
+                          tooltip:
+                              'Versszak hozzáadása a kiválasztott listához',
+                          onPressed: () => settings.addToCue(
+                              settings.selectedCue,
+                              getVerseId(
+                                  state.book, state.songKey, state.verse)),
+                          icon: const Icon(Icons.star_border),
+                          color: Theme.of(context).disabledColor),
+                ),
+                if (state.tabs.length > 1 && settings.isVerseBarEnabled) ...[
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      fit: StackFit.passthrough,
+                      children: [
+                        Center(
+                          child: FadingEdgeScrollView.fromSingleChildScrollView(
+                            child: SingleChildScrollView(
+                              controller: scrollController,
+                              scrollDirection: Axis.horizontal,
+                              child: Card(
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
                                 ),
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                dividerColor: Colors.transparent,
-                                labelPadding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                automaticIndicatorColorAdjustment: false,
-                                controller: state.tabController,
-                                isScrollable: true,
-                                tabs: state.tabs,
+                                elevation: 3,
+                                clipBehavior: Clip.antiAlias,
+                                child: TabBar(
+                                  tabAlignment: TabAlignment.start,
+                                  indicator: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                  ),
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  dividerColor: Colors.transparent,
+                                  labelPadding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  automaticIndicatorColorAdjustment: false,
+                                  controller: state.tabController,
+                                  isScrollable: true,
+                                  tabs: state.tabs,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 200),
-                            opacity: startArrow ? 1 : 0,
-                            child: Icon(
-                              Icons.chevron_left,
-                              color: Theme.of(context).disabledColor,
-                              size: 17,
-                            )),
-                      ),
-                      Positioned(
-                        right: 0,
-                        child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 200),
-                            opacity: endArrow ? 1 : 0,
-                            child: Icon(
-                              Icons.chevron_right,
-                              color: Theme.of(context).disabledColor,
-                              size: 17,
-                            )),
-                      ),
-                    ],
+                        Positioned(
+                          left: 0,
+                          child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: startArrow ? 1 : 0,
+                              child: Icon(
+                                Icons.chevron_left,
+                                color: Theme.of(context).disabledColor,
+                                size: 17,
+                              )),
+                        ),
+                        Positioned(
+                          right: 0,
+                          child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: endArrow ? 1 : 0,
+                              child: Icon(
+                                Icons.chevron_right,
+                                color: Theme.of(context).disabledColor,
+                                size: 17,
+                              )),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                // Pin button
-                SizedBox(
-                  width: 40,
-                  child: IconButton(
-                      onPressed: () => settings
-                          .changeIsVerseBarPinned(!settings.isVerseBarPinned),
-                      icon: const Icon(Icons.push_pin),
-                      color: settings.isVerseBarPinned
-                          ? Theme.of(context).colorScheme.secondary
-                          : Theme.of(context).disabledColor),
-                )
+                  // Pin button
+                  SizedBox(
+                    width: 40,
+                    child: IconButton(
+                        tooltip: 'Versválasztó sáv rögzítése',
+                        onPressed: () => settings
+                            .changeIsVerseBarPinned(!settings.isVerseBarPinned),
+                        icon: settings.isVerseBarPinned
+                            ? const Icon(Icons.push_pin)
+                            : const Icon(Icons.push_pin_outlined),
+                        color: settings.isVerseBarPinned
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).disabledColor),
+                  ),
+                ]
               ],
             ),
           ),
         );
       } else {
-        return Container();
+        return const SizedBox();
       }
     });
   }

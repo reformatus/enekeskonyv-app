@@ -1,18 +1,21 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert' show json;
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'cues/cues_page.dart';
+import 'cues/link.dart';
 import 'quick_settings_dialog.dart';
-import 'search_song_page.dart';
+import 'search_page.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
-import 'util.dart';
+import 'utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -26,6 +29,23 @@ class _HomePageState extends State<HomePage> {
   late ScrollController scrollController;
   bool fabVisible = false;
 
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  Future<void> initDeepLinks() async {
+    _appLinks = AppLinks();
+
+    _linkSubscription = _appLinks.allUriLinkStream.listen((uri) {
+      var error = openAppLink(uri, context);
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(error),
+          duration: const Duration(seconds: 5),
+        ));
+      }
+    });
+  }
+
   // @see https://www.kindacode.com/article/how-to-read-local-json-files-in-flutter/
   Future<void> readJson() async {
     final String response =
@@ -34,6 +54,7 @@ class _HomePageState extends State<HomePage> {
         as LinkedHashMap<String, dynamic>;
     songBooks = jsonSongBooks;
     setState(() {});
+    initDeepLinks();
   }
 
   @override
@@ -43,10 +64,23 @@ class _HomePageState extends State<HomePage> {
     if (songBooks.isEmpty) readJson();
     scrollController = ScrollController();
     scrollController.addListener(() {
-      setState(() {
-        fabVisible = scrollController.position.pixels > 30;
-      });
+      if (scrollController.position.pixels > 40 && !fabVisible) {
+        setState(() {
+          fabVisible = true;
+        });
+      } else if (scrollController.position.pixels <= 40 && fabVisible) {
+        setState(() {
+          fabVisible = false;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -63,11 +97,11 @@ class _HomePageState extends State<HomePage> {
     // yet). To prevent errors below, let's display a throbber instead.
 
     return Consumer<SettingsProvider>(
-      builder: (context, provider, child) {
+      builder: (context, settings, child) {
         // Do not show the list before the provider is initialized to avoid
         // flicking the default book's list when the user already selected a
         // non-default book before starting the app again.
-        if (!provider.initialized) {
+        if (!settings.initialized) {
           return Scaffold(appBar: AppBar(title: const Text('Betöltés...')));
         }
         return Scaffold(
@@ -75,8 +109,8 @@ class _HomePageState extends State<HomePage> {
               ? FloatingActionButton.small(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) {
-                      return MySearchSongPage(
-                          book: provider.book, settingsProvider: provider);
+                      return SearchPage(
+                          book: settings.book, settingsProvider: settings);
                     }),
                   ),
                   tooltip: 'Keresés vagy ugrás...',
@@ -84,37 +118,45 @@ class _HomePageState extends State<HomePage> {
                 )
               : null,
           appBar: AppBar(
-            title: Row(
-              children: [
-                Expanded(
-                  child: Tooltip(
-                    message: 'Válassz énekeskönyvet',
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<Book>(
-                        isExpanded: true,
-                        value: provider.book,
-                        items: Book.values
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  '${e.displayName} énekeskönyv',
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => provider.changeBook(value!),
-                      ),
-                    ),
-                  ),
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarBrightness: settings.getCurrentAppBrightness(context),
+              statusBarIconBrightness:
+                  settings.getCurrentAppBrightness(context) == Brightness.light
+                      ? Brightness.dark
+                      : Brightness.light,
+              systemNavigationBarColor:
+                  Theme.of(context).colorScheme.background,
+            ),
+            title: Tooltip(
+              message: 'Válassz énekeskönyvet',
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<Book>(
+                  value: settings.book,
+                  isExpanded: true,
+                  items: Book.values
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            '${e.displayName} énekeskönyv',
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) => settings.changeBook(value!),
                 ),
-                IconButton(
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: IconButton(
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -127,8 +169,8 @@ class _HomePageState extends State<HomePage> {
                   tooltip: 'Beállítások',
                   key: const Key('_MyHomePageState.SettingsButton'),
                 ),
-              ],
-            ),
+              ),
+            ],
             bottom: (songBooks.isEmpty)
                 ? const PreferredSize(
                     preferredSize: Size.fromHeight(3),
@@ -138,37 +180,74 @@ class _HomePageState extends State<HomePage> {
           ),
           body: (songBooks.isEmpty)
               ? null
-              : CupertinoScrollbar(
-                  // Using CupertinoScrollbar on Android too (looks better and
-                  // is interactive by default). Also, it should be wide enough
-                  // to be useful for a finger (to be able to scroll through the
-                  // whole list which is quite long).
-                  thickness: 9.0,
-                  thicknessWhileDragging: 12.0,
-                  radius: const Radius.circular(15.0),
+              : Scrollbar(
+                  thickness: 10,
+                  interactive: true,
+                  radius: const Radius.circular(10),
+                  controller: scrollController,
                   child: ListView.builder(
                     controller: scrollController,
                     physics:
                         Platform.isIOS ? const BouncingScrollPhysics() : null,
-                    itemCount: songBooks[provider.bookAsString].length,
+                    itemCount: songBooks[settings.bookAsString].length + 1,
                     itemBuilder: (context, i) {
                       // Display search box as first item.
                       if (i == 0) {
-                        return Card(
-                          clipBehavior: Clip.antiAlias,
-                          elevation: 3,
-                          margin: const EdgeInsets.all(7),
-                          semanticContainer: true,
-                          child: InkWell(
-                            onTap: () => Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) {
-                              return MySearchSongPage(
-                                  book: provider.book,
-                                  settingsProvider: provider);
-                            })),
-                            child: const ListTile(
-                                leading: Icon(Icons.search),
-                                title: Text('Keresés vagy ugrás...')),
+                        return SafeArea(
+                          child: IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    elevation: 3,
+                                    margin: const EdgeInsets.all(7),
+                                    semanticContainer: true,
+                                    child: InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return SearchPage(
+                                            book: settings.book,
+                                            settingsProvider: settings);
+                                      })),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child: Icon(Icons.search),
+                                          ),
+                                          Text('Keresés vagy ugrás...',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Tooltip(
+                                  message: 'Kedvencek és listák',
+                                  child: Card(
+                                    margin: const EdgeInsets.only(
+                                        top: 7, right: 7, bottom: 7),
+                                    elevation: 3,
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) {
+                                        return CuesPage(context);
+                                      })),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Center(child: Icon(Icons.star)),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         );
                       }
@@ -176,8 +255,8 @@ class _HomePageState extends State<HomePage> {
                       i--;
                       return ListTile(
                         title: Text(getSongTitle(
-                            songBooks[provider.bookAsString][
-                                songBooks[provider.bookAsString]
+                            songBooks[settings.bookAsString][
+                                songBooks[settings.bookAsString]
                                     .keys
                                     .elementAt(i)])),
                         onTap: () {
@@ -185,7 +264,7 @@ class _HomePageState extends State<HomePage> {
                             MaterialPageRoute(
                               builder: (context) {
                                 return SongPage(
-                                  book: provider.book,
+                                  book: settings.book,
                                   songIndex: i,
                                 );
                               },

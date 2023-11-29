@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,22 +13,26 @@ class SettingsProvider extends ChangeNotifier {
   static const double defaultFontSize = 14.0;
   static const ThemeMode defaultAppThemeMode = ThemeMode.system;
   static const ThemeMode defaultSheetThemeMode = ThemeMode.light;
+  static const bool defaultIsOledTheme = false;
   static const bool defaultTapNavigation = true;
   static const bool defaultIsVerseBarPinned = false;
   static const bool defaultIsVerseBarEnabled = true;
-  static const bool defaultIsOledTheme = false;
   static const bool defaultSearchNumericKeyboard = false;
+  static const String defaultSelectedCue = 'Kedvencek';
+  static const String defaultCueStore = '{"Kedvencek": []}';
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
   double _fontSize = defaultFontSize;
   ThemeMode _appThemeMode = defaultAppThemeMode;
   ThemeMode _sheetThemeMode = defaultSheetThemeMode;
+  bool _isOledTheme = defaultIsOledTheme;
   bool _tapNavigation = defaultTapNavigation;
   bool _isVerseBarPinned = defaultIsVerseBarPinned;
   bool _isVerseBarEnabled = defaultIsVerseBarEnabled;
-  bool _isOledTheme = defaultIsOledTheme;
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
+  String _selectedCue = defaultSelectedCue;
+  Map _cueStore = jsonDecode(defaultCueStore);
 
   bool _initialized = false;
 
@@ -34,11 +41,13 @@ class SettingsProvider extends ChangeNotifier {
   double get fontSize => _fontSize;
   ThemeMode get appThemeMode => _appThemeMode;
   ThemeMode get sheetThemeMode => _sheetThemeMode;
+  bool get isOledTheme => _isOledTheme;
   bool get tapNavigation => _tapNavigation;
   bool get isVerseBarPinned => _isVerseBarPinned;
   bool get isVerseBarEnabled => _isVerseBarEnabled;
-  bool get isOledTheme => _isOledTheme;
   bool get searchNumericKeyboard => _searchNumericKeyboard;
+  String get selectedCue => _selectedCue;
+  Map get cueStore => _cueStore;
 
   String get bookAsString {
     switch (_book) {
@@ -73,6 +82,12 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
+  List<String>? getCueContentOf(String cue) => _cueStore[cue]?.cast<String>();
+  List<String> getSelectedCueContent() => getCueContentOf(_selectedCue) ?? [];
+  bool getIsInCue(String cue, String verse) =>
+      _cueStore[cue]?.contains(verse) ?? false;
+  bool getIsInSelectedCue(String verse) => getIsInCue(_selectedCue, verse);
+
   bool get initialized => _initialized;
 
   Future changeBook(Book value) async {
@@ -82,6 +97,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //! Theming
   Future changeScoreDisplay(ScoreDisplay value) async {
     _scoreDisplay = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -110,6 +126,14 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future changeIsOledTheme(bool value) async {
+    _isOledTheme = value;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isOledTheme', value);
+    notifyListeners();
+  }
+
+  //! Interaction
   Future changeTapNavigation(bool value) async {
     _tapNavigation = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -131,13 +155,6 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future changeIsOledTheme(bool value) async {
-    _isOledTheme = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isOledTheme', value);
-    notifyListeners();
-  }
-
   Future changeSearchNumericKeyboard(bool value) async {
     _searchNumericKeyboard = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -145,9 +162,80 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future initialize() async {
+  //! Cuelists
+  Future changeSelectedCue(String value) async {
+    _selectedCue = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedCue', value);
+    notifyListeners();
+  }
 
+  Future saveCue(String cue, List<String> verses) async {
+    _cueStore[cue] = verses;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString('setStore', jsonEncode(_cueStore));
+  }
+
+  Future clearCue(String cue) async {
+    if (cue == 'Kedvencek') {
+      _cueStore[cue] = [];
+    } else {
+      _cueStore.remove(cue);
+    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future addToCue(String cue, String verse) async {
+    if (_cueStore[cue] == null) {
+      _cueStore[cue] = [];
+    }
+    _cueStore[cue].add(verse);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future removeAllInstancesFromCue(String cue, String verse) async {
+    _cueStore[cue].removeWhere((item) => item == verse);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future removeFromCueAt(String cue, int index) async {
+    _cueStore[cue].removeAt(index);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future reorderCue(String cue, int oldIndex, int newIndex) async {
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = _cueStore[cue].removeAt(oldIndex);
+    _cueStore[cue].insert(newIndex, item);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('setStore', jsonEncode(_cueStore));
+    notifyListeners();
+  }
+
+  Future factoryReset() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    await initialize();
+    notifyListeners();
+  }
+
+  late PackageInfo packageInfo;
+
+  Future initialize() async {
+    packageInfo = await PackageInfo.fromPlatform();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       //! Book selection.
       // First try migrating from previous version.
@@ -182,8 +270,14 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled =
           prefs.getBool('isVerseBarEnabled') ?? defaultIsVerseBarEnabled;
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
-      _searchNumericKeyboard =
-          prefs.getBool('searchNumericKeyboard') ?? defaultSearchNumericKeyboard;
+      _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
+          defaultSearchNumericKeyboard;
+      _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
+      _cueStore = jsonDecode(
+          prefs.getString('setStore') ?? jsonDecode(defaultCueStore));
+      if (!cueStore.containsKey(_selectedCue)) {
+        _selectedCue = defaultSelectedCue;
+      }
     } catch (e) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
@@ -196,6 +290,8 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled = defaultIsVerseBarEnabled;
       _isOledTheme = defaultIsOledTheme;
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
+      _selectedCue = defaultSelectedCue;
+      _cueStore = jsonDecode(defaultCueStore);
     }
 
     notifyListeners();

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'home_page.dart';
 import 'settings_provider.dart';
 
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  // Enable wakelock for whole app.
+  // Doing this when only on song page properly would be very convoluted.
+  Wakelock.enable();
+
+  runApp(const Enekeskonyv());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Enekeskonyv extends StatelessWidget {
+  const Enekeskonyv({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'settings_provider.dart';
 import 'song/song_page.dart';
+import 'utils.dart';
 
 class SearchVerse {
   final String songKey;
@@ -19,23 +22,27 @@ class SearchVerse {
   });
 }
 
-class MySearchSongPage extends StatefulWidget {
-  const MySearchSongPage({
+class SearchPage extends StatefulWidget {
+  const SearchPage({
     Key? key,
     required this.book,
     required this.settingsProvider,
+    this.addToCueSearch = false,
   }) : super(key: key);
 
   final Book book;
   final SettingsProvider settingsProvider;
+  final bool addToCueSearch;
 
   @override
-  State<MySearchSongPage> createState() => _MySearchSongPageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _MySearchSongPageState extends State<MySearchSongPage> {
+class _SearchPageState extends State<SearchPage> {
   List<SearchVerse> allSearchVerses = [];
   String searchText = '';
+
+  /// Function that gets called when user presses Enter in the search field.
   Function onSubmit = () {};
 
   @override
@@ -59,6 +66,9 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
   }
 
   List<Widget> getSearchResults() {
+    // Reset the function to prevent "ghost-calling" with keyboard after submit, with no results.
+    onSubmit = () {};
+
     // Jump mode
     if (searchText.contains(RegExp(r'^\d'))) {
       try {
@@ -99,15 +109,23 @@ class _MySearchSongPageState extends State<MySearchSongPage> {
     }
 
     // Search mode
-    if (searchText.replaceAll(RegExp(r'\W'), '').length < 3) {
+    // RegEx here: to remove all non-letters when considering search string length (unicode aware)
+    // This precise method is necessary, because simply entring 3 whitespace characters would match all verses.
+    if (searchText.replaceAll(RegExp(r'\P{L}', unicode: true), '').length < 3) {
       return [
         ListTile(
           subtitle: Text(
-            '''
+            !widget.addToCueSearch
+                ? '''
 Kereséshez adj meg legalább 3 betűt.
 
 Ugráshoz add meg az ének számát.
-Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szóközzel elválasztva.''',
+Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szóközzel elválasztva.'''
+                : '''
+A találatokat azonnal hozzáfűzheted a kiválasztott listához.
+
+Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
+''',
             style: TextStyle(
                 fontStyle: FontStyle.italic,
                 color: Theme.of(context).colorScheme.secondary),
@@ -184,27 +202,40 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
   Widget foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
       {bool foundFirst = false, bool foundByNumber = false}) {
     onTap() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) {
-            return SongPage(
-              book: widget.settingsProvider.book,
-              songIndex: songBooks[widget.book.name]
-                  .keys
-                  .toList()
-                  .indexOf(element.songKey),
-              // HACK Could be better handled on song page.
-              // Maybe even implement scrolling to matching verse there
-              // when showing texts?
-              verseIndex: (SettingsProvider.of(context).scoreDisplay ==
-                      ScoreDisplay.all)
-                  ? element.verseIndex
-                  : 0,
-            );
-          },
-        ),
-        // request focus to show keyboard when returning from song page
-      ).then((value) => keyboardFocusNode.requestFocus());
+      if (!widget.addToCueSearch) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return SongPage(
+                  book: widget.settingsProvider.book,
+                  songIndex: songBooks[widget.book.name]
+                      .keys
+                      .toList()
+                      .indexOf(element.songKey),
+                  verseIndex: element.verseIndex);
+            },
+          ),
+          // Request focus to show keyboard when returning from song page
+        ).then((value) => keyboardFocusNode.requestFocus());
+      } else {
+        widget.settingsProvider
+            .addToCue(
+                widget.settingsProvider.selectedCue,
+                getVerseId(widget.settingsProvider.book, element.songKey,
+                    element.verseIndex))
+            .then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              content: Text('Hozzáfűzve a kiválasztott listához',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        });
+      }
     }
 
     if (foundFirst) {
@@ -236,13 +267,15 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
                     Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: Icon(
-                        Icons.shortcut,
+                        !widget.addToCueSearch ? Icons.shortcut : Icons.add,
                         size: 20,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     Text(
-                      'Megnyitás Enter billentyűvel',
+                      !widget.addToCueSearch
+                          ? 'Megnyitás Kész gombbal'
+                          : 'Listához fűzés Kész gombbal',
                       style: TextStyle(
                           fontStyle: FontStyle.italic,
                           color: Theme.of(context).colorScheme.secondary),
@@ -319,7 +352,7 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
 
   String getSearchableText(String text, {bool filterLetters = true}) {
     if (!filterLetters) {
-      return removeDiacritics(text.toLowerCase());
+      return removeDiacritics(text).toLowerCase();
     }
 
     // Replace diacritics with their non-diacritic counterparts.
@@ -349,88 +382,136 @@ Versszakot is megadhatsz per jellel, kötőjellel, ponttal, vesszővel vagy szó
 
     return Consumer<SettingsProvider>(builder: (context, settings, child) {
       return Scaffold(
-        appBar: AppBar(
-          // To save some screen estate, reuse the page title for the search input
-          // field.
-          title: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: textController,
-                  focusNode: keyboardFocusNode,
-                  autofocus: true,
-                  autocorrect: false,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.normal,
+          appBar: AppBar(
+            // To save some screen estate, reuse the page title for the search input
+            // field.
+            title: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: textController,
+                    focusNode: keyboardFocusNode,
+                    autofocus: true,
+                    autocorrect: false,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                    ),
+                    keyboardType: settings.searchNumericKeyboard
+                        ? const TextInputType.numberWithOptions(
+                            decimal: true,
+                          )
+                        : TextInputType.text,
+                    onChanged: (e) {
+                      setState(() {
+                        searchText = e;
+                      });
+                    },
+                    // Prevent keyboard from closing on submit
+                    onEditingComplete: () {},
+                    onSubmitted: (e) {
+                      onSubmit();
+                      textController.text = '';
+                      setState(() {
+                        searchText = '';
+                      });
+                    },
                   ),
-                  decoration: const InputDecoration(
-                    hintText: 'Keresés vagy ugrás (pl: 150,3)',
-                  ),
-                  keyboardType: settings.searchNumericKeyboard
-                      ? const TextInputType.numberWithOptions(
-                          decimal: true,
-                        )
-                      : TextInputType.text,
-                  textInputAction: TextInputAction.go,
-                  onChanged: (e) {
-                    setState(() {
-                      searchText = e;
-                    });
-                  },
-                  onSubmitted: (e) {
-                    onSubmit();
-                    textController.clear();
-                    setState(() {
-                      searchText = '';
-                    });
-                  },
                 ),
-              ),
-              // A button to clear the search text.
-              IconButton(
+                // A button to clear the search text.
+                IconButton(
+                    onPressed: () {
+                      textController.clear();
+                      setState(() {
+                        searchText = '';
+                      });
+                    },
+                    icon: Icon(
+                      Icons.clear,
+                      color: Theme.of(context).disabledColor,
+                    )),
+              ],
+            ),
+          ),
+          floatingActionButton: (Platform.isIOS &&
+                  settings.searchNumericKeyboard &&
+                  searchText.isNotEmpty)
+              // Show a Done button on iOS when using the numeric keyboard,
+              // because the numeric keyboard does not have a submit button.
+              ? FloatingActionButton(
                   onPressed: () {
-                    textController.clear();
+                    onSubmit();
+                    textController.text = '';
                     setState(() {
                       searchText = '';
                     });
                   },
-                  icon: Icon(
-                    Icons.clear,
-                    color: Theme.of(context).disabledColor,
-                  )),
-            ],
-          ),
-        ),
-        // A button to switch between numeric and normal keyboard.
-        floatingActionButton: FloatingActionButton(
-          tooltip: 'Váltás numerikus és normál billentyűzet között',
-          onPressed: () {
-            setState(() {
-              settings
-                  .changeSearchNumericKeyboard(!settings.searchNumericKeyboard);
-              keyboardFocusNode.unfocus();
-              Future.delayed(const Duration(milliseconds: 100), () {
-                keyboardFocusNode.requestFocus();
-              });
-            });
-          },
-          child: Icon(settings.searchNumericKeyboard
-              ? Icons.keyboard
-              : Icons.pin_outlined),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  return searchResults[index];
-                },
-              ),
+                  backgroundColor: Colors.green,
+                  tooltip: (widget.addToCueSearch)
+                      ? 'Hozzáfűzés a kiválasztott listához'
+                      : 'Ugrás',
+                  child: (widget.addToCueSearch)
+                      ? const Icon(Icons.add)
+                      : const Icon(Icons.arrow_forward),
+                )
+              // A button to switch between numeric and normal keyboard.
+              : FloatingActionButton(
+                  tooltip: 'Váltás numerikus és normál billentyűzet között',
+                  onPressed: () {
+                    setState(() {
+                      settings.changeSearchNumericKeyboard(
+                          !settings.searchNumericKeyboard);
+                      keyboardFocusNode.unfocus();
+                      // Some delay necessary. Exact amount unknowable, this seems fine for now.
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        keyboardFocusNode.requestFocus();
+                      });
+                    });
+                  },
+                  child: Icon(settings.searchNumericKeyboard
+                      ? Icons.keyboard
+                      : Icons.pin_outlined),
+                ),
+          body: SafeArea(
+            child: ListView.builder(
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                return searchResults[index];
+              },
             ),
-          ],
-        ),
-      );
+          ),
+          bottomSheet: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.addToCueSearch)
+                Material(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  elevation: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.manage_search,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      Flexible(
+                        child: Text(
+                          'Hozzáfűzés: ${settings.selectedCue}',
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ));
     });
   }
 }

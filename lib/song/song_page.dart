@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
-import '../util.dart';
+import '../utils.dart';
 import 'build_pages.dart';
 import 'buttons.dart';
 import 'song_page_state.dart';
@@ -17,11 +18,15 @@ class SongPage extends StatefulWidget {
     required this.book,
     required this.songIndex,
     this.verseIndex = 0,
+    this.initialCueIndex,
   }) : super(key: key);
 
   final Book book;
   final int songIndex;
   final int verseIndex;
+
+  /// When null, we are not in cue
+  final int? initialCueIndex;
 
   @override
   State<SongPage> createState() => _SongPageState();
@@ -47,6 +52,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
         book: widget.book,
         vsync: this,
         context: context,
+        cueIndex: widget.initialCueIndex,
       ),
       child: Consumer2<SettingsProvider, SongStateProvider>(
           builder: (context, settings, state, child) {
@@ -61,74 +67,83 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           _listenerAdded = true;
         }
 
-        return Scaffold(
-          // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
-          body: OrientationBuilder(
-            builder: (context, orientation) {
-              return SafeArea(
-                child: Container(
-                  // Prevent screen artifacts (single-pixel line with opposing
-                  // color) on certain devices.
-                  margin: const EdgeInsets.only(
-                    top: 1.0,
-                    bottom: 1.0,
+        return Theme(
+          data: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+                seedColor:
+                    state.book == Book.black ? Colors.amber : Colors.blue,
+                brightness: settings.getCurrentSheetBrightness(context),
+                background: settings.isOledTheme &&
+                        settings.getCurrentSheetBrightness(context) ==
+                            Brightness.dark
+                    ? Colors.black
+                    : null),
+          ),
+          // Needed builder to make theme part of context
+          child: Builder(builder: (context) {
+            return Scaffold(
+              // Even though this is not visible, it is necessary to update
+              // the color brightness of the system's status bar automatically.
+              appBar: PreferredSize(
+                preferredSize: const Size(0, 0),
+                child: AppBar(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                    statusBarBrightness:
+                        settings.getCurrentSheetBrightness(context),
+                    statusBarIconBrightness:
+                        settings.getCurrentSheetBrightness(context) ==
+                                Brightness.light
+                            ? Brightness.dark
+                            : Brightness.light,
+                    systemNavigationBarColor:
+                        Theme.of(context).colorScheme.background,
                   ),
-                  child: Flex(
-                    direction: orientation == Orientation.portrait
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    children: [
-                      Expanded(
-                        child: NestedScrollView(
-                          controller: state.scrollController,
-                          headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                            return [
-                              SliverOverlapAbsorber(
-                                handle: NestedScrollView
-                                    .sliverOverlapAbsorberHandleFor(context),
-                                sliver: SliverAppBar(
-                                  // Instead of the back button on the left, use
-                                  // this to go home immediately.
-                                  leading: IconButton(
-                                    tooltip: 'Főoldal',
-                                    icon: const Icon(Icons.menu_book),
-                                    onPressed: () {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context, '/', (route) => false);
-                                    },
-                                  ),
-                                  pinned: orientation == Orientation.portrait,
-                                  // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                                  expandedHeight: 57,
-                                  title: Text(
-                                    getSongTitle(songBooks[widget.book.name]
-                                        [state.songKey]),
-                                    style: const TextStyle(fontSize: 18),
-                                    maxLines: 2,
+                ),
+              ),
+              // @see https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html
+              body: OrientationBuilder(
+                builder: (context, orientation) {
+                  return SafeArea(
+                    child: Flex(
+                      direction: orientation == Orientation.portrait
+                          ? Axis.vertical
+                          : Axis.horizontal,
+                      children: [
+                        Expanded(
+                          child: NestedScrollView(
+                            controller: state.scrollController,
+                            headerSliverBuilder:
+                                ((context, innerBoxIsScrolled) {
+                              return [
+                                SliverOverlapAbsorber(
+                                  handle: NestedScrollView
+                                      .sliverOverlapAbsorberHandleFor(context),
+                                  sliver: SliverAppBar(
+                                    // Instead of the back button on the left, use
+                                    // this to go home immediately.
+                                    leading: IconButton(
+                                      tooltip: 'Főoldal',
+                                      icon: const Icon(Icons.menu_book),
+                                      onPressed: () {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context, '/', (route) => false);
+                                      },
+                                    ),
+                                    pinned: orientation == Orientation.portrait,
+                                    // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                                    expandedHeight: 57,
+                                    title: Text(
+                                      getSongTitle(songBooks[state.book.name]
+                                          [state.songKey]),
+                                      style: const TextStyle(fontSize: 18),
+                                      maxLines: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ];
-                          }),
-                          body: Theme(
-                            data: ThemeData(
-                              useMaterial3: true,
-                              colorScheme: ColorScheme.fromSeed(
-                                  seedColor: state.book == Book.black
-                                      ? Colors.amber
-                                      : Colors.blue,
-                                  brightness: settings
-                                      .getCurrentSheetBrightness(context),
-                                  background: settings.isOledTheme &&
-                                          settings.getCurrentSheetBrightness(
-                                                  context) ==
-                                              Brightness.dark
-                                      ? Colors.black
-                                      : null),
-                            ),
-                            // Needs a separate [Material] and [Builder] for
-                            // providing a new BuildContext to children properly.
-                            child: Builder(
+                              ];
+                            }),
+                            body: Builder(
                               builder: (BuildContext context) {
                                 return Material(
                                   child: GestureDetector(
@@ -137,7 +152,13 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                     },
                                     onTapUp: (details) => onTapUp(details,
                                         context, tapDownPosition, this),
-                                    child: (settings.isVerseBarPinned)
+                                    // Only have a separated space for verse bar
+                                    // when it's enabled, visible and pinned.
+                                    child: (settings.isVerseBarPinned &&
+                                            settings.isVerseBarEnabled &&
+                                            (settings.scoreDisplay ==
+                                                    ScoreDisplay.all ||
+                                                state.inCue))
                                         // If the verse bar is pinned, we don't
                                         // need to animate it. Also, we use a Column
                                         // so that no content is hidden behind the
@@ -148,9 +169,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                 child: buildTabBarView(state,
                                                     orientation, context),
                                               ),
-                                              if (settings.isVerseBarEnabled)
-                                                VerseBar(
-                                                    key: state.verseBarKey),
+                                              VerseBar(key: state.verseBarKey),
                                             ],
                                           )
                                         // If the verse bar is not pinned, we
@@ -165,21 +184,19 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                               // in and out of the screen
                                               // by changing its bottom
                                               // position.
-                                              if (settings.isVerseBarEnabled)
-                                                AnimatedPositioned(
-                                                  duration: const Duration(
-                                                      milliseconds: 300),
-                                                  curve: Curves
-                                                      .easeInOutCubicEmphasized,
-                                                  right: 0,
-                                                  left: 0,
-                                                  bottom:
-                                                      state.isVerseBarVisible
-                                                          ? 0
-                                                          : -70,
-                                                  child: VerseBar(
-                                                      key: state.verseBarKey),
-                                                ),
+                                              AnimatedPositioned(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves
+                                                    .easeInOutCubicEmphasized,
+                                                right: 0,
+                                                left: 0,
+                                                bottom: state.isVerseBarVisible
+                                                    ? 0
+                                                    : -70,
+                                                child: VerseBar(
+                                                    key: state.verseBarKey),
+                                              ),
                                             ],
                                           ),
                                   ),
@@ -188,18 +205,18 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                      ),
-                      ControllerButtons(
-                        orientation: orientation,
-                        vsync: this,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          key: const Key('_MySongPageState'),
+                        ControllerButtons(
+                          orientation: orientation,
+                          vsync: this,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              key: const Key('_MySongPageState'),
+            );
+          }),
         );
       }),
     );

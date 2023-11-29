@@ -22,17 +22,30 @@ class SongStateProvider extends ChangeNotifier {
   Map<int, GlobalKey> tabKeys = {};
   GlobalKey verseBarKey = GlobalKey();
 
+  int? _cueIndex;
+  int? get cueIndex => _cueIndex;
+  set cueIndex(int? value) {
+    _cueIndex = value;
+    notifyListeners();
+  }
+
+  get inCue => _cueIndex != null;
+
   SongStateProvider({
     required this.song,
     required this.verse,
     required this.book,
     required TickerProvider vsync,
     required BuildContext context,
-  }) {
+    required int? cueIndex,
+  }) : _cueIndex = cueIndex {
     initTabController(
         vsync: vsync,
-        numOfPages: getNumOfPages(book, songKey, context),
-        initialIndex: verse,
+        numOfPages: getNumOfPages(book, songKey, context, inCue),
+        initialIndex: (inCue ||
+                SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
+            ? verse
+            : 0,
         initial: true);
     showThenHideVerseBar();
   }
@@ -76,10 +89,10 @@ class SongStateProvider extends ChangeNotifier {
 
   void settingsListener(
       {required BuildContext context, required TickerProvider vsync}) {
-    if (tabController.length != getNumOfPages(book, songKey, context)) {
+    if (tabController.length != getNumOfPages(book, songKey, context, inCue)) {
       initTabController(
           vsync: vsync,
-          numOfPages: getNumOfPages(book, songKey, context),
+          numOfPages: getNumOfPages(book, songKey, context, inCue),
           initialIndex: 0);
     }
   }
@@ -112,7 +125,7 @@ class SongStateProvider extends ChangeNotifier {
     if (next) {
       // Only allow switching to the next verse when all verses should have
       // scores (and there _is_ a next verse).
-      if ((settingsProvider.scoreDisplay == ScoreDisplay.all) &&
+      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
           verse < songBooks[book.name][songKey]['texts'].length - 1) {
         verse++;
       } else if (song < songBooks[book.name].length - 1) {
@@ -122,11 +135,12 @@ class SongStateProvider extends ChangeNotifier {
     } else {
       // Only allow switching to the previous verse when all verses should
       // have scores (and there _is_ a previous verse).
-      if ((settingsProvider.scoreDisplay == ScoreDisplay.all) && verse > 0) {
+      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+          verse > 0) {
         verse--;
       } else if (song > 0) {
         song--;
-        if (settingsProvider.scoreDisplay == ScoreDisplay.all) {
+        if (settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) {
           // This songKey must be recalculated to be able to fetch the number
           // of verses for the previous song.
           verse = songBooks[book.name][songKey]['texts'].length - 1;
@@ -139,12 +153,12 @@ class SongStateProvider extends ChangeNotifier {
     }
     if (originalVerse != verse || originalSong != song) {
       if (originalSong != song) {
-        //ensure a new versebar state is created
+        // Ensure a new versebar state is created
         verseBarKey = GlobalKey();
 
         initTabController(
             vsync: vsync,
-            numOfPages: getNumOfPages(book, songKey, context),
+            numOfPages: getNumOfPages(book, songKey, context, inCue),
             initialIndex: verse);
 
         scrollController.jumpTo(0);
@@ -163,12 +177,12 @@ class SongStateProvider extends ChangeNotifier {
     next ? song++ : song--;
     verse = 0;
 
-    //ensure a new versebar state is created
+    // Ensure a new versebar state is created
     verseBarKey = GlobalKey();
 
     initTabController(
         vsync: vsync,
-        numOfPages: getNumOfPages(book, songKey, context),
+        numOfPages: getNumOfPages(book, songKey, context, inCue),
         initialIndex: 0);
 
     scrollController.jumpTo(0);
@@ -190,6 +204,63 @@ class SongStateProvider extends ChangeNotifier {
     } else {
       return verse > 0;
     }
+  }
+
+  bool cueElementExists(SettingsProvider settings, {required bool next}) {
+    if (next) {
+      return _cueIndex! < settings.cueStore[settings.selectedCue].length - 1;
+    } else {
+      return _cueIndex! > 0;
+    }
+  }
+
+  void advanceCue(
+      BuildContext context, SettingsProvider settings, TickerProvider vsync,
+      {bool backward = false}) {
+    if (backward) {
+      changeToVerseIdInCue(
+          settings.cueStore[settings.selectedCue][_cueIndex! - 1],
+          _cueIndex! - 1,
+          context,
+          vsync);
+    } else {
+      changeToVerseIdInCue(
+          settings.cueStore[settings.selectedCue][_cueIndex! + 1],
+          _cueIndex! + 1,
+          context,
+          vsync);
+    }
+  }
+
+  void changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context,
+      TickerProvider vsync) {
+    var parts = verseId.split('.');
+    Book book = Book.values.firstWhere((b) => b.name == parts[0]);
+    String songKey = parts[1];
+    int verseIndex = int.parse(parts[2]);
+
+    this.book = book;
+    song = songBooks[book.name].keys.toList().indexOf(songKey);
+    verse = verseIndex;
+    _cueIndex = cueIndex;
+
+    // Ensure that a new versebar state is created
+    verseBarKey = GlobalKey();
+
+    initTabController(
+        vsync: vsync,
+        numOfPages: getNumOfPages(book, songKey, context, inCue),
+        initialIndex: (inCue ||
+                SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
+            ? verse
+            : 0,
+        initial: true);
+
+    scrollController.jumpTo(0);
+    notifyListeners();
+
+    showThenHideVerseBar();
+    scrollVerseBarToCurrent(animate: false);
   }
 
   scrollVerseBarToCurrent({bool animate = true}) {
