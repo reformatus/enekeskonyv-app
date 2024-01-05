@@ -99,6 +99,37 @@ class CuesPage extends StatelessWidget {
                 ],
               ),
             )),
+            // Button to start displaying the cue from the beginning
+            floatingActionButton: settings.getSelectedCueContent().isEmpty
+                ? null
+                : FloatingActionButton(
+                    tooltip: 'Lejátszás az elejétől',
+                    onPressed: () {
+                      var verseId = settings.getSelectedCueContent()[0];
+                      List<String> parts = verseId.split('.');
+                      String songKey = parts[1];
+                      int verseIndex = int.parse(parts[2]);
+                      Book book =
+                          Book.values.firstWhere((b) => b.name == parts[0]);
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return SongPage(
+                              book: book,
+                              songIndex: songBooks[book.name]
+                                  .keys
+                                  .toList()
+                                  .indexOf(songKey),
+                              verseIndex: verseIndex,
+                              initialCueIndex: 0,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.play_arrow),
+                  ),
             body: Column(
               children: [
                 Material(
