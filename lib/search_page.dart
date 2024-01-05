@@ -231,7 +231,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                   )),
-              duration: const Duration(seconds: 2),
+              duration: const Duration(seconds: 1),
             ),
           );
         });
@@ -382,136 +382,141 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
 
     return Consumer<SettingsProvider>(builder: (context, settings, child) {
       return Scaffold(
-          appBar: AppBar(
-            // To save some screen estate, reuse the page title for the search input
-            // field.
-            title: Row(
+        appBar: AppBar(
+          // To save some screen estate, reuse the page title for the search input
+          // field.
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: textController,
-                    focusNode: keyboardFocusNode,
-                    autofocus: true,
-                    autocorrect: false,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.normal,
+                if (widget.addToCueSearch)
+                  Material(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    elevation: 10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(2),
+                          child: Icon(Icons.manage_search,
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                        Flexible(
+                          child: Text(
+                            'Hozzáfűzés: ${settings.selectedCue}',
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ),
+                      ],
                     ),
-                    decoration: const InputDecoration(
-                      hintText: 'Keresés vagy ugrás (pl: 150,3)',
-                    ),
-                    keyboardType: settings.searchNumericKeyboard
-                        ? const TextInputType.numberWithOptions(
-                            decimal: true,
-                          )
-                        : TextInputType.text,
-                    onChanged: (e) {
-                      setState(() {
-                        searchText = e;
-                      });
-                    },
-                    // Prevent keyboard from closing on submit
-                    onEditingComplete: () {},
-                    onSubmitted: (e) {
-                      onSubmit();
-                      textController.text = '';
-                      setState(() {
-                        searchText = '';
-                      });
-                    },
                   ),
-                ),
-                // A button to clear the search text.
-                IconButton(
-                    onPressed: () {
-                      textController.clear();
-                      setState(() {
-                        searchText = '';
-                      });
-                    },
-                    icon: Icon(
-                      Icons.clear,
-                      color: Theme.of(context).disabledColor,
-                    )),
               ],
             ),
           ),
-          floatingActionButton: (Platform.isIOS &&
-                  settings.searchNumericKeyboard &&
-                  searchText.isNotEmpty)
-              // Show a Done button on iOS when using the numeric keyboard,
-              // because the numeric keyboard does not have a submit button.
-              ? FloatingActionButton(
-                  onPressed: () {
+          title: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: textController,
+                  focusNode: keyboardFocusNode,
+                  autofocus: true,
+                  autocorrect: false,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                  ),
+                  keyboardType: settings.searchNumericKeyboard
+                      ? const TextInputType.numberWithOptions(
+                          decimal: true,
+                        )
+                      : TextInputType.text,
+                  onChanged: (e) {
+                    setState(() {
+                      searchText = e;
+                    });
+                  },
+                  // Prevent keyboard from closing on submit
+                  onEditingComplete: () {},
+                  onSubmitted: (e) {
                     onSubmit();
                     textController.text = '';
                     setState(() {
                       searchText = '';
                     });
                   },
-                  backgroundColor: Colors.green,
-                  tooltip: (widget.addToCueSearch)
-                      ? 'Hozzáfűzés a kiválasztott listához'
-                      : 'Ugrás',
-                  child: (widget.addToCueSearch)
-                      ? const Icon(Icons.add)
-                      : const Icon(Icons.arrow_forward),
-                )
-              // A button to switch between numeric and normal keyboard.
-              : FloatingActionButton(
-                  tooltip: 'Váltás numerikus és normál billentyűzet között',
+                ),
+              ),
+              // A button to clear the search text.
+              IconButton(
                   onPressed: () {
+                    textController.clear();
                     setState(() {
-                      settings.changeSearchNumericKeyboard(
-                          !settings.searchNumericKeyboard);
-                      keyboardFocusNode.unfocus();
-                      // Some delay necessary. Exact amount unknowable, this seems fine for now.
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        keyboardFocusNode.requestFocus();
-                      });
+                      searchText = '';
                     });
                   },
-                  child: Icon(settings.searchNumericKeyboard
-                      ? Icons.keyboard
-                      : Icons.pin_outlined),
-                ),
-          body: SafeArea(
-            child: ListView.builder(
-              itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                return searchResults[index];
-              },
-            ),
-          ),
-          bottomSheet: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.addToCueSearch)
-                Material(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  elevation: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.manage_search,
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                      Flexible(
-                        child: Text(
-                          'Hozzáfűzés: ${settings.selectedCue}',
-                          softWrap: false,
-                          overflow: TextOverflow.fade,
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  icon: Icon(
+                    Icons.clear,
+                    color: Theme.of(context).disabledColor,
+                  )),
             ],
-          ));
+          ),
+        ),
+        floatingActionButton: (Platform.isIOS &&
+                settings.searchNumericKeyboard &&
+                searchText.isNotEmpty)
+            // Show a Done button on iOS when using the numeric keyboard,
+            // because the numeric keyboard does not have a submit button.
+            ? FloatingActionButton(
+                onPressed: () {
+                  onSubmit();
+                  textController.text = '';
+                  setState(() {
+                    searchText = '';
+                  });
+                },
+                backgroundColor: Colors.green,
+                tooltip: (widget.addToCueSearch)
+                    ? 'Hozzáfűzés a kiválasztott listához'
+                    : 'Ugrás',
+                child: (widget.addToCueSearch)
+                    ? const Icon(Icons.add)
+                    : const Icon(Icons.arrow_forward),
+              )
+            // A button to switch between numeric and normal keyboard.
+            : FloatingActionButton(
+                tooltip: 'Váltás numerikus és normál billentyűzet között',
+                onPressed: () {
+                  setState(() {
+                    settings.changeSearchNumericKeyboard(
+                        !settings.searchNumericKeyboard);
+                    keyboardFocusNode.unfocus();
+                    // Some delay necessary. Exact amount unknowable, this seems fine for now.
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      keyboardFocusNode.requestFocus();
+                    });
+                  });
+                },
+                child: Icon(settings.searchNumericKeyboard
+                    ? Icons.keyboard
+                    : Icons.pin_outlined),
+              ),
+        body: SafeArea(
+          child: ListView.builder(
+            itemCount: searchResults.length,
+            itemBuilder: (context, index) {
+              return searchResults[index];
+            },
+          ),
+        ),
+      );
     });
   }
 }
