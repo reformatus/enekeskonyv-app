@@ -108,28 +108,28 @@ class SettingsProvider extends ChangeNotifier {
   Future changeFontSize(double value) async {
     _fontSize = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('fontSize', value);
+    prefs.setDouble('fontSize', value);
     notifyListeners();
   }
 
   Future changeAppBrightnessSetting(ThemeMode value) async {
     _appThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('appThemeMode', value.index);
+    prefs.setInt('appThemeMode', value.index);
     notifyListeners();
   }
 
   Future changeSheetBrightnessSetting(ThemeMode value) async {
     _sheetThemeMode = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('sheetThemeMode', value.index);
+    prefs.setInt('sheetThemeMode', value.index);
     notifyListeners();
   }
 
   Future changeIsOledTheme(bool value) async {
     _isOledTheme = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isOledTheme', value);
+    prefs.setBool('isOledTheme', value);
     notifyListeners();
   }
 
@@ -137,28 +137,28 @@ class SettingsProvider extends ChangeNotifier {
   Future changeTapNavigation(bool value) async {
     _tapNavigation = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('tapNavigation', value);
+    prefs.setBool('tapNavigation', value);
     notifyListeners();
   }
 
   Future changeIsVerseBarPinned(bool value) async {
     _isVerseBarPinned = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isVerseBarPinned', value);
+    prefs.setBool('isVerseBarPinned', value);
     notifyListeners();
   }
 
   Future changeIsVerseBarEnabled(bool value) async {
     _isVerseBarEnabled = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isVerseBarEnabled', value);
+    prefs.setBool('isVerseBarEnabled', value);
     notifyListeners();
   }
 
   Future changeSearchNumericKeyboard(bool value) async {
     _searchNumericKeyboard = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('searchNumericKeyboard', value);
+    prefs.setBool('searchNumericKeyboard', value);
     notifyListeners();
   }
 
@@ -166,14 +166,14 @@ class SettingsProvider extends ChangeNotifier {
   Future changeSelectedCue(String value) async {
     _selectedCue = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedCue', value);
+    prefs.setString('selectedCue', value);
     notifyListeners();
   }
 
   Future saveCue(String cue, List<String> verses) async {
     _cueStore[cue] = verses;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
   }
 
   Future clearCue(String cue) async {
@@ -183,7 +183,7 @@ class SettingsProvider extends ChangeNotifier {
       _cueStore.remove(cue);
     }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
@@ -193,21 +193,21 @@ class SettingsProvider extends ChangeNotifier {
     }
     _cueStore[cue].add(verse);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
   Future removeAllInstancesFromCue(String cue, String verse) async {
     _cueStore[cue].removeWhere((item) => item == verse);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
   Future removeFromCueAt(String cue, int index) async {
     _cueStore[cue].removeAt(index);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
@@ -218,7 +218,7 @@ class SettingsProvider extends ChangeNotifier {
     final item = _cueStore[cue].removeAt(oldIndex);
     _cueStore[cue].insert(newIndex, item);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('setStore', jsonEncode(_cueStore));
+    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
   }
 
