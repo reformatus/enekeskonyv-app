@@ -47,7 +47,7 @@ Verse parseVerseId(String verseId) {
     throw 'Versszakszám érvénytelen.';
   }
 
-  if (songBooks[bookName][songKey].length <= verseIndex) {
+  if (songBooks[bookName][songKey]['texts'].length <= verseIndex) {
     throw 'Versszak nem található.';
   }
 
