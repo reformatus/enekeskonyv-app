@@ -14,16 +14,24 @@ void main() async {
   runApp(const Enekeskonyv());
 }
 
-class Enekeskonyv extends StatelessWidget {
+class Enekeskonyv extends StatefulWidget {
   const Enekeskonyv({Key? key}) : super(key: key);
+
+  @override
+  State<Enekeskonyv> createState() => _EnekeskonyvState();
+}
+
+class _EnekeskonyvState extends State<Enekeskonyv> {
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SettingsProvider>(
-      create: (_) => SettingsProvider()..initialize(),
+      create: (_) => SettingsProvider()..initialize(navigatorKey),
       child: Consumer<SettingsProvider>(builder: (context, settings, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Énekeskönyv',
           theme: ThemeData(

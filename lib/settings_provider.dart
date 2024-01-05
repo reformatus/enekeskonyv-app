@@ -1,13 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mailto/mailto.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Map<String, dynamic> songBooks = {};
 
 class SettingsProvider extends ChangeNotifier {
+  late GlobalKey<NavigatorState> navigatorKey;
+
   static const Book defaultBook = Book.blue;
   static const ScoreDisplay defaultScoreDisplay = ScoreDisplay.all;
   static const double defaultFontSize = 14.0;
@@ -93,7 +97,7 @@ class SettingsProvider extends ChangeNotifier {
   Future changeBook(Book value) async {
     _book = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('bookEnum', value.index);
+    prefs.setInt('bookEnum', value.index);
     notifyListeners();
   }
 
@@ -101,7 +105,7 @@ class SettingsProvider extends ChangeNotifier {
   Future changeScoreDisplay(ScoreDisplay value) async {
     _scoreDisplay = value;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('scoreDisplayEnum', value.index);
+    prefs.setInt('scoreDisplayEnum', value.index);
     notifyListeners();
   }
 
@@ -226,16 +230,74 @@ class SettingsProvider extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
-    await initialize();
+    await initialize(navigatorKey);
     notifyListeners();
   }
 
   late PackageInfo packageInfo;
 
-  Future initialize() async {
-    packageInfo = await PackageInfo.fromPlatform();
+  Future initialize(GlobalKey<NavigatorState> navigatorKey) async {
+    navigatorKey = navigatorKey;
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await Future.delayed(Duration.zero);
+    var messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
+    showError(String message, Object? e, StackTrace? s) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(minutes: 99),
+        // send email report
+        action: SnackBarAction(
+          label: 'Jelentés',
+          backgroundColor: Colors.grey[800],
+          textColor: Colors.white,
+          onPressed: () {
+            launchUrl(Uri.parse(Mailto(
+              to: ['app@reflabs.hu'],
+              subject:
+                  'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
+              body: '''
+
+
+
+Írd le a vonal fölé, mit tapasztaltál a hiba fellépésekor. Csatolhatsz képet is.
+
+----
+
+$message
+
+$e
+
+$s''',
+            ).toString()));
+          },
+        ),
+      ));
+    }
+
+    try {
+      packageInfo = await PackageInfo.fromPlatform();
+    } catch (e, s) {
+      packageInfo = PackageInfo(
+        appName: 'Hiba',
+        packageName: 'Hiba',
+        version: '#.#.#',
+        buildNumber: '###',
+      );
+      showError('Hiba történt a verziószám lekérdezése közben', e, s);
+    }
+
+    SharedPreferences prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e, s) {
+      showError('Hiba történt a beállítástár betöltése közben', e, s);
+      return;
+    }
+
     try {
       //! Book selection.
       // First try migrating from previous version.
@@ -278,7 +340,7 @@ class SettingsProvider extends ChangeNotifier {
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
-    } catch (e) {
+    } catch (e, s) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
       _scoreDisplay = defaultScoreDisplay;
@@ -292,6 +354,9 @@ class SettingsProvider extends ChangeNotifier {
       _searchNumericKeyboard = defaultSearchNumericKeyboard;
       _selectedCue = defaultSelectedCue;
       _cueStore = jsonDecode(defaultCueStore);
+
+      // Show error message.
+      showError('Hiba történt a beállítások betöltése közben', e, s);
     }
 
     notifyListeners();
