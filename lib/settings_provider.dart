@@ -340,7 +340,7 @@ $s''',
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
-    } catch (e, s) {
+    } catch (e /*, s*/) {
       // On any unexpected error, use default settings.
       _book = defaultBook;
       _scoreDisplay = defaultScoreDisplay;
@@ -356,7 +356,7 @@ $s''',
       _cueStore = jsonDecode(defaultCueStore);
 
       // Show error message.
-      showError('Hiba történt a beállítások betöltése közben', e, s);
+      //showError('Hiba történt a beállítások betöltése közben', e, s);
     }
 
     notifyListeners();
