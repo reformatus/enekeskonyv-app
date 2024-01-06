@@ -383,16 +383,10 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
     return Consumer<SettingsProvider>(builder: (context, settings, child) {
       return Scaffold(
         appBar: AppBar(
-          // To save some screen estate, reuse the page title for the search input
-          // field.
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(30),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (widget.addToCueSearch)
-                  Material(
+          bottom: (widget.addToCueSearch)
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(30),
+                  child: Material(
                     color: Theme.of(context).colorScheme.secondaryContainer,
                     elevation: 10,
                     child: Row(
@@ -416,9 +410,10 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                       ],
                     ),
                   ),
-              ],
-            ),
-          ),
+                )
+              : null,
+          // To save some screen real estate, reuse the page title for the
+          // search input field.
           title: Row(
             children: [
               Expanded(
