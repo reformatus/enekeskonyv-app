@@ -94,90 +94,93 @@ class SettingsProvider extends ChangeNotifier {
 
   bool get initialized => _initialized;
 
+  //! Setters
+
+  void setPref(String key, dynamic value) async {
+    try {
+      SharedPreferences.getInstance().then((prefs) {
+        if (value is int) prefs.setInt(key, value);
+        if (value is double) prefs.setDouble(key, value);
+        if (value is bool) prefs.setBool(key, value);
+        if (value is String) prefs.setString(key, value);
+      });
+    } catch (e, s) {
+      showError('Hiba történt a beállítás ($key) mentésekor', e, s);
+    }
+  }
+
   Future changeBook(Book value) async {
     _book = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('bookEnum', value.index);
     notifyListeners();
+    setPref('bookEnum', value.index);
   }
 
   //! Theming
   Future changeScoreDisplay(ScoreDisplay value) async {
     _scoreDisplay = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('scoreDisplayEnum', value.index);
     notifyListeners();
+    setPref('scoreDisplayEnum', value.index);
   }
 
   Future changeFontSize(double value) async {
     _fontSize = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('fontSize', value);
     notifyListeners();
+    setPref('fontSize', value);
   }
 
   Future changeAppBrightnessSetting(ThemeMode value) async {
     _appThemeMode = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('appThemeMode', value.index);
     notifyListeners();
+    setPref('appThemeMode', value.index);
   }
 
   Future changeSheetBrightnessSetting(ThemeMode value) async {
     _sheetThemeMode = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('sheetThemeMode', value.index);
     notifyListeners();
+    setPref('sheetThemeMode', value.index);
   }
 
   Future changeIsOledTheme(bool value) async {
     _isOledTheme = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isOledTheme', value);
     notifyListeners();
+    setPref('isOledTheme', value);
   }
 
   //! Interaction
   Future changeTapNavigation(bool value) async {
     _tapNavigation = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('tapNavigation', value);
     notifyListeners();
+    setPref('tapNavigation', value);
   }
 
   Future changeIsVerseBarPinned(bool value) async {
     _isVerseBarPinned = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isVerseBarPinned', value);
     notifyListeners();
+    setPref('isVerseBarPinned', value);
   }
 
   Future changeIsVerseBarEnabled(bool value) async {
     _isVerseBarEnabled = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isVerseBarEnabled', value);
     notifyListeners();
+    setPref('isVerseBarEnabled', value);
   }
 
   Future changeSearchNumericKeyboard(bool value) async {
     _searchNumericKeyboard = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('searchNumericKeyboard', value);
     notifyListeners();
+    setPref('searchNumericKeyboard', value);
   }
 
   //! Cuelists
   Future changeSelectedCue(String value) async {
     _selectedCue = value;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('selectedCue', value);
     notifyListeners();
+    setPref('selectedCue', value);
   }
 
   Future saveCue(String cue, List<String> verses) async {
     _cueStore[cue] = verses;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future clearCue(String cue) async {
@@ -186,9 +189,8 @@ class SettingsProvider extends ChangeNotifier {
     } else {
       _cueStore.remove(cue);
     }
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future addToCue(String cue, String verse) async {
@@ -196,23 +198,20 @@ class SettingsProvider extends ChangeNotifier {
       _cueStore[cue] = [];
     }
     _cueStore[cue].add(verse);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future removeAllInstancesFromCue(String cue, String verse) async {
     _cueStore[cue].removeWhere((item) => item == verse);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future removeFromCueAt(String cue, int index) async {
     _cueStore[cue].removeAt(index);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future reorderCue(String cue, int oldIndex, int newIndex) async {
@@ -221,9 +220,8 @@ class SettingsProvider extends ChangeNotifier {
     }
     final item = _cueStore[cue].removeAt(oldIndex);
     _cueStore[cue].insert(newIndex, item);
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('setStore', jsonEncode(_cueStore));
     notifyListeners();
+    setPref('setStore', jsonEncode(_cueStore));
   }
 
   Future factoryReset() async {
@@ -237,46 +235,9 @@ class SettingsProvider extends ChangeNotifier {
   late PackageInfo packageInfo;
 
   Future initialize(GlobalKey<NavigatorState> navigatorKey) async {
-    navigatorKey = navigatorKey;
+    this.navigatorKey = navigatorKey;
 
-    await Future.delayed(Duration.zero);
-    var messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
-    showError(String message, Object? e, StackTrace? s) {
-      messenger.showSnackBar(SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(minutes: 99),
-        // send email report
-        action: SnackBarAction(
-          label: 'Jelentés',
-          backgroundColor: Colors.grey[800],
-          textColor: Colors.white,
-          onPressed: () {
-            launchUrl(Uri.parse(Mailto(
-              to: ['app@reflabs.hu'],
-              subject:
-                  'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
-              body: '''
-
-
-
-Írd le a vonal fölé, mit tapasztaltál a hiba fellépésekor. Csatolhatsz képet is.
-
-----
-
-$message
-
-$e
-
-$s''',
-            ).toString()));
-          },
-        ),
-      ));
-    }
+    await Future.delayed(Duration.zero); // Wait for navigatorKey to be set.
 
     try {
       packageInfo = await PackageInfo.fromPlatform();
@@ -299,6 +260,16 @@ $s''',
     }
 
     try {
+      if (prefs.getString('initAppVersion') == null) {
+        // First run.
+        prefs.setString('initAppVersion', packageInfo.version);
+        print('First run, assigning defaults.'); // ignore: avoid_print
+        assignDefaults();
+        _initialized = true;
+        notifyListeners();
+        return;
+      }
+
       //! Book selection.
       // First try migrating from previous version.
       String? bookMigrateString = prefs.getString('book');
@@ -340,27 +311,70 @@ $s''',
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
-    } catch (e /*, s*/) {
+    } catch (e, s) {
       // On any unexpected error, use default settings.
-      _book = defaultBook;
-      _scoreDisplay = defaultScoreDisplay;
-      _fontSize = defaultFontSize;
-      _appThemeMode = defaultAppThemeMode;
-      _sheetThemeMode = defaultSheetThemeMode;
-      _tapNavigation = defaultTapNavigation;
-      _isVerseBarPinned = defaultIsVerseBarPinned;
-      _isVerseBarEnabled = defaultIsVerseBarEnabled;
-      _isOledTheme = defaultIsOledTheme;
-      _searchNumericKeyboard = defaultSearchNumericKeyboard;
-      _selectedCue = defaultSelectedCue;
-      _cueStore = jsonDecode(defaultCueStore);
+      assignDefaults();
 
       // Show error message.
-      //showError('Hiba történt a beállítások betöltése közben', e, s);
+      showError('Hiba történt a beállítások betöltése közben', e, s);
     }
 
     notifyListeners();
     _initialized = true;
+  }
+
+  void assignDefaults() {
+    _book = defaultBook;
+    _scoreDisplay = defaultScoreDisplay;
+    _fontSize = defaultFontSize;
+    _appThemeMode = defaultAppThemeMode;
+    _sheetThemeMode = defaultSheetThemeMode;
+    _tapNavigation = defaultTapNavigation;
+    _isVerseBarPinned = defaultIsVerseBarPinned;
+    _isVerseBarEnabled = defaultIsVerseBarEnabled;
+    _isOledTheme = defaultIsOledTheme;
+    _searchNumericKeyboard = defaultSearchNumericKeyboard;
+    _selectedCue = defaultSelectedCue;
+    _cueStore = jsonDecode(defaultCueStore);
+  }
+
+  void showError(String message, Object? e, StackTrace? s) {
+    var messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.red,
+      duration: const Duration(minutes: 99),
+      // send email report
+      action: SnackBarAction(
+        label: 'Jelentés',
+        backgroundColor: Colors.grey[800],
+        textColor: Colors.white,
+        onPressed: () {
+          launchUrl(Uri.parse(Mailto(
+            to: ['app@reflabs.hu'],
+            subject:
+                'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
+            body: '''
+
+
+
+Írd le a vonal fölé, mit tapasztaltál a hiba fellépésekor. Csatolhatsz képet is.
+
+----
+
+$message
+
+$e
+
+$s''',
+          ).toString()));
+        },
+      ),
+    ));
   }
 
   // of method for easy access
