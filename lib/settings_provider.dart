@@ -306,8 +306,7 @@ class SettingsProvider extends ChangeNotifier {
       _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
           defaultSearchNumericKeyboard;
       _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
-      _cueStore = jsonDecode(
-          prefs.getString('setStore') ?? jsonDecode(defaultCueStore));
+      _cueStore = jsonDecode(prefs.getString('setStore') ?? defaultCueStore);
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
