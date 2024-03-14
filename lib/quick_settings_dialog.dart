@@ -34,7 +34,6 @@ class QuickSettingsDialog extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 child: FadingEdgeScrollView.fromScrollView(
-                  shouldDisposeScrollController: true,
                   child: ListView(
                     controller: ScrollController(),
                     shrinkWrap: true,
@@ -260,7 +259,6 @@ by RefLabs''',
                         SizedBox(
                           height: 50,
                           child: FadingEdgeScrollView.fromScrollView(
-                            shouldDisposeScrollController: true,
                             child: ListView(
                               controller: ScrollController(),
                               scrollDirection: Axis.horizontal,

@@ -138,7 +138,6 @@ class CuesPage extends StatelessWidget {
                     height: 45,
                     child: SafeArea(
                       child: FadingEdgeScrollView.fromScrollView(
-                        shouldDisposeScrollController: true,
                         child: ListView(
                           controller: ScrollController(),
                           scrollDirection: Axis.horizontal,
