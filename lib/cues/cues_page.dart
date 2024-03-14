@@ -71,31 +71,30 @@ class CuesPage extends StatelessWidget {
                     ),
                   ),
                   // And then the rest follows
-                  ...settings.cueStore.keys
-                      .map((cue) => DropdownMenuItem<String?>(
-                            value: cue,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    cue,
-                                    softWrap: false,
-                                    overflow: TextOverflow.fade,
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () => showDeleteCueDialog(
-                                      cue, context, settings),
-                                )
-                              ],
+                  ...settings.cueStore.keys.map(
+                    (cue) => DropdownMenuItem<String?>(
+                      value: cue,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              cue,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.normal),
                             ),
-                          ))
-                      .toList()
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () =>
+                                showDeleteCueDialog(cue, context, settings),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             )),

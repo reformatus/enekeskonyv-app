@@ -14,12 +14,12 @@ import 'verse_bar.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({
-    Key? key,
+    super.key,
     required this.book,
     required this.songIndex,
     this.verseIndex = 0,
     this.initialCueIndex,
-  }) : super(key: key);
+  });
 
   final Book book;
   final int songIndex;

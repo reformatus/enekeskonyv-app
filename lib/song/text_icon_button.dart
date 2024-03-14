@@ -10,15 +10,14 @@ class TextIconButton extends StatelessWidget {
   final Alignment alignment;
 
   const TextIconButton(
-      {Key? key,
+      {super.key,
       this.tooltip,
       required this.text,
       required this.onTap,
       required this.iconData,
       required this.disabledColor,
       required this.alignment,
-      required this.context})
-      : super(key: key);
+      required this.context});
 
   @override
   Widget build(BuildContext context) {

@@ -15,7 +15,7 @@ void main() async {
 }
 
 class Enekeskonyv extends StatefulWidget {
-  const Enekeskonyv({Key? key}) : super(key: key);
+  const Enekeskonyv({super.key});
 
   @override
   State<Enekeskonyv> createState() => _EnekeskonyvState();

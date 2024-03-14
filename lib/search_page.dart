@@ -24,11 +24,11 @@ class SearchVerse {
 
 class SearchPage extends StatefulWidget {
   const SearchPage({
-    Key? key,
+    super.key,
     required this.book,
     required this.settingsProvider,
     this.addToCueSearch = false,
-  }) : super(key: key);
+  });
 
   final Book book;
   final SettingsProvider settingsProvider;

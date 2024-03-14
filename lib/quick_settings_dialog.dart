@@ -19,8 +19,7 @@ class QuickSettingsDialog extends StatelessWidget {
   final int verseIndex;
 
   const QuickSettingsDialog(
-      {Key? key, this.songKey, this.songData, this.book, this.verseIndex = 0})
-      : super(key: key);
+      {super.key, this.songKey, this.songData, this.book, this.verseIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -340,8 +339,8 @@ class RelatedTile extends StatelessWidget {
     required this.songLink,
     required this.relatedReason,
     required this.provider,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final String songLink;
   final String relatedReason;
@@ -387,8 +386,8 @@ class SettingsSectionTitle extends StatelessWidget {
   const SettingsSectionTitle(
     this.title, {
     this.subtitle = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

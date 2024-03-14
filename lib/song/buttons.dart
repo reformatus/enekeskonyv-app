@@ -10,8 +10,7 @@ class ControllerButtons extends StatelessWidget {
   final Orientation orientation;
   final TickerProvider vsync;
   const ControllerButtons(
-      {Key? key, required this.orientation, required this.vsync})
-      : super(key: key);
+      {super.key, required this.orientation, required this.vsync});
 
   @override
   Widget build(BuildContext context) {
