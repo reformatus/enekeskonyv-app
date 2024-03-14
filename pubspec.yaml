@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   flutter_svg: ^2.0.4
-  wakelock: any
+  wakelock_plus: ^1.1.0
   provider: ^6.0.4
   shared_preferences: ^2.0.15
   url_launcher: ^6.1.14
@@ -23,7 +23,7 @@ dependencies:
   app_links: ^4.0.0
   qr_flutter: ^4.1.0
   share_plus: ^7.0.0
-  package_info_plus: ^5.0.1
+  package_info_plus: ^5.0.0
 
 dev_dependencies:
   integration_test:
