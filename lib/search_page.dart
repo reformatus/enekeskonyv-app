@@ -224,6 +224,8 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                 getVerseId(widget.settingsProvider.book, element.songKey,
                     element.verseIndex))
             .then((_) {
+          if (!mounted) return;
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,

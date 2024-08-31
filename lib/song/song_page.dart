@@ -74,7 +74,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                 seedColor:
                     state.book == Book.black ? Colors.amber : Colors.blue,
                 brightness: settings.getCurrentSheetBrightness(context),
-                background: settings.isOledTheme &&
+                surface: settings.isOledTheme &&
                         settings.getCurrentSheetBrightness(context) ==
                             Brightness.dark
                     ? Colors.black
@@ -97,7 +97,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                             ? Brightness.dark
                             : Brightness.light,
                     systemNavigationBarColor:
-                        Theme.of(context).colorScheme.background,
+                        Theme.of(context).colorScheme.surface,
                   ),
                 ),
               ),

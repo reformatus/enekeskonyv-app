@@ -6,7 +6,7 @@ publish_to: 'none'
 version: 3.1.0+47
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.5.1 <4.0.0'
 
 dependencies:
   flutter:
@@ -20,17 +20,17 @@ dependencies:
   mailto: ^2.0.0
   fading_edge_scrollview: ^4.1.1
   diacritic: ^0.1.4
-  app_links: ^4.0.0
+  app_links: ^6.3.0
   qr_flutter: ^4.1.0
-  share_plus: ^7.0.0
-  package_info_plus: ^5.0.0
+  share_plus: ^10.0.2
+  package_info_plus: ^8.0.2
 
 dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   flutter_launcher_icons: ^0.13.1
 
 flutter_icons:

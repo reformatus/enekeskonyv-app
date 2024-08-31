@@ -40,7 +40,7 @@ class _EnekeskonyvState extends State<Enekeskonyv> {
                 seedColor:
                     settings.book == Book.black ? Colors.amber : Colors.blue,
                 brightness: settings.getCurrentAppBrightness(context),
-                background: settings.isOledTheme &&
+                surface: settings.isOledTheme &&
                         settings.getCurrentAppBrightness(context) ==
                             Brightness.dark
                     ? Colors.black

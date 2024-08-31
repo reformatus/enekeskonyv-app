@@ -35,7 +35,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> initDeepLinks() async {
     _appLinks = AppLinks();
 
-    _linkSubscription = _appLinks.allUriLinkStream.listen((uri) {
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      if (!mounted) return;
+
       var error = openAppLink(uri, context);
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -125,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                       ? Brightness.dark
                       : Brightness.light,
               systemNavigationBarColor:
-                  Theme.of(context).colorScheme.background,
+                  Theme.of(context).colorScheme.surface,
             ),
             title: Tooltip(
               message: 'Válassz énekeskönyvet',

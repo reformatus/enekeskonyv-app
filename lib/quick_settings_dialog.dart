@@ -297,9 +297,9 @@ by RefLabs''',
                                         ),
                                         FilledButton(
                                           onPressed: () {
-                                            settings.factoryReset().then(
-                                                (value) =>
-                                                    Navigator.pop(context));
+                                            settings.factoryReset().then((value) =>
+                                                // ignore: use_build_context_synchronously
+                                                Navigator.pop(context));
                                           },
                                           child: const Text('Végleges törlés!'),
                                         ),

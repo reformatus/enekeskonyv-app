@@ -19,7 +19,7 @@ class ControllerButtons extends StatelessWidget {
       return Builder(
         builder: (BuildContext context) {
           return Material(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             child: Flex(
               direction: orientation == Orientation.portrait
                   ? Axis.vertical
