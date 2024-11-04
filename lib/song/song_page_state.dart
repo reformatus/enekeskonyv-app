@@ -15,8 +15,7 @@ class SongStateProvider extends ChangeNotifier {
   late TabController tabController;
   bool isVerseBarVisible = true;
   // To make sure verse bar hides after opening a page, we subtract a few seconds.
-  DateTime barLastShownAtTime =
-      DateTime.now().subtract(const Duration(seconds: 10));
+  DateTime barLastShownAtTime = DateTime.now().subtract(const Duration(seconds: 10));
   Timer? verseBarHideTimer;
   List<Widget> tabs = [];
   Map<int, GlobalKey> tabKeys = {};
@@ -42,26 +41,19 @@ class SongStateProvider extends ChangeNotifier {
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context, inCue),
-        initialIndex: (inCue ||
-                SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
-            ? verse
-            : 0,
+        initialIndex: (inCue || SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all) ? verse : 0,
         initial: true);
     showThenHideVerseBar();
   }
 
   void initTabController(
-      {int? numOfPages,
-      int? initialIndex,
-      bool initial = false,
-      required TickerProvider vsync}) {
+      {int? numOfPages, int? initialIndex, bool initial = false, required TickerProvider vsync}) {
     initialIndex ??= tabController.index;
     numOfPages ??= tabController.length;
 
     tabs.clear();
 
-    tabController = TabController(
-        initialIndex: initialIndex, length: numOfPages, vsync: vsync);
+    tabController = TabController(initialIndex: initialIndex, length: numOfPages, vsync: vsync);
 
     for (var i = 0; i < tabController.length; i++) {
       GlobalKey key = GlobalKey();
@@ -87,13 +79,10 @@ class SongStateProvider extends ChangeNotifier {
     });
   }
 
-  void settingsListener(
-      {required BuildContext context, required TickerProvider vsync}) {
+  void settingsListener({required BuildContext context, required TickerProvider vsync}) {
     if (tabController.length != getNumOfPages(book, songKey, context, inCue)) {
       initTabController(
-          vsync: vsync,
-          numOfPages: getNumOfPages(book, songKey, context, inCue),
-          initialIndex: 0);
+          vsync: vsync, numOfPages: getNumOfPages(book, songKey, context, inCue), initialIndex: 0);
     }
   }
 
@@ -102,8 +91,9 @@ class SongStateProvider extends ChangeNotifier {
   String get songKey => songBooks[book.name].keys.elementAt(song);
 
   void showThenHideVerseBar() {
-    if (DateTime.now().difference(barLastShownAtTime) <
-        const Duration(seconds: 1)) return;
+    if (DateTime.now().difference(barLastShownAtTime) < const Duration(seconds: 1)) {
+      return;
+    }
     isVerseBarVisible = true;
     if (verseBarHideTimer != null) verseBarHideTimer!.cancel();
     verseBarHideTimer = Timer(const Duration(seconds: 2), () {
@@ -135,8 +125,7 @@ class SongStateProvider extends ChangeNotifier {
     } else {
       // Only allow switching to the previous verse when all verses should
       // have scores (and there _is_ a previous verse).
-      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
-          verse > 0) {
+      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) && verse > 0) {
         verse--;
       } else if (song > 0) {
         song--;
@@ -157,9 +146,7 @@ class SongStateProvider extends ChangeNotifier {
         verseBarKey = GlobalKey();
 
         initTabController(
-            vsync: vsync,
-            numOfPages: getNumOfPages(book, songKey, context, inCue),
-            initialIndex: verse);
+            vsync: vsync, numOfPages: getNumOfPages(book, songKey, context, inCue), initialIndex: verse);
 
         scrollController.jumpTo(0);
       } else {
@@ -170,10 +157,7 @@ class SongStateProvider extends ChangeNotifier {
     showThenHideVerseBar();
   }
 
-  void switchSong(
-      {required bool next,
-      required BuildContext context,
-      required TickerProvider vsync}) {
+  void switchSong({required bool next, required BuildContext context, required TickerProvider vsync}) {
     next ? song++ : song--;
     verse = 0;
 
@@ -181,9 +165,7 @@ class SongStateProvider extends ChangeNotifier {
     verseBarKey = GlobalKey();
 
     initTabController(
-        vsync: vsync,
-        numOfPages: getNumOfPages(book, songKey, context, inCue),
-        initialIndex: 0);
+        vsync: vsync, numOfPages: getNumOfPages(book, songKey, context, inCue), initialIndex: 0);
 
     scrollController.jumpTo(0);
     notifyListeners();
@@ -214,26 +196,18 @@ class SongStateProvider extends ChangeNotifier {
     }
   }
 
-  void advanceCue(
-      BuildContext context, SettingsProvider settings, TickerProvider vsync,
+  void advanceCue(BuildContext context, SettingsProvider settings, TickerProvider vsync,
       {bool backward = false}) {
     if (backward) {
       changeToVerseIdInCue(
-          settings.cueStore[settings.selectedCue][_cueIndex! - 1],
-          _cueIndex! - 1,
-          context,
-          vsync);
+          settings.cueStore[settings.selectedCue][_cueIndex! - 1], _cueIndex! - 1, context, vsync);
     } else {
       changeToVerseIdInCue(
-          settings.cueStore[settings.selectedCue][_cueIndex! + 1],
-          _cueIndex! + 1,
-          context,
-          vsync);
+          settings.cueStore[settings.selectedCue][_cueIndex! + 1], _cueIndex! + 1, context, vsync);
     }
   }
 
-  void changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context,
-      TickerProvider vsync) {
+  void changeToVerseIdInCue(String verseId, int cueIndex, BuildContext context, TickerProvider vsync) {
     var parts = verseId.split('.');
     Book book = Book.values.firstWhere((b) => b.name == parts[0]);
     String songKey = parts[1];
@@ -250,10 +224,7 @@ class SongStateProvider extends ChangeNotifier {
     initTabController(
         vsync: vsync,
         numOfPages: getNumOfPages(book, songKey, context, inCue),
-        initialIndex: (inCue ||
-                SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
-            ? verse
-            : 0,
+        initialIndex: (inCue || SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all) ? verse : 0,
         initial: true);
 
     scrollController.jumpTo(0);

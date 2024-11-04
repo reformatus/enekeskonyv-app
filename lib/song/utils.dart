@@ -4,8 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../settings_provider.dart';
 import 'song_page_state.dart';
 
-List<Widget> getFirstVerseHeader(
-    Book book, String songKey, BuildContext context) {
+List<Widget> getFirstVerseHeader(Book book, String songKey, BuildContext context) {
   final List<Widget> firstVerseHeader = [];
   switch (book) {
     // In case of the black book (48), the subtitle and the composer should
@@ -65,16 +64,15 @@ List<Widget> getFirstVerseHeader(
   return firstVerseHeader;
 }
 
-Widget getScore(Orientation orientation, int verseIndex, Book book,
-    String songKey, BuildContext context) {
+Widget getScore(Orientation orientation, int verseIndex, Book book, String songKey, BuildContext context) {
   // The actual verse number is the number (well, any text) before the first
   // dot of the verse text.
-  final verseNumber =
-      songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0];
+  final verseNumber = songBooks[book.name][songKey]['texts'][verseIndex].split('.')[0];
   final fileName =
       // ignore: prefer_interpolation_to_compose_strings
       'assets/ref${book.name}/ref${book.name}-' +
           songKey.padLeft(3, '0') +
+          // ignore: prefer_interpolation_to_compose_strings
           '-' +
           verseNumber.padLeft(3, '0') +
           '.svg';
@@ -84,8 +82,7 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
     // size. This covers two cases:
     // - rotating the device,
     // - devices with different widths.
-    width: MediaQuery.of(context).size.width *
-        ((orientation == Orientation.portrait) ? 1.0 : 0.7),
+    width: MediaQuery.of(context).size.width * ((orientation == Orientation.portrait) ? 1.0 : 0.7),
     colorFilter: ColorFilter.mode(
       Theme.of(context).textTheme.titleSmall!.color!,
       BlendMode.srcIn,
@@ -93,8 +90,7 @@ Widget getScore(Orientation orientation, int verseIndex, Book book,
   );
 }
 
-void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
-    TickerProvider vsync) {
+void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition, TickerProvider vsync) {
   var settings = SettingsProvider.of(context);
   var state = SongStateProvider.of(context);
 
@@ -112,10 +108,7 @@ void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
     } else {
       // Go backward (to the previous verse).
       state.switchVerse(
-          next: false,
-          settingsProvider: SettingsProvider.of(context),
-          context: context,
-          vsync: vsync);
+          next: false, settingsProvider: SettingsProvider.of(context), context: context, vsync: vsync);
     }
   } else {
     if (state.inCue) {
@@ -125,10 +118,7 @@ void onTapUp(TapUpDetails details, BuildContext context, Offset tapDownPosition,
     } else {
       // Go forward (to the next verse).
       state.switchVerse(
-          next: true,
-          settingsProvider: SettingsProvider.of(context),
-          context: context,
-          vsync: vsync);
+          next: true, settingsProvider: SettingsProvider.of(context), context: context, vsync: vsync);
     }
   }
 }

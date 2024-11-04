@@ -59,7 +59,6 @@ class SettingsProvider extends ChangeNotifier {
         return '48';
 
       case Book.blue:
-      default:
         return '21';
     }
   }
@@ -407,7 +406,6 @@ String getScoreDisplayName(ScoreDisplay scoreDisplay) {
       return 'Nincs';
 
     case ScoreDisplay.all:
-    default:
       return 'Minden vers';
   }
 }
