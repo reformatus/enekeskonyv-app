@@ -3,7 +3,7 @@ description: Református Énekeskönyv (21/48)
 
 publish_to: 'none'
 
-version: 3.1.2+51
+version: 3.1.2+52
 
 environment:
   sdk: '>=3.5.3 <4.0.0'
