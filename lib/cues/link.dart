@@ -77,8 +77,9 @@ String? openAppLink(Uri uri, BuildContext context) {
       settings.saveCue(cueName, cueContent);
       settings.changeSelectedCue(cueName);
 
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => CuesPage(context)));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => CuesPage(context)));
 
       return null;
     default:
@@ -86,8 +87,12 @@ String? openAppLink(Uri uri, BuildContext context) {
   }
 }
 
-Future showShareDialog(BuildContext context, String title,
-    {List<String>? cueContent, String? verseId}) {
+Future showShareDialog(
+  BuildContext context,
+  String title, {
+  List<String>? cueContent,
+  String? verseId,
+}) {
   String linkToShare;
 
   if (cueContent == null) {
@@ -123,11 +128,13 @@ Future showShareDialog(BuildContext context, String title,
                 data: linkToShare,
                 version: QrVersions.auto,
                 eyeStyle: QrEyeStyle(
-                    eyeShape: QrEyeShape.circle,
-                    color: Theme.of(context).colorScheme.secondary),
+                  eyeShape: QrEyeShape.circle,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
                 dataModuleStyle: QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.circle,
-                    color: Theme.of(context).colorScheme.secondary),
+                  dataModuleShape: QrDataModuleShape.circle,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
                 gapless: false,
               ),
             ),
@@ -170,7 +177,7 @@ Ha a linket megnyitó telefonon nincs telepítve az alkalmazás:
 Átirányítjuk a megfelelő alkalmazásboltba, ahol telepítheti az alkalmazást.'''),
                     ),
                   ),
-                )
+                ),
               ],
             ),
             Wrap(
@@ -178,7 +185,9 @@ Ha a linket megnyitó telefonon nincs telepítve az alkalmazás:
               children: [
                 ElevatedButton.icon(
                   label: const Text('Megosztás'),
-                  onPressed: () => Share.share(linkToShare),
+                  onPressed: () => SharePlus.instance.share(
+                    ShareParams(uri: Uri.parse(linkToShare)),
+                  ),
                   icon: const Icon(Icons.share),
                 ),
                 const SizedBox(width: 10),
