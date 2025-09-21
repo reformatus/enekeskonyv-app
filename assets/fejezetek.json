@@ -1,0 +1,93 @@
+{
+  "48": {
+    "Előszó": "Előszó",
+    "I. Zsoltárok": "1",
+    "II. Fohászkodások": {
+      "Kezdő és gyülekező énekek": "151",
+      "Igehirdetés előtti énekek": "171",
+      "Bűnbánati fohászkodások": "179",
+      "Ünnepi fohászkodások": "181",
+      "Záró énekek": "192"
+    },
+    "III. Hitvalló dicséretek és lelki énekek": {
+      "Az egyetlen vigasztalásról": "201",
+      "Az ember nyomorúságáról": "205",
+      "Az ember megváltásáról": "224",
+      "Az igaz hitről": "231",
+      "A Szentháromságról": "241",
+      "A teremtő Atya Istenről": "247",
+      "Az Istennek gondviseléséről": "254",
+      "A Fiu Istenről": "286",
+      "Az Ige testet öltéséről": "254",
+      "Krisztus szenvedéséről és haláláról": "330",
+      "Krisztus feltámadásáról": "347",
+      "Krisztus mennybemeneteléről": "358",
+      "Krisztus ítéletre eljöveteléről": "362",
+      "A Szentlélek Istenről": "368",
+      "Az Anyaszentegyházról": "378",
+      "A test feltámadásáról és az örök életről": "399",
+      "A kegyelemből hit által való megigazulásról": "423",
+      "A sákramentumokról": "429",
+      "A háládatosságról és a megtérésről": "449",
+      "Az Isten törvényéről": "473",
+      "Az imádkozásról": {
+        "Reggeli énekek": "485",
+        "Estvéli énekek": "500"
+      }
+    },
+    "IV. Himnusz": "Himnusz",
+    "V. Szentírásbeli és hitvallási részek": "Isten törvénye"
+  },
+  "21": {
+    "Ajánlás": "Ajánlás",
+    "Előszó": "Előszó",
+    "Zsoltárok": {
+      "Genfi zsoltárok": "1",
+      "Zsoltárdicséretek": "151"
+    },
+    "Dicséretek": {
+      "Istentisztelet": {
+        "Kezdőénekek": "201",
+        "Főénekek": "221",
+        "Könyörgések, fohászkodások": "261",
+        "Záróénekek": "281"
+      },
+      "Hitünk alapjai": {
+        "Szentírás": "311",
+        "Hitvallás": "321",
+        "Imádság": "331",
+        "Keresztség": "341",
+        "Úrvacsora": "351"
+      },
+      "Az egyházi év": {
+        "Advent – Jézus Krisztus eljövetele": "371",
+        "Karácsony – Jézus Krisztus születése": "401",
+        "Óév, újév – Jézus Krisztus a kezdet és a vég": "431",
+        "Vízkereszt ideje – Jézus Krisztus messiási küldetése": "441",
+        "Böjt – Jézus Krisztus kínszenvedése és halála": "461",
+        "Nagyhét – Jézus Krisztus kínszenvedése és halála": "481",
+        "Húsvét ideje – Jézus Krisztus feltámadása": "501",
+        "Mennybemenetel – Jézus Krisztus megdicsőülése": "531",
+        "Pünkösd – A Szentlélek eljövetele": "541",
+        "Szentháromság ideje – Keresztyén élet a Szentlélek erőterében": "561",
+        "Anyaszentegyház, reformáció": "581",
+        "Keresztyén reménység – Jézus Krisztus visszajövetele": "601"
+      },
+      "Egyéb ünnepek énekei": "641",
+      "Napi énekek": {
+        "Reggel": "651",
+        "Napközben, asztali áldások": "671",
+        "Este": "681"
+      }
+    },
+    "Bibliaköri énekek": {
+      "Könyörgés, bűnbánat": "711",
+      "Bizalom Istenben": "741",
+      "Hitvallás, hála": "791",
+      "Keresztyén élet": "821",
+      "Áldás": "841"
+    },
+    "Istentiszteleti rész": "Isten törvénye",
+    "Függelék": "Tájékoztató az énekeskönyvről"
+  }
+}
