@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:enekeskonyv/home/chapter_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Map<String, dynamic> songBooks = {};
+Map<String, List<HomePageItem>> chapterTree = {};
 
 class SettingsProvider extends ChangeNotifier {
   late GlobalKey<NavigatorState> navigatorKey;
@@ -283,8 +285,9 @@ class SettingsProvider extends ChangeNotifier {
       }
 
       //! Score appearance.
-      _scoreDisplay = ScoreDisplay.values[
-          prefs.getInt('scoreDisplayEnum') ?? defaultScoreDisplay.index];
+      _scoreDisplay =
+          ScoreDisplay.values[prefs.getInt('scoreDisplayEnum') ??
+              defaultScoreDisplay.index];
 
       _fontSize = prefs.getDouble('fontSize') ?? defaultFontSize;
 
@@ -292,8 +295,9 @@ class SettingsProvider extends ChangeNotifier {
       _appThemeMode = ThemeMode
           .values[prefs.getInt('appThemeMode') ?? defaultAppThemeMode.index];
 
-      _sheetThemeMode = ThemeMode.values[
-          prefs.getInt('sheetThemeMode') ?? defaultSheetThemeMode.index];
+      _sheetThemeMode =
+          ThemeMode.values[prefs.getInt('sheetThemeMode') ??
+              defaultSheetThemeMode.index];
 
       //! Others
       _tapNavigation = prefs.getBool('tapNavigation') ?? defaultTapNavigation;
@@ -302,7 +306,8 @@ class SettingsProvider extends ChangeNotifier {
       _isVerseBarEnabled =
           prefs.getBool('isVerseBarEnabled') ?? defaultIsVerseBarEnabled;
       _isOledTheme = prefs.getBool('isOledTheme') ?? defaultIsOledTheme;
-      _searchNumericKeyboard = prefs.getBool('searchNumericKeyboard') ??
+      _searchNumericKeyboard =
+          prefs.getBool('searchNumericKeyboard') ??
           defaultSearchNumericKeyboard;
       _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
       _cueStore = jsonDecode(prefs.getString('setStore') ?? defaultCueStore);
@@ -339,24 +344,25 @@ class SettingsProvider extends ChangeNotifier {
   void showError(String message, Object? e, StackTrace? s) {
     var messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
 
-    messenger.showSnackBar(SnackBar(
-      content: Text(
-        message,
-        style: const TextStyle(color: Colors.white),
-      ),
-      backgroundColor: Colors.red,
-      duration: const Duration(minutes: 99),
-      // send email report
-      action: SnackBarAction(
-        label: 'Jelentés',
-        backgroundColor: Colors.grey[800],
-        textColor: Colors.white,
-        onPressed: () {
-          launchUrl(Uri.parse(Mailto(
-            to: ['app@reflabs.hu'],
-            subject:
-                'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
-            body: '''
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+        duration: const Duration(minutes: 99),
+        // send email report
+        action: SnackBarAction(
+          label: 'Jelentés',
+          backgroundColor: Colors.grey[800],
+          textColor: Colors.white,
+          onPressed: () {
+            launchUrl(
+              Uri.parse(
+                Mailto(
+                  to: ['app@reflabs.hu'],
+                  subject:
+                      'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
+                  body:
+                      '''
 
 
 
@@ -369,10 +375,13 @@ $message
 $e
 
 $s''',
-          ).toString()));
-        },
+                ).toString(),
+              ),
+            );
+          },
+        ),
       ),
-    ));
+    );
   }
 
   // of method for easy access

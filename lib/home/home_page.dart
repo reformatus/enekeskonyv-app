@@ -262,28 +262,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, i) {
-                    return ListTile(
-                      title: Text(
-                        getSongTitle(
-                          songBooks[settings.bookAsString][songBooks[settings
-                                  .bookAsString]
-                              .keys
-                              .elementAt(i)],
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                SongPage(book: settings.book, songIndex: i),
-                          ),
-                        );
-                      },
-                      key: const Key('_MyHomePageState.ListTile'),
-                    );
-                  }, childCount: songBooks[settings.bookAsString].length),
+                SliverList.list(
+                  children: buildHomepageItems(
+                    chapterTree[settings.bookAsString]!,
+                    settings,
+                  ),
                 ),
               ],
             ),
@@ -291,6 +274,63 @@ class _HomePageState extends State<HomePage> {
           key: const Key('_MyHomePageState'),
         );
       },
+    );
+  }
+}
+
+List<Widget> buildHomepageItems(
+  List<HomePageItem> items,
+  SettingsProvider settings,
+) {
+  return items
+      .map<Iterable<Widget>>(
+        (e) => switch (e) {
+          HomePageChapterItem chapter => [
+            HomePageChapterWidget(chapter, settings),
+          ],
+          HomePageSongsItem songs => songs.songKeys.map(
+            (k) => HomePageSongWidget(k, settings),
+          ),
+        },
+      )
+      .reduce((j, k) => j.followedBy(k))
+      .toList();
+}
+
+class HomePageSongWidget extends StatelessWidget {
+  const HomePageSongWidget(this.songKey, this.settings, {super.key});
+  final String songKey;
+  final SettingsProvider settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(getSongTitle(songBooks[settings.bookAsString][songKey])),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SongPage(
+              book: settings.book,
+              songIndex: songBooks.keys.toList().indexOf(songKey),
+            ),
+          ),
+        );
+      },
+      key: const Key('_MyHomePageState.ListTile'),
+    );
+  }
+}
+
+class HomePageChapterWidget extends StatelessWidget {
+  const HomePageChapterWidget(this.chapterItem, this.settings, {super.key});
+  final HomePageChapterItem chapterItem;
+  final SettingsProvider settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: Text(chapterItem.title),
+      children: buildHomepageItems(chapterItem.children, settings),
     );
   }
 }
