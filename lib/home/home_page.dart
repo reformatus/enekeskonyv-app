@@ -87,14 +87,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    // final selectedBook = Settings.getValue<String>('book', defaultValue: '48');
-
     // On the initial run this might be empty (while the song file is not read
     // yet). To prevent errors below, let's display a throbber instead.
 
