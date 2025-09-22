@@ -105,171 +105,164 @@ class _HomePageState extends State<HomePage> {
         }
 
         return Scaffold(
-          body: Scrollbar(
-            thickness: 10,
-            interactive: true,
-            radius: const Radius.circular(10),
+          body: CustomScrollView(
             controller: scrollController,
-            child: CustomScrollView(
-              controller: scrollController,
-              physics: isIOS ? const BouncingScrollPhysics() : null,
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  floating: true,
+            physics: isIOS ? const BouncingScrollPhysics() : null,
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                floating: true,
 
-                  expandedHeight: 105,
-                  toolbarHeight: 0,
-                  automaticallyImplyLeading: false,
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarBrightness: settings.getCurrentAppBrightness(
-                      context,
-                    ),
-                    statusBarIconBrightness:
-                        settings.getCurrentAppBrightness(context) ==
-                            Brightness.light
-                        ? Brightness.dark
-                        : Brightness.light,
-                    systemNavigationBarColor: Theme.of(
-                      context,
-                    ).colorScheme.surface,
+                expandedHeight: 105,
+                toolbarHeight: 0,
+                automaticallyImplyLeading: false,
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  statusBarBrightness: settings.getCurrentAppBrightness(
+                    context,
                   ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    collapseMode: CollapseMode.parallax,
-                    background: SafeArea(
-                      bottom: false,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16, right: 5),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Tooltip(
-                                message: 'Válassz énekeskönyvet',
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<Book>(
-                                    value: settings.book,
-                                    isExpanded: true,
-                                    items: Book.values
-                                        .map(
-                                          (e) => DropdownMenuItem(
-                                            value: e,
-                                            child: Text(
-                                              '${e.displayName} énekeskönyv',
-                                              overflow: TextOverflow.fade,
-                                              softWrap: false,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: 20,
-                                              ),
+                  statusBarIconBrightness:
+                      settings.getCurrentAppBrightness(context) ==
+                          Brightness.light
+                      ? Brightness.dark
+                      : Brightness.light,
+                  systemNavigationBarColor: Theme.of(
+                    context,
+                  ).colorScheme.surface,
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.parallax,
+                  background: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 5),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Tooltip(
+                              message: 'Válassz énekeskönyvet',
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<Book>(
+                                  value: settings.book,
+                                  isExpanded: true,
+                                  items: Book.values
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                          value: e,
+                                          child: Text(
+                                            '${e.displayName} énekeskönyv',
+                                            overflow: TextOverflow.fade,
+                                            softWrap: false,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 20,
                                             ),
                                           ),
-                                        )
-                                        .toList(),
-                                    onChanged: (value) =>
-                                        settings.changeBook(value!),
-                                  ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (value) =>
+                                      settings.changeBook(value!),
                                 ),
                               ),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      const QuickSettingsDialog(),
-                                );
-                              },
-                              icon: const Icon(Icons.settings),
-                              tooltip: 'Beállítások',
-                              key: const Key('_MyHomePageState.SettingsButton'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(58),
-                    child: SafeArea(
-                      top: false,
-                      child: IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Card(
-                                key: const Key(
-                                  '_MyHomePageState.SearchSongButton',
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                elevation: 3,
-                                margin: const EdgeInsets.all(7),
-                                semanticContainer: true,
-                                child: InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => SearchPage(
-                                        book: settings.book,
-                                        settingsProvider: settings,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: Icon(Icons.search),
-                                      ),
-                                      Text(
-                                        'Keresés vagy ugrás...',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Tooltip(
-                              message: 'Kedvencek és listák',
-                              child: Card(
-                                margin: const EdgeInsets.only(
-                                  top: 7,
-                                  right: 7,
-                                  bottom: 7,
-                                ),
-                                elevation: 3,
-                                clipBehavior: Clip.antiAlias,
-                                child: InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => CuesPage(context),
-                                    ),
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Center(child: Icon(Icons.star)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    const QuickSettingsDialog(),
+                              );
+                            },
+                            icon: const Icon(Icons.settings),
+                            tooltip: 'Beállítások',
+                            key: const Key('_MyHomePageState.SettingsButton'),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                SliverList.list(
-                  children: buildHomepageItems(
-                    chapterTree[settings.bookAsString]!,
-                    settings,
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(58),
+                  child: SafeArea(
+                    top: false,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Card(
+                              key: const Key(
+                                '_MyHomePageState.SearchSongButton',
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 3,
+                              margin: const EdgeInsets.all(7),
+                              semanticContainer: true,
+                              child: InkWell(
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchPage(
+                                      book: settings.book,
+                                      settingsProvider: settings,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Icon(Icons.search),
+                                    ),
+                                    Text(
+                                      'Keresés vagy ugrás...',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Tooltip(
+                            message: 'Kedvencek és listák',
+                            child: Card(
+                              margin: const EdgeInsets.only(
+                                top: 7,
+                                right: 7,
+                                bottom: 7,
+                              ),
+                              elevation: 3,
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => CuesPage(context),
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Center(child: Icon(Icons.star)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              SliverList.list(
+                children: buildHomepageItems(
+                  chapterTree[settings.bookAsString]!,
+                  settings,
+                ),
+              ),
+            ],
           ),
           key: const Key('_MyHomePageState'),
         );
@@ -280,13 +273,14 @@ class _HomePageState extends State<HomePage> {
 
 List<Widget> buildHomepageItems(
   List<HomePageItem> items,
-  SettingsProvider settings,
-) {
+  SettingsProvider settings, {
+  int initialDepth = 0,
+}) {
   return items
       .map<Iterable<Widget>>(
         (e) => switch (e) {
           HomePageChapterItem chapter => [
-            HomePageChapterWidget(chapter, settings),
+            HomePageChapterWidget(chapter, settings, depth: initialDepth),
           ],
           HomePageSongsItem songs => songs.songKeys.map(
             (k) => HomePageSongWidget(k, settings),
@@ -306,6 +300,7 @@ class HomePageSongWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(getSongTitle(songBooks[settings.bookAsString][songKey])),
+      dense: true,
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -322,15 +317,52 @@ class HomePageSongWidget extends StatelessWidget {
 }
 
 class HomePageChapterWidget extends StatelessWidget {
-  const HomePageChapterWidget(this.chapterItem, this.settings, {super.key});
+  const HomePageChapterWidget(
+    this.chapterItem,
+    this.settings, {
+    required this.depth,
+    super.key,
+  });
   final HomePageChapterItem chapterItem;
   final SettingsProvider settings;
+  final int depth;
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(chapterItem.title),
-      children: buildHomepageItems(chapterItem.children, settings),
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      elevation: switch (depth) {
+        0 => 0.0,
+        1 => 1.0,
+        2 => 6.0,
+        3 => 12.0,
+        _ => 20.0,
+      },
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      borderOnForeground: true,
+      child:
+          (chapterItem.children.length == 1 &&
+              chapterItem.children.first is HomePageSongsItem &&
+              (chapterItem.children.first as HomePageSongsItem)
+                      .songKeys
+                      .length ==
+                  1 &&
+              (chapterItem.children.first as HomePageSongsItem)
+                      .songKeys
+                      .first ==
+                  chapterItem.title)
+          ? HomePageSongWidget(chapterItem.title, settings)
+          : ExpansionTile(
+              shape: Border(),
+              visualDensity: VisualDensity.compact,
+              title: Text(chapterItem.title),
+              children: buildHomepageItems(
+                chapterItem.children,
+                settings,
+                initialDepth: depth + 1,
+              ),
+            ),
     );
   }
 }

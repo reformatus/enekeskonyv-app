@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 sealed class HomePageItem {}
 
 class HomePageSongsItem extends HomePageItem {
-  final String startingSongKey;
+  final String? startingSongKey;
   List<String> songKeys = [];
 
   HomePageSongsItem(this.startingSongKey);
@@ -28,7 +28,7 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
       (jsonDecode(await rootBundle.loadString('assets/fejezetek.json')) as Map);
 
   List<HomePageItem> getChapterTreeForBook(String bookKey) {
-    Iterable<MapEntry> chapters = chaptersJson[bookKey].entries;
+    Iterable<MapEntry> chapterEntries = chaptersJson[bookKey].entries;
 
     List<HomePageSongsItem> songsItems = [];
 
@@ -57,7 +57,10 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
       return items;
     }
 
-    List<HomePageItem> chapterTree = chaptersFromEntries(chapters);
+    List<HomePageItem> chapterTree = chaptersFromEntries(chapterEntries);
+    final firstSongsItem = HomePageSongsItem(null);
+    chapterTree.insert(0, firstSongsItem);
+    songsItems.insert(0, firstSongsItem);
 
     List<String> songKeys = (songBooks[bookKey] as Map<String, dynamic>).keys
         .toList();
@@ -68,10 +71,12 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
       // Does not handle songKey defined in fejezetek.json missing in enekeskonyv.json, make sure to validate data.
       item.songKeys.addAll(
         songKeys.getRange(
-          (i <= 0) ? 0 : songKeys.indexOf(item.startingSongKey),
+          item.startingSongKey == null
+              ? 0
+              : songKeys.indexOf(item.startingSongKey!),
           (i >= (songsItems.length - 1))
               ? songKeys.length
-              : songKeys.indexOf(songsItems[i + 1].startingSongKey),
+              : songKeys.indexOf(songsItems[i + 1].startingSongKey!),
         ),
       );
     }
