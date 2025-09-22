@@ -43,5 +43,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/enekeskonyv.json
+    - assets/fejezetek.json
     - assets/ref48/
     - assets/ref21/
