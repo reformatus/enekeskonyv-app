@@ -80,7 +80,9 @@ class SongStateProvider extends ChangeNotifier {
       tabs.add(
         Tab(
           key: key,
-          text: songBooks[book.name][songKey]['texts'][i].split('.')[0],
+          text: songBooks[book.name][songKey]['markdown'] != null
+              ? ""
+              : songBooks[book.name][songKey]['texts'][i].split('.')[0],
         ),
       );
       tabKeys[i] = key;
@@ -220,6 +222,7 @@ class SongStateProvider extends ChangeNotifier {
   }
 
   bool verseExists({required bool next}) {
+    if (songBooks[book.name][songKey]['markdown'] != null) return false;
     if (next) {
       return (verse < songBooks[book.name][songKey]['texts'].length - 1);
     } else {

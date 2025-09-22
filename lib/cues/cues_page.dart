@@ -366,9 +366,18 @@ Tippek:
     SettingsProvider settings,
   ) {
     Book book = Book.values.firstWhere((b) => b.name == bookName);
-    String verse = songBooks[bookName][songKey]['texts'][verseIndex];
-    String verseNumber = verse.split('.')[0];
-    String verseText = verse.substring(verseNumber.length + 2);
+    var song = songBooks[bookName][songKey];
+    String verse;
+    String? verseNumber;
+    String verseText;
+
+    if (song['markdown'] != null) {
+      verseText = song['markdown'];
+    } else {
+      verse = song['texts'][verseIndex];
+      verseNumber = verse.split('.')[0];
+      verseText = verse.substring(verseNumber.length + 2);
+    }
 
     return InkWell(
       key: GlobalKey(),
@@ -412,7 +421,10 @@ Tippek:
                       bottom: 5,
                     ),
                     child: Text(
-                      '$songKey. ${songBooks[bookName][songKey]['title']}',
+                      [
+                        if (song['number'] != null) '${song['number']}. ',
+                        '${song['title']}',
+                      ].join(),
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
@@ -429,15 +441,17 @@ Tippek:
                   padding: const EdgeInsets.all(11),
                   child: Row(
                     children: [
-                      Text(
-                        '$verseNumber. ',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      if (verseNumber != null)
+                        Text(
+                          '$verseNumber. ',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       Expanded(
                         child: Text(
                           verseText,
                           softWrap: false,
-                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

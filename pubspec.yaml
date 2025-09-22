@@ -24,6 +24,7 @@ dependencies:
   qr_flutter: ^4.1.0
   share_plus: ^11.1.0
   package_info_plus: ^8.0.2
+  markdown_widget: ^2.3.2+8
 
 dev_dependencies:
   integration_test:

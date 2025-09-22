@@ -9,33 +9,37 @@ class TextIconButton extends StatelessWidget {
   final BuildContext context;
   final Alignment alignment;
 
-  const TextIconButton(
-      {super.key,
-      this.tooltip,
-      required this.text,
-      required this.onTap,
-      required this.iconData,
-      required this.disabledColor,
-      required this.alignment,
-      required this.context});
+  const TextIconButton({
+    super.key,
+    this.tooltip,
+    required this.text,
+    required this.onTap,
+    required this.iconData,
+    required this.disabledColor,
+    required this.alignment,
+    required this.context,
+  });
 
   @override
   Widget build(BuildContext context) {
+    String? displayedText = text;
+    // Don't display button text when it wouldn't fit
+    if (text != null && text!.length > 8) {
+      displayedText = null;
+    }
     return Tooltip(
       message: tooltip,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Stack(
-            alignment: text != null ? alignment : Alignment.center,
+            alignment: displayedText != null ? alignment : Alignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
                 child: Text(
-                  text ?? '',
-                  style: TextStyle(
-                    color: onTap != null ? null : disabledColor,
-                  ),
+                  displayedText ?? '',
+                  style: TextStyle(color: onTap != null ? null : disabledColor),
                 ),
               ),
               Icon(
@@ -49,10 +53,7 @@ class TextIconButton extends StatelessWidget {
           InkWell(
             customBorder: const CircleBorder(),
             onTap: onTap,
-            child: const SizedBox(
-              width: 50,
-              height: 50,
-            ),
+            child: const SizedBox(width: 50, height: 50),
           ),
         ],
       ),

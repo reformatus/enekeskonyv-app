@@ -9,42 +9,54 @@ import 'text_icon_button.dart';
 class ControllerButtons extends StatelessWidget {
   final Orientation orientation;
   final TickerProvider vsync;
-  const ControllerButtons(
-      {super.key, required this.orientation, required this.vsync});
+  const ControllerButtons({
+    super.key,
+    required this.orientation,
+    required this.vsync,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<SettingsProvider, SongStateProvider>(
-        builder: (context, settings, state, child) {
-      return Builder(
-        builder: (BuildContext context) {
-          return Material(
-            color: Theme.of(context).colorScheme.surface,
-            child: Flex(
-              direction: orientation == Orientation.portrait
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              children: [
-                Flex(
-                  direction: orientation == Orientation.portrait
-                      ? Axis.horizontal
-                      : Axis.vertical,
-                  // Make the buttons "justified" (ie. use all the
-                  // screen width).
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: controllerButtons(settings, state, context, vsync),
-                ),
-                if (state.inCue) cueButtons(context, state, settings),
-              ],
-            ),
-          );
-        },
-      );
-    });
+      builder: (context, settings, state, child) {
+        return Builder(
+          builder: (BuildContext context) {
+            return Material(
+              color: Theme.of(context).colorScheme.surface,
+              child: Flex(
+                direction: orientation == Orientation.portrait
+                    ? Axis.vertical
+                    : Axis.horizontal,
+                children: [
+                  Flex(
+                    direction: orientation == Orientation.portrait
+                        ? Axis.horizontal
+                        : Axis.vertical,
+                    // Make the buttons "justified" (ie. use all the
+                    // screen width).
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: controllerButtons(
+                      settings,
+                      state,
+                      context,
+                      vsync,
+                    ),
+                  ),
+                  if (state.inCue) cueButtons(context, state, settings),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
-  Card cueButtons(BuildContext context, SongStateProvider state,
-      SettingsProvider settings) {
+  Card cueButtons(
+    BuildContext context,
+    SongStateProvider state,
+    SettingsProvider settings,
+  ) {
     return Card(
       color: Theme.of(context).colorScheme.secondaryContainer,
       shape: const StadiumBorder(),
@@ -58,10 +70,11 @@ class ControllerButtons extends StatelessWidget {
         children: [
           if (state.cueElementExists(settings, next: false))
             IconButton.filled(
-                tooltip: 'Előző listaelem',
-                onPressed: () =>
-                    state.advanceCue(context, settings, vsync, backward: true),
-                icon: const Icon(Icons.keyboard_double_arrow_left)),
+              tooltip: 'Előző listaelem',
+              onPressed: () =>
+                  state.advanceCue(context, settings, vsync, backward: true),
+              icon: const Icon(Icons.keyboard_double_arrow_left),
+            ),
           Expanded(
             child: RotatedBox(
               quarterTurns: orientation == Orientation.portrait ? 0 : 1,
@@ -71,9 +84,10 @@ class ControllerButtons extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 5),
                       child: cueVerseLinkText(
-                          settings.cueStore[settings.selectedCue]
-                              [state.cueIndex! - 1],
-                          state),
+                        settings.cueStore[settings
+                            .selectedCue][state.cueIndex! - 1],
+                        state,
+                      ),
                     ),
                   Expanded(
                     child: GestureDetector(
@@ -84,7 +98,8 @@ class ControllerButtons extends StatelessWidget {
                         child: Text(
                           settings.selectedCue,
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                           softWrap: false,
                           overflow: TextOverflow.fade,
                           textAlign: TextAlign.center,
@@ -96,9 +111,10 @@ class ControllerButtons extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: cueVerseLinkText(
-                          settings.cueStore[settings.selectedCue]
-                              [state.cueIndex! + 1],
-                          state),
+                        settings.cueStore[settings
+                            .selectedCue][state.cueIndex! + 1],
+                        state,
+                      ),
                     ),
                 ],
               ),
@@ -106,9 +122,10 @@ class ControllerButtons extends StatelessWidget {
           ),
           if (state.cueElementExists(settings, next: true))
             IconButton.filled(
-                tooltip: 'Következő listaelem',
-                onPressed: () => state.advanceCue(context, settings, vsync),
-                icon: const Icon(Icons.keyboard_double_arrow_right)),
+              tooltip: 'Következő listaelem',
+              onPressed: () => state.advanceCue(context, settings, vsync),
+              icon: const Icon(Icons.keyboard_double_arrow_right),
+            ),
         ],
       ),
     );
@@ -121,14 +138,20 @@ class ControllerButtons extends StatelessWidget {
     var verseIndex = int.parse(parts[2]);
 
     List<String> toDisplay = [
-      if (state.book.name != book) '($book)',
-      '$songKey/${songBooks[book][songKey]['texts'][verseIndex].split('.')[0]}'
+      if (state.book.name != book) '($book) ',
+      songKey,
+      if (songBooks[book][songKey]['texts'] != null)
+        '/${songBooks[book][songKey]['texts'][verseIndex].split('.')[0]}',
     ];
-    return Text(toDisplay.join(' '));
+    return Text(toDisplay.join());
   }
 
-  List<Widget> controllerButtons(SettingsProvider settings,
-      SongStateProvider state, BuildContext context, TickerProvider vsync) {
+  List<Widget> controllerButtons(
+    SettingsProvider settings,
+    SongStateProvider state,
+    BuildContext context,
+    TickerProvider vsync,
+  ) {
     return [
       if (settings.scoreDisplay == ScoreDisplay.all || state.inCue)
         IconButton(
@@ -138,7 +161,8 @@ class ControllerButtons extends StatelessWidget {
                   next: false,
                   settingsProvider: settings,
                   context: context,
-                  vsync: vsync)
+                  vsync: vsync,
+                )
               : null,
           icon: const Icon(Icons.arrow_circle_left_outlined),
           tooltip: 'Előző vers',
@@ -151,7 +175,7 @@ class ControllerButtons extends StatelessWidget {
             : null,
         onTap: state.songExists(next: false)
             ? () =>
-                state.switchSong(next: false, context: context, vsync: vsync)
+                  state.switchSong(next: false, context: context, vsync: vsync)
             : null,
         iconData: Icons.arrow_upward,
         tooltip: 'Előző ének',
@@ -214,7 +238,8 @@ class ControllerButtons extends StatelessWidget {
                   next: true,
                   settingsProvider: settings,
                   context: context,
-                  vsync: vsync)
+                  vsync: vsync,
+                )
               : null,
           icon: const Icon(Icons.arrow_circle_right_outlined),
           tooltip: 'Következő vers',
