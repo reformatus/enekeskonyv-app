@@ -3,18 +3,26 @@ import 'dart:convert';
 import 'package:enekeskonyv/settings_provider.dart';
 import 'package:flutter/services.dart';
 
-sealed class HomePageItem {}
+sealed class HomePageItem {
+  String? get startingSongKey;
+}
 
 class HomePageSongsItem extends HomePageItem {
-  final String? startingSongKey;
+  final String? _startingSongKey;
   List<String> songKeys = [];
 
-  HomePageSongsItem(this.startingSongKey);
+  @override
+  String? get startingSongKey => _startingSongKey;
+
+  HomePageSongsItem(this._startingSongKey);
 }
 
 class HomePageChapterItem extends HomePageItem {
   final String title;
   List<HomePageItem> children;
+
+  @override
+  String? get startingSongKey => children.firstOrNull?.startingSongKey;
 
   HomePageChapterItem(this.title, this.children);
 }

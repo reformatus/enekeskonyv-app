@@ -354,7 +354,20 @@ class HomePageChapterWidget extends StatelessWidget {
           : ExpansionTile(
               shape: Border(),
               visualDensity: VisualDensity.compact,
-              title: Text(chapterItem.title),
+              title: Row(
+                children: [
+                  Expanded(child: Text(chapterItem.title)),
+                  if (chapterItem.startingSongKey != null &&
+                      chapterItem.startingSongKey!.length < 7)
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(left: 5),
+                      child: Text(
+                        chapterItem.startingSongKey!,
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ),
+                ],
+              ),
               children: buildHomepageItems(
                 chapterItem.children,
                 settings,
