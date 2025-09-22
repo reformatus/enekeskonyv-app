@@ -13,10 +13,10 @@ String getVerseId(Book book, String songKey, int verseIndex) {
 
 class Verse {
   Book book;
-  int songIndex;
+  String songKey;
   int verseIndex;
 
-  Verse(this.book, this.songIndex, this.verseIndex);
+  Verse(this.book, this.songKey, this.verseIndex);
 }
 
 Verse parseVerseId(String verseId) {
@@ -37,8 +37,7 @@ Verse parseVerseId(String verseId) {
   }
 
   String songKey = parts[1];
-  int songIndex = songBooks[bookName].keys.toList().indexOf(songKey);
-  if (songIndex == -1) throw 'Ének nem található.';
+  if (!songBooks[bookName].containsKey(songKey)) throw 'Ének nem található.';
 
   int verseIndex;
   try {
@@ -51,5 +50,15 @@ Verse parseVerseId(String verseId) {
     throw 'Versszak nem található.';
   }
 
-  return Verse(book, songIndex, verseIndex);
+  return Verse(book, songKey, verseIndex);
+}
+
+// Helpers for translating between song index and key where needed.
+// Prefer using songKey across the app; these are for unavoidable cases.
+String songKeyFor(Book book, int songIndex) {
+  return songBooks[book.name].keys.elementAt(songIndex);
+}
+
+int songIndexFor(Book book, String songKey) {
+  return songBooks[book.name].keys.toList().indexOf(songKey);
 }

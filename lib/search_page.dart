@@ -52,16 +52,30 @@ class _SearchPageState extends State<SearchPage> {
     // search data source.
     songBooks[widget.book.name].forEach((key, value) {
       var verseIndex = 0;
-      value['texts'].forEach((valueText) {
-        var splitAtPosition = (valueText as String).indexOf('.');
-        allSearchVerses.add(SearchVerse(
-          songKey: key,
-          verseIndex: verseIndex,
-          verseNumber: valueText.substring(0, splitAtPosition),
-          text: valueText.substring(splitAtPosition + 1).trim(),
-        ));
-        verseIndex++;
-      });
+      if (value['texts'] != null && value['texts'].length > 0) {
+        value['texts'].forEach((valueText) {
+          var splitAtPosition = (valueText as String).indexOf('.');
+          allSearchVerses.add(
+            SearchVerse(
+              songKey: key,
+              verseIndex: verseIndex,
+              verseNumber: valueText.substring(0, splitAtPosition),
+              text: valueText.substring(splitAtPosition + 1).trim(),
+            ),
+          );
+          verseIndex++;
+        });
+      }
+      if (value['markdown'] != null) {
+        allSearchVerses.add(
+          SearchVerse(
+            songKey: key,
+            verseIndex: verseIndex,
+            verseNumber: "",
+            text: value['markdown'],
+          ),
+        );
+      }
     });
   }
 
@@ -82,26 +96,20 @@ class _SearchPageState extends State<SearchPage> {
 
         SearchVerse foundVerse;
         try {
-          foundVerse = allSearchVerses.firstWhere((element) =>
-              element.songKey == songNumber &&
-              element.verseNumber == verseNumber);
+          foundVerse = allSearchVerses.firstWhere(
+            (element) =>
+                element.songKey == songNumber &&
+                element.verseNumber == verseNumber,
+          );
         } catch (e) {
           return [errorMessageTile('Nincs ilyen versszak!')];
         }
         return [
-          foundSongTile(
-            songNumber,
-            foundByNumber: true,
-            firstResult: true,
-            [
-              foundVerseTile(
-                foundVerse,
-                foundByNumber: true,
-                foundFirst: true,
-                [TextSpan(text: foundVerse.text)],
-              )
-            ],
-          )
+          foundSongTile(songNumber, foundByNumber: true, firstResult: true, [
+            foundVerseTile(foundVerse, foundByNumber: true, foundFirst: true, [
+              TextSpan(text: foundVerse.text),
+            ]),
+          ]),
         ];
       } catch (e) {
         return [errorMessageTile('Helytelen formátum!')];
@@ -127,10 +135,11 @@ A találatokat azonnal hozzáfűzheted a kiválasztott listához.
 Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
 ''',
             style: TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Theme.of(context).colorScheme.secondary),
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
-        )
+        ),
       ];
     }
 
@@ -143,15 +152,19 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
 
     for (var element in allSearchVerses) {
       // Continue with next verse if search text is not found in this one.
-      if (!(getSearchableText(element.text)
-          .contains(getSearchableText(searchText)))) {
+      if (!(getSearchableText(
+        element.text,
+      ).contains(getSearchableText(searchText)))) {
         continue;
       }
       // Add the song card with its found verses.
       if (lastSongSeen != element.songKey && lastSongSeen.isNotEmpty) {
         searchResults.add(
-          foundSongTile(lastSongSeen, searchResultsFromSong,
-              firstResult: firstSong),
+          foundSongTile(
+            lastSongSeen,
+            searchResultsFromSong,
+            firstResult: firstSong,
+          ),
         );
         firstSong = false;
         searchResultsFromSong.clear();
@@ -159,17 +172,19 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
       lastSongSeen = element.songKey;
 
       // Highlight search text by making it bold.
-      var matchPosition = getSearchableText(element.text, filterLetters: false)
-          .indexOf(getSearchableText(searchText, filterLetters: false));
+      var matchPosition = getSearchableText(
+        element.text,
+        filterLetters: false,
+      ).indexOf(getSearchableText(searchText, filterLetters: false));
 
       List<TextSpan> titleSpans = [
         if (matchPosition >= 0) ...[
+          TextSpan(text: element.text.substring(0, matchPosition)),
           TextSpan(
-            text: element.text.substring(0, matchPosition),
-          ),
-          TextSpan(
-            text: element.text
-                .substring(matchPosition, matchPosition + searchText.length),
+            text: element.text.substring(
+              matchPosition,
+              matchPosition + searchText.length,
+            ),
             style: TextStyle(
               // This is the boldest possible choice.
               fontWeight: FontWeight.w900,
@@ -183,13 +198,19 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
         if (matchPosition == -1) TextSpan(text: element.text),
       ];
 
-      searchResultsFromSong
-          .add(foundVerseTile(element, titleSpans, foundFirst: firstVerse));
+      searchResultsFromSong.add(
+        foundVerseTile(element, titleSpans, foundFirst: firstVerse),
+      );
       firstVerse = false;
     }
     if (lastSongSeen.isNotEmpty) {
-      searchResults.add(foundSongTile(lastSongSeen, searchResultsFromSong,
-          firstResult: firstSong));
+      searchResults.add(
+        foundSongTile(
+          lastSongSeen,
+          searchResultsFromSong,
+          firstResult: firstSong,
+        ),
+      );
     }
 
     if (searchResults.isEmpty) {
@@ -199,44 +220,56 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
     return searchResults;
   }
 
-  Widget foundVerseTile(SearchVerse element, List<TextSpan> titleSpans,
-      {bool foundFirst = false, bool foundByNumber = false}) {
+  Widget foundVerseTile(
+    SearchVerse element,
+    List<TextSpan> titleSpans, {
+    bool foundFirst = false,
+    bool foundByNumber = false,
+  }) {
     onTap() {
       if (!widget.addToCueSearch) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return SongPage(
-                  book: widget.settingsProvider.book,
-                  songIndex: songBooks[widget.book.name]
-                      .keys
-                      .toList()
-                      .indexOf(element.songKey),
-                  verseIndex: element.verseIndex);
-            },
-          ),
-          // Request focus to show keyboard when returning from song page
-        ).then((value) => keyboardFocusNode.requestFocus());
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return SongPage(
+                    book: widget.settingsProvider.book,
+                    songKey: element.songKey,
+                    verseIndex: element.verseIndex,
+                  );
+                },
+              ),
+              // Request focus to show keyboard when returning from song page
+            )
+            .then((value) => keyboardFocusNode.requestFocus());
       } else {
         widget.settingsProvider
             .addToCue(
-                widget.settingsProvider.selectedCue,
-                getVerseId(widget.settingsProvider.book, element.songKey,
-                    element.verseIndex))
+              widget.settingsProvider.selectedCue,
+              getVerseId(
+                widget.settingsProvider.book,
+                element.songKey,
+                element.verseIndex,
+              ),
+            )
             .then((_) {
-          if (!mounted) return;
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              content: Text('Hozzáfűzve a kiválasztott listához',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  )),
-              duration: const Duration(seconds: 1),
-            ),
-          );
-        });
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  content: Text(
+                    'Hozzáfűzve a kiválasztott listához',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            });
       }
     }
 
@@ -279,8 +312,9 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                           ? 'Megnyitás Kész gombbal'
                           : 'Listához fűzés Kész gombbal',
                       style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          color: Theme.of(context).colorScheme.secondary),
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ],
                 ),
@@ -313,8 +347,12 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
     );
   }
 
-  Card foundSongTile(String lastSongSeen, List<Widget> searchResultsFromSong,
-      {bool firstResult = false, bool foundByNumber = false}) {
+  Card foundSongTile(
+    String lastSongSeen,
+    List<Widget> searchResultsFromSong, {
+    bool firstResult = false,
+    bool foundByNumber = false,
+  }) {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: firstResult ? 10 : 0.7,
@@ -322,8 +360,12 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            margin:
-                const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 5),
+            margin: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 10,
+              bottom: 5,
+            ),
             child: RichText(
               text: TextSpan(
                 style: Theme.of(context).textTheme.bodyLarge!,
@@ -338,8 +380,9 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                         : null,
                   ),
                   TextSpan(
-                      text:
-                          '${songBooks[widget.book.name][lastSongSeen]['title']}'),
+                    text:
+                        '${songBooks[widget.book.name][lastSongSeen]['title']}',
+                  ),
                 ],
               ),
               maxLines: 1,
@@ -359,9 +402,9 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
 
     // Replace diacritics with their non-diacritic counterparts.
     // Remove everything that is not a letter.
-    return removeDiacritics(text)
-        .toLowerCase()
-        .replaceAll(RegExp(r'[\W]', unicode: true), '');
+    return removeDiacritics(
+      text,
+    ).toLowerCase().replaceAll(RegExp(r'[\W]', unicode: true), '');
   }
 
   Widget errorMessageTile(String error) {
@@ -369,8 +412,9 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
       title: Text(
         error,
         style: TextStyle(
-            fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.secondary),
+          fontStyle: FontStyle.italic,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
       ),
     );
   }
@@ -382,77 +426,77 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
   Widget build(BuildContext context) {
     var searchResults = getSearchResults();
 
-    return Consumer<SettingsProvider>(builder: (context, settings, child) {
-      return Scaffold(
-        appBar: AppBar(
-          bottom: (widget.addToCueSearch)
-              ? PreferredSize(
-                  preferredSize: const Size.fromHeight(30),
-                  child: Material(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    elevation: 10,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(2),
-                          child: Icon(Icons.manage_search,
-                              color: Theme.of(context).colorScheme.primary),
-                        ),
-                        Flexible(
-                          child: Text(
-                            'Hozzáfűzés: ${settings.selectedCue}',
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary),
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return Scaffold(
+          appBar: AppBar(
+            bottom: (widget.addToCueSearch)
+                ? PreferredSize(
+                    preferredSize: const Size.fromHeight(30),
+                    child: Material(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      elevation: 10,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Icon(
+                              Icons.manage_search,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
-                        ),
-                      ],
+                          Flexible(
+                            child: Text(
+                              'Hozzáfűzés: ${settings.selectedCue}',
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  )
+                : null,
+            // To save some screen real estate, reuse the page title for the
+            // search input field.
+            title: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: textController,
+                    focusNode: keyboardFocusNode,
+                    autofocus: true,
+                    autocorrect: false,
+                    style: const TextStyle(fontWeight: FontWeight.normal),
+                    decoration: const InputDecoration(
+                      hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                    ),
+                    keyboardType: settings.searchNumericKeyboard
+                        ? const TextInputType.numberWithOptions(decimal: true)
+                        : TextInputType.text,
+                    onChanged: (e) {
+                      setState(() {
+                        searchText = e;
+                      });
+                    },
+                    // Prevent keyboard from closing on submit
+                    onEditingComplete: () {},
+                    onSubmitted: (e) {
+                      onSubmit();
+                      textController.text = '';
+                      setState(() {
+                        searchText = '';
+                      });
+                    },
                   ),
-                )
-              : null,
-          // To save some screen real estate, reuse the page title for the
-          // search input field.
-          title: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: textController,
-                  focusNode: keyboardFocusNode,
-                  autofocus: true,
-                  autocorrect: false,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'Keresés vagy ugrás (pl: 150,3)',
-                  ),
-                  keyboardType: settings.searchNumericKeyboard
-                      ? const TextInputType.numberWithOptions(
-                          decimal: true,
-                        )
-                      : TextInputType.text,
-                  onChanged: (e) {
-                    setState(() {
-                      searchText = e;
-                    });
-                  },
-                  // Prevent keyboard from closing on submit
-                  onEditingComplete: () {},
-                  onSubmitted: (e) {
-                    onSubmit();
-                    textController.text = '';
-                    setState(() {
-                      searchText = '';
-                    });
-                  },
                 ),
-              ),
-              // A button to clear the search text.
-              IconButton(
+                // A button to clear the search text.
+                IconButton(
                   onPressed: () {
                     textController.clear();
                     setState(() {
@@ -462,58 +506,64 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                   icon: Icon(
                     Icons.clear,
                     color: Theme.of(context).disabledColor,
-                  )),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: (Platform.isIOS &&
-                settings.searchNumericKeyboard &&
-                searchText.isNotEmpty)
-            // Show a Done button on iOS when using the numeric keyboard,
-            // because the numeric keyboard does not have a submit button.
-            ? FloatingActionButton(
-                onPressed: () {
-                  onSubmit();
-                  textController.text = '';
-                  setState(() {
-                    searchText = '';
-                  });
-                },
-                backgroundColor: Colors.green,
-                tooltip: (widget.addToCueSearch)
-                    ? 'Hozzáfűzés a kiválasztott listához'
-                    : 'Ugrás',
-                child: (widget.addToCueSearch)
-                    ? const Icon(Icons.add)
-                    : const Icon(Icons.arrow_forward),
-              )
-            // A button to switch between numeric and normal keyboard.
-            : FloatingActionButton(
-                tooltip: 'Váltás numerikus és normál billentyűzet között',
-                onPressed: () {
-                  setState(() {
-                    settings.changeSearchNumericKeyboard(
-                        !settings.searchNumericKeyboard);
-                    keyboardFocusNode.unfocus();
-                    // Some delay necessary. Exact amount unknowable, this seems fine for now.
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      keyboardFocusNode.requestFocus();
+          floatingActionButton:
+              (Platform.isIOS &&
+                  settings.searchNumericKeyboard &&
+                  searchText.isNotEmpty)
+              // Show a Done button on iOS when using the numeric keyboard,
+              // because the numeric keyboard does not have a submit button.
+              ? FloatingActionButton(
+                  onPressed: () {
+                    onSubmit();
+                    textController.text = '';
+                    setState(() {
+                      searchText = '';
                     });
-                  });
-                },
-                child: Icon(settings.searchNumericKeyboard
-                    ? Icons.keyboard
-                    : Icons.pin_outlined),
-              ),
-        body: SafeArea(
-          child: ListView.builder(
-            itemCount: searchResults.length,
-            itemBuilder: (context, index) {
-              return searchResults[index];
-            },
+                  },
+                  backgroundColor: Colors.green,
+                  tooltip: (widget.addToCueSearch)
+                      ? 'Hozzáfűzés a kiválasztott listához'
+                      : 'Ugrás',
+                  child: (widget.addToCueSearch)
+                      ? const Icon(Icons.add)
+                      : const Icon(Icons.arrow_forward),
+                )
+              // A button to switch between numeric and normal keyboard.
+              : FloatingActionButton(
+                  tooltip: 'Váltás numerikus és normál billentyűzet között',
+                  onPressed: () {
+                    setState(() {
+                      settings.changeSearchNumericKeyboard(
+                        !settings.searchNumericKeyboard,
+                      );
+                      keyboardFocusNode.unfocus();
+                      // Some delay necessary. Exact amount unknowable, this seems fine for now.
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        keyboardFocusNode.requestFocus();
+                      });
+                    });
+                  },
+                  child: Icon(
+                    settings.searchNumericKeyboard
+                        ? Icons.keyboard
+                        : Icons.pin_outlined,
+                  ),
+                ),
+          body: SafeArea(
+            child: ListView.builder(
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                return searchResults[index];
+              },
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

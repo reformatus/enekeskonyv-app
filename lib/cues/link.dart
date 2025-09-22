@@ -30,7 +30,7 @@ String? openAppLink(Uri uri, BuildContext context) {
           builder: (context) {
             return SongPage(
               book: verse.book,
-              songIndex: verse.songIndex,
+              songKey: verse.songKey,
               verseIndex: verse.verseIndex,
             );
           },

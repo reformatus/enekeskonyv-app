@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../settings_provider.dart';
+import '../utils.dart';
 import 'build_pages.dart';
 
 class SongStateProvider extends ChangeNotifier {
-  int song;
+  late int song;
   int verse;
   Book book;
   ScrollController scrollController = ScrollController();
@@ -33,13 +34,15 @@ class SongStateProvider extends ChangeNotifier {
   bool get inCue => _cueIndex != null;
 
   SongStateProvider({
-    required this.song,
+    required String songKey,
     required this.verse,
     required this.book,
     required TickerProvider vsync,
     required BuildContext context,
     required int? cueIndex,
   }) : _cueIndex = cueIndex {
+    // Initialize internal index from provided songKey
+    song = songIndexFor(book, songKey);
     initTabController(
       vsync: vsync,
       numOfPages: getNumOfPages(book, songKey, context, inCue),
@@ -293,6 +296,7 @@ class SongStateProvider extends ChangeNotifier {
   }
 
   void scrollVerseBarToCurrent({bool animate = true}) {
+    if (tabKeys[verse]!.currentContext == null) return;
     Scrollable.ensureVisible(
       tabKeys[verse]!.currentContext!,
       alignment: 0.5,

@@ -304,10 +304,8 @@ class HomePageSongWidget extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => SongPage(
-              book: settings.book,
-              songIndex: songBooks.keys.toList().indexOf(songKey),
-            ),
+            builder: (context) =>
+                SongPage(book: settings.book, songKey: songKey),
           ),
         );
       },

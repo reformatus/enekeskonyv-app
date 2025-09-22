@@ -127,9 +127,7 @@ class CuesPage extends StatelessWidget {
                         builder: (context) {
                           return SongPage(
                             book: book,
-                            songIndex: songBooks[book.name].keys
-                                .toList()
-                                .indexOf(songKey),
+                            songKey: songKey,
                             verseIndex: verseIndex,
                             initialCueIndex: 0,
                           );
@@ -380,7 +378,7 @@ Tippek:
             builder: (context) {
               return SongPage(
                 book: book,
-                songIndex: songBooks[book.name].keys.toList().indexOf(songKey),
+                songKey: songKey,
                 verseIndex: verseIndex,
                 initialCueIndex: cueIndex,
               );
