@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'cues/cues_page.dart';
-import 'cues/link.dart';
-import 'quick_settings_dialog.dart';
-import 'search_page.dart';
-import 'settings_provider.dart';
-import 'song/song_page.dart';
-import 'utils.dart';
+import '../cues/cues_page.dart';
+import '../cues/link.dart';
+import '../quick_settings_dialog.dart';
+import '../search_page.dart';
+import '../settings_provider.dart';
+import '../song/song_page.dart';
+import '../utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
