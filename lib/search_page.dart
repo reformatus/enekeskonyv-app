@@ -66,16 +66,6 @@ class _SearchPageState extends State<SearchPage> {
           verseIndex++;
         });
       }
-      if (value['markdown'] != null) {
-        allSearchVerses.add(
-          SearchVerse(
-            songKey: key,
-            verseIndex: verseIndex,
-            verseNumber: "",
-            text: value['markdown'],
-          ),
-        );
-      }
     });
   }
 

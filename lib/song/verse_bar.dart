@@ -37,10 +37,12 @@ class _VerseBarState extends State<VerseBar> {
       updateEndArrows(scrollController.position);
     });
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateEndArrows(scrollController.position);
-      SongStateProvider.of(context).scrollVerseBarToCurrent(animate: false);
-    });
+    if (scrollController.positions.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        updateEndArrows(scrollController.position);
+        SongStateProvider.of(context).scrollVerseBarToCurrent(animate: false);
+      });
+    }
   }
 
   @override

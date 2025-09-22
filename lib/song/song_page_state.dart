@@ -146,6 +146,7 @@ class SongStateProvider extends ChangeNotifier {
       // Only allow switching to the next verse when all verses should have
       // scores (and there _is_ a next verse).
       if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+          songBooks[book.name][songKey]['texts'] != null &&
           verse < songBooks[book.name][songKey]['texts'].length - 1) {
         verse++;
       } else if (song < songBooks[book.name].length - 1) {
@@ -156,11 +157,13 @@ class SongStateProvider extends ChangeNotifier {
       // Only allow switching to the previous verse when all verses should
       // have scores (and there _is_ a previous verse).
       if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+          songBooks[book.name][songKey]['texts'] != null &&
           verse > 0) {
         verse--;
       } else if (song > 0) {
         song--;
-        if (settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) {
+        if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+            songBooks[book.name][songKey]['texts'] != null) {
           // This songKey must be recalculated to be able to fetch the number
           // of verses for the previous song.
           verse = songBooks[book.name][songKey]['texts'].length - 1;
@@ -222,7 +225,7 @@ class SongStateProvider extends ChangeNotifier {
   }
 
   bool verseExists({required bool next}) {
-    if (songBooks[book.name][songKey]['markdown'] != null) return false;
+    if (songBooks[book.name][songKey]['texts'] == null) return false;
     if (next) {
       return (verse < songBooks[book.name][songKey]['texts'].length - 1);
     } else {
