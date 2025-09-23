@@ -1,0 +1,28 @@
+[
+  {
+    "id": "welcome-2024-001",
+    "title": "Üdvözöljük az új verzióban!",
+    "markdownText": "Köszönjük, hogy használja az **Énekeskönyv alkalmazást**!\n\nEz az üzenet bemutatja az új hírek funkciót. A jövőben itt kapja meg a legfontosabb:\n\n- **Alkalmazás frissítések** információit\n- **Új funkciók** bejelentését\n- **Fontos közleményeket**\n\nEz a funkció segít, hogy mindig naprakész legyen a legújabb fejlesztésekkel kapcsolatban.",
+    "archived": false,
+    "actionButtons": [
+      {
+        "title": "Tudjon meg többet",
+        "uri": "https://github.com/reformatus/enekeskonyv-app"
+      }
+    ]
+  },
+  {
+    "id": "feature-update-001",
+    "title": "Új funkció: Hírek",
+    "markdownText": "**Új funkció elérhető!**\n\nMostantól közvetlenül az alkalmazáson keresztül kaphat híreket és értesítéseket.\n\n### Hogyan működik?\n\n- Az alkalmazás indításakor automatikusan ellenőrzi az új híreket\n- Csak az új, még nem olvasott hírek jelennek meg\n- A hírek tartalmazhatnak linkeket és hasznos információkat\n\n*Ez a funkció nem befolyásolja az alkalmazás egyéb működését.*",
+    "archived": false,
+    "actionButtons": []
+  },
+  {
+    "id": "archived-example",
+    "title": "Ez egy archívált hír",
+    "markdownText": "Ez a hír már nem jelenik meg az új felhasználóknak, mert archívált státuszú.",
+    "archived": true,
+    "actionButtons": []
+  }
+]
