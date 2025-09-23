@@ -314,4 +314,10 @@ class SongStateProvider extends ChangeNotifier {
   static SongStateProvider of(BuildContext context) {
     return Provider.of<SongStateProvider>(context, listen: false);
   }
+
+  @override
+  void dispose() {
+    verseBarHideTimer?.cancel();
+    super.dispose();
+  }
 }
