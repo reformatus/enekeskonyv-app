@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../cues/cues_page.dart';
 import '../cues/link.dart';
+import '../error_handler.dart';
 import '../quick_settings_dialog.dart';
 import '../search_page.dart';
 import '../settings_provider.dart';
@@ -62,17 +63,56 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> readJson() async {
-    final String response = await rootBundle.loadString(
-      'assets/enekeskonyv.json',
-    );
-    jsonSongBooks =
-        (await compute(json.decode, response))
-            as LinkedHashMap<String, dynamic>;
-    songBooks = jsonSongBooks;
-    chapterTree = await getHomeChapterTree();
+    try {
+      final String response = await rootBundle.loadString(
+        'assets/enekeskonyv.json',
+      );
+      
+      try {
+        jsonSongBooks = (await compute(json.decode, response)) as LinkedHashMap<String, dynamic>;
+      } catch (e, s) {
+        if (mounted) {
+          await GlobalErrorHandler.handleDataError(
+            context: context,
+            error: e,
+            stackTrace: s,
+          );
+        }
+        return;
+      }
+      
+      songBooks = jsonSongBooks;
+      
+      try {
+        chapterTree = await getHomeChapterTree();
+      } catch (e, s) {
+        if (mounted) {
+          await GlobalErrorHandler.handleError(
+            context: context,
+            title: 'Fejezetek betöltési hiba',
+            message: 'A fejezetek betöltése nem sikerült, de az énekek továbbra is elérhetők.',
+            error: e,
+            stackTrace: s,
+          );
+        }
+        // Continue without chapter tree
+      }
 
-    setState(() {});
-    initDeepLinks();
+      if (mounted) {
+        setState(() {});
+        initDeepLinks();
+      }
+    } catch (e, s) {
+      if (mounted) {
+        await GlobalErrorHandler.handleError(
+          context: context,
+          title: 'Énekeskönyv betöltési hiba',
+          message: 'Az énekeskönyv adatainak betöltése sikertelen. Ellenőrizze az alkalmazás telepítését.',
+          error: e,
+          stackTrace: s,
+        );
+      }
+    }
   }
 
   @override
