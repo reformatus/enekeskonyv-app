@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'cues/link.dart';
+import 'error_handler.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
 import 'utils.dart';
@@ -242,22 +243,32 @@ class QuickSettingsDialog extends StatelessWidget {
                           label: const Text('Megosztás'),
                         ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          launchUrl(
-                            Uri.parse(
-                              Mailto(
-                                to: ['app@reflabs.hu'],
-                                subject: songData != null
-                                    ? 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)'
-                                    : 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}',
-                                body: '''
+                        onPressed: () async {
+                          try {
+                            await launchUrl(
+                              Uri.parse(
+                                Mailto(
+                                  to: ['app@reflabs.hu'],
+                                  subject: songData != null
+                                      ? 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)'
+                                      : 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}',
+                                  body: '''
 Kérlek, írd le a hibát: App, kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
 Csatolhatsz képet is.''',
-                              ).toString(),
-                            ),
-                          );
+                                ).toString(),
+                              ),
+                            );
+                          } catch (e, s) {
+                            await GlobalErrorHandler.handleNetworkError(
+                              context: context,
+                              error: e,
+                              stackTrace: s,
+                            );
+                          }
 
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         icon: const Icon(Icons.flag_rounded),
                         label: const Text('Hibajelentés'),
@@ -288,11 +299,21 @@ by RefLabs''',
                                 const SizedBox(width: 5),
                                 TextButton.icon(
                                   label: const Text('Forráskód'),
-                                  onPressed: () => launchUrl(
-                                    Uri.parse(
-                                      'https://github.com/reformatus/enekeskonyv-app',
-                                    ),
-                                  ),
+                                  onPressed: () async {
+                                    try {
+                                      await launchUrl(
+                                        Uri.parse(
+                                          'https://github.com/reformatus/enekeskonyv-app',
+                                        ),
+                                      );
+                                    } catch (e, s) {
+                                      await GlobalErrorHandler.handleNetworkError(
+                                        context: context,
+                                        error: e,
+                                        stackTrace: s,
+                                      );
+                                    }
+                                  },
                                   icon: const Icon(Icons.code),
                                 ),
                                 const SizedBox(width: 5),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'error_handler.dart';
 import 'home/home_page.dart';
 import 'settings_provider.dart';
 
@@ -30,6 +31,14 @@ class _EnekeskonyvState extends State<Enekeskonyv> {
     return ChangeNotifierProvider<SettingsProvider>(
       create: (_) => SettingsProvider()..initialize(navigatorKey),
       child: Consumer<SettingsProvider>(builder: (context, settings, child) {
+        // Initialize global error handler once settings are ready
+        if (settings.initialized) {
+          GlobalErrorHandler.initialize(
+            navigatorKey: navigatorKey,
+            settingsProvider: settings,
+          );
+        }
+        
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
