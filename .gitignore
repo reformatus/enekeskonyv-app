@@ -49,6 +49,9 @@ app.*.map.json
 assets/ref21/*.svg
 assets/ref48/*.svg
 
+# Demo files (not for production)
+demo/
+
 # Windows (just used for debugging)
 windows/
 .vscode/
