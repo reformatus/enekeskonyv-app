@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 import '../cues/cues_page.dart';
 import '../cues/link.dart';
 import '../error_handler.dart';
-import '../error_test_widget.dart';
 import '../quick_settings_dialog.dart';
 import '../search_page.dart';
 import '../settings_provider.dart';
@@ -405,7 +404,7 @@ List<Widget> buildHomepageItems(
   registerController,
   void Function(ExpansibleController controller)? unregisterController,
 }) {
-  final widgets = items
+  return items
       .map<Iterable<Widget>>(
         (e) => switch (e) {
           HomePageChapterItem chapter => [
@@ -424,13 +423,6 @@ List<Widget> buildHomepageItems(
       )
       .reduce((j, k) => j.followedBy(k))
       .toList();
-
-  // Add error test widget in debug mode only at the top level
-  if (kDebugMode && initialDepth == 0) {
-    widgets.insert(0, const ErrorTestWidget());
-  }
-
-  return widgets;
 }
 
 class HomePageSongWidget extends StatelessWidget {

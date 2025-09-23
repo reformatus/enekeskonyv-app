@@ -49,10 +49,6 @@ app.*.map.json
 assets/ref21/*.svg
 assets/ref48/*.svg
 
-# Temporary test files (to be removed before production)
-lib/error_test_widget.dart
-verify_changes.sh
-
 # Windows (just used for debugging)
 windows/
 .vscode/
