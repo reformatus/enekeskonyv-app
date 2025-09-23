@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'error_dialog.dart';
+
 Map<String, dynamic> songBooks = {};
 Map<String, List<HomePageItem>> chapterTree = {};
 
@@ -119,7 +121,7 @@ class SettingsProvider extends ChangeNotifier {
         if (value is String) prefs.setString(key, value);
       });
     } catch (e, s) {
-      showError('Hiba történt a beállítás ($key) mentésekor', e, s);
+      showError('Nem sikerült menteni a beállítást ($key). Az alkalmazás továbbra is használható, de a változtatás elveszhet újraindításkor.', e, s);
     }
   }
 
@@ -298,14 +300,14 @@ class SettingsProvider extends ChangeNotifier {
         version: '#.#.#',
         buildNumber: '###',
       );
-      showError('Hiba történt a verziószám lekérdezése közben', e, s);
+      showError('Nem sikerült lekérdezni az alkalmazás verziószámát. Ez nem befolyásolja az alkalmazás működését.', e, s);
     }
 
     SharedPreferences prefs;
     try {
       prefs = await SharedPreferences.getInstance();
     } catch (e, s) {
-      showError('Hiba történt a beállítástár betöltése közben', e, s);
+      showError('Nem sikerült betölteni a beállításokat. Az alkalmazás az alapértelmezett beállításokkal fog működni.', e, s);
       return;
     }
 
@@ -371,7 +373,7 @@ class SettingsProvider extends ChangeNotifier {
       assignDefaults();
 
       // Show error message.
-      showError('Hiba történt a beállítások betöltése közben', e, s);
+      showError('Hiba történt a személyes beállítások betöltése közben. Az alkalmazás az alapértelmezett beállításokkal fog működni.', e, s);
     }
 
     notifyListeners();
@@ -395,27 +397,38 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   void showError(String message, Object? e, StackTrace? s) {
-    var messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red,
-        duration: const Duration(minutes: 99),
-        // send email report
-        action: SnackBarAction(
-          label: 'Jelentés',
-          backgroundColor: Colors.grey[800],
-          textColor: Colors.white,
-          onPressed: () {
-            launchUrl(
-              Uri.parse(
-                Mailto(
-                  to: ['app@reflabs.hu'],
-                  subject:
-                      'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
-                  body:
-                      '''
+    final context = navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      // Use the new error dialog instead of SnackBar
+      ErrorDialog.show(
+        context: context,
+        title: 'Alkalmazáshiba',
+        message: message,
+        settings: this,
+        error: e,
+        stackTrace: s,
+      );
+    } else {
+      // Fallback to SnackBar if context is not available
+      final messenger = ScaffoldMessenger.of(navigatorKey.currentContext!);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(message, style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'Jelentés',
+            backgroundColor: Colors.grey[800],
+            textColor: Colors.white,
+            onPressed: () {
+              launchUrl(
+                Uri.parse(
+                  Mailto(
+                    to: ['app@reflabs.hu'],
+                    subject:
+                        'Programhiba ${packageInfo.version}+${packageInfo.buildNumber}',
+                    body:
+                        '''
 
 
 
@@ -428,13 +441,14 @@ $message
 $e
 
 $s''',
-                ).toString(),
-              ),
-            );
-          },
+                  ).toString(),
+                ),
+              );
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   // of method for easy access
