@@ -26,7 +26,17 @@ class NewsService {
   
   static List<News> getUnreadNews(List<News> allNews, List<String> readNewsIds) {
     return allNews.where((news) => 
-        !news.archived && !readNewsIds.contains(news.id)
+        !news.archived && !news.isExpired && !readNewsIds.contains(news.id)
     ).toList();
+  }
+
+  static List<News> getAllValidNews(List<News> allNews) {
+    return allNews.where((news) => !news.isExpired).toList();
+  }
+
+  static List<News> sortNewsByDate(List<News> newsList) {
+    final sorted = List<News>.from(newsList);
+    sorted.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return sorted;
   }
 }
