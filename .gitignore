@@ -52,3 +52,8 @@ assets/ref48/*.svg
 # Windows (just used for debugging)
 windows/
 .vscode/
+
+# Test coverage
+coverage/
+test/coverage/
+*.lcov
