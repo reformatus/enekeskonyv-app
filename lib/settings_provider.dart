@@ -202,6 +202,25 @@ class SettingsProvider extends ChangeNotifier {
     setPref('expandedChapters', jsonEncode(_expandedChapters));
   }
 
+  // Bulk update expansion states for multiple chapters in a single notify/persist
+  Future setAllChaptersExpandedState(
+    Book book,
+    bool isOpen,
+    Iterable<String> chapterTitles,
+  ) async {
+    final bookKey = book.name;
+    if (_expandedChapters[bookKey] == null ||
+        _expandedChapters[bookKey] is! Map) {
+      _expandedChapters[bookKey] = <String, bool>{};
+    }
+    final map = (_expandedChapters[bookKey] as Map);
+    for (final title in chapterTitles) {
+      map[title] = isOpen;
+    }
+    notifyListeners();
+    setPref('expandedChapters', jsonEncode(_expandedChapters));
+  }
+
   //! Cuelists
   Future changeSelectedCue(String value) async {
     _selectedCue = value;
