@@ -1,6 +1,5 @@
 {
   "48": {
-    "Előszó": "Előszó",
     "I. Zsoltárok": "1",
     "II. Fohászkodások": {
       "Kezdő és gyülekező énekek": "151",
@@ -18,7 +17,7 @@
       "A teremtő Atya Istenről": "247",
       "Az Istennek gondviseléséről": "254",
       "A Fiu Istenről": "286",
-      "Az Ige testet öltéséről": "254",
+      "Az Ige testet öltéséről": "301",
       "Krisztus szenvedéséről és haláláról": "330",
       "Krisztus feltámadásáról": "347",
       "Krisztus mennybemeneteléről": "358",
@@ -35,12 +34,10 @@
         "Estvéli énekek": "500"
       }
     },
-    "IV. Himnusz": "Himnusz",
+    "IV. Himnusz": "513",
     "V. Szentírásbeli és hitvallási részek": "Isten törvénye"
   },
   "21": {
-    "Ajánlás": "Ajánlás",
-    "Előszó": "Előszó",
     "Zsoltárok": {
       "Genfi zsoltárok": "1",
       "Zsoltárdicséretek": "151"
@@ -87,7 +84,17 @@
       "Keresztyén élet": "821",
       "Áldás": "841"
     },
-    "Istentiszteleti rész": "Isten törvénye",
-    "Függelék": "Tájékoztató az énekeskönyvről"
+    "Istentiszteleti rész": {
+      "Kötött szövegek": "Isten törvénye",
+      "Javasolt istentiszteleti rendek": "Javasolt istentiszteleti rendek",
+      "Napi imádságok": "Napi imádságok",
+      "Egyházi évünk": "Egyházi évünk",
+      "Imádságok": {
+        "Az imádságról": "Az imádságról",
+        "Ünnepi imádságok": "Advent",
+        "Istentisztelet": "Keresztelés",
+        "Napszaki imádságok": "Vasárnap reggel"
+      }
+    }
   }
 }
