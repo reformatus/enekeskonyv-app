@@ -25,6 +25,7 @@ dependencies:
   share_plus: ^11.1.0
   package_info_plus: ^8.0.2
   markdown_widget: ^2.3.2+8
+  http: ^1.1.0
 
 dev_dependencies:
   integration_test:
