@@ -33,7 +33,9 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
   }
 
   try {
-    final String chaptersResponse = await rootBundle.loadString('assets/fejezetek.json');
+    final String chaptersResponse = await rootBundle.loadString(
+      'assets/fejezetek.json',
+    );
     final Map chaptersJson = jsonDecode(chaptersResponse) as Map;
 
     List<HomePageItem> getChapterTreeForBook(String bookKey) {
@@ -41,35 +43,38 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
         if (!chaptersJson.containsKey(bookKey)) {
           throw Exception('A könyv fejezetek nem találhatók: $bookKey');
         }
-        
+
         Iterable<MapEntry> chapterEntries = chaptersJson[bookKey].entries;
 
-    List<HomePageSongsItem> songsItems = [];
+        List<HomePageSongsItem> songsItems = [];
 
-    List<HomePageItem> chaptersFromEntries(Iterable<MapEntry> entries) {
-      List<HomePageItem> items = [];
+        List<HomePageItem> chaptersFromEntries(Iterable<MapEntry> entries) {
+          List<HomePageItem> items = [];
 
-      for (MapEntry entry in entries) {
-        switch (entry.value) {
-          case Map map:
-            // Further nesting
-            items.add(
-              HomePageChapterItem(entry.key, chaptersFromEntries(map.entries)),
-            );
-            break;
-          case String string:
-            // Starting song key
-            final songsItem = HomePageSongsItem(string);
-            items.add(HomePageChapterItem(entry.key, [songsItem]));
-            songsItems.add(songsItem);
-            break;
-          default:
-            throw Exception('Invalid chapter data JSON');
+          for (MapEntry entry in entries) {
+            switch (entry.value) {
+              case Map map:
+                // Further nesting
+                items.add(
+                  HomePageChapterItem(
+                    entry.key,
+                    chaptersFromEntries(map.entries),
+                  ),
+                );
+                break;
+              case String string:
+                // Starting song key
+                final songsItem = HomePageSongsItem(string);
+                items.add(HomePageChapterItem(entry.key, [songsItem]));
+                songsItems.add(songsItem);
+                break;
+              default:
+                throw Exception('Invalid chapter data JSON');
+            }
+          }
+
+          return items;
         }
-      }
-
-      return items;
-    }
 
         List<HomePageItem> chapterTree = chaptersFromEntries(chapterEntries);
         final firstSongsItem = HomePageSongsItem(null);
@@ -80,7 +85,9 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
           throw Exception('Az énekeskönyv adatok nem találhatók: $bookKey');
         }
 
-        List<String> songKeys = (songBooks[bookKey] as Map<String, dynamic>).keys.toList();
+        List<String> songKeys = (songBooks[bookKey] as Map<String, dynamic>)
+            .keys
+            .toList();
 
         for (var i = 0; i < songsItems.length; i++) {
           final item = songsItems[i];
@@ -114,3 +121,4 @@ Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
   } catch (e) {
     throw Exception('Nem sikerült betölteni a fejezetek adatait: $e');
   }
+}
