@@ -107,7 +107,7 @@ void main() {
 
     testWidgets('should handle verse removal from cue', (tester) async {
       // First add some verses to the cue
-      settingsProvider.addToCue('21.1.0');
+      settingsProvider.addToCue('Kedvencek', '21.1.0');
       
       await tester.pumpWidget(
         ChangeNotifierProvider<SettingsProvider>.value(
@@ -133,7 +133,7 @@ void main() {
 
     testWidgets('should navigate to verse when tapped', (tester) async {
       // Add a verse to the cue
-      settingsProvider.addToCue('21.1.0');
+      settingsProvider.addToCue('Kedvencek', '21.1.0');
       
       await tester.pumpWidget(
         ChangeNotifierProvider<SettingsProvider>.value(
@@ -214,8 +214,8 @@ void main() {
 
     testWidgets('should handle cue reordering', (tester) async {
       // Add multiple verses to test reordering
-      settingsProvider.addToCue('21.1.0');
-      settingsProvider.addToCue('21.2.0');
+      settingsProvider.addToCue('Kedvencek', '21.1.0');
+      settingsProvider.addToCue('Kedvencek', '21.2.0');
       
       await tester.pumpWidget(
         ChangeNotifierProvider<SettingsProvider>.value(
@@ -261,8 +261,8 @@ void main() {
 
     testWidgets('should handle cue playback mode', (tester) async {
       // Add verses to cue
-      settingsProvider.addToCue('21.1.0');
-      settingsProvider.addToCue('21.2.0');
+      settingsProvider.addToCue('Kedvencek', '21.1.0');
+      settingsProvider.addToCue('Kedvencek', '21.2.0');
       
       await tester.pumpWidget(
         ChangeNotifierProvider<SettingsProvider>.value(

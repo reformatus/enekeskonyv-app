@@ -111,7 +111,7 @@ void main() {
           notified = true;
         });
 
-        settingsProvider.changeAppThemeMode(ThemeMode.dark);
+        settingsProvider.changeAppBrightnessSetting(ThemeMode.dark);
 
         expect(settingsProvider.appThemeMode, equals(ThemeMode.dark));
         expect(notified, isTrue);
@@ -123,7 +123,7 @@ void main() {
           notified = true;
         });
 
-        settingsProvider.changeSheetThemeMode(ThemeMode.dark);
+        settingsProvider.changeSheetBrightnessSetting(ThemeMode.dark);
 
         expect(settingsProvider.sheetThemeMode, equals(ThemeMode.dark));
         expect(notified, isTrue);
@@ -216,12 +216,12 @@ void main() {
             home: Builder(
               builder: (context) {
                 // Test light theme
-                settingsProvider.changeAppThemeMode(ThemeMode.light);
+                settingsProvider.changeAppBrightnessSetting(ThemeMode.light);
                 final lightBrightness = settingsProvider.getCurrentAppBrightness(context);
                 expect(lightBrightness, equals(Brightness.light));
 
                 // Test dark theme
-                settingsProvider.changeAppThemeMode(ThemeMode.dark);
+                settingsProvider.changeAppBrightnessSetting(ThemeMode.dark);
                 final darkBrightness = settingsProvider.getCurrentAppBrightness(context);
                 expect(darkBrightness, equals(Brightness.dark));
 

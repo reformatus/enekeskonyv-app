@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:enekeskonyv/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mock_test_environment.dart';
@@ -147,7 +148,7 @@ class TestHelper {
     provider.changeBook(book);
     provider.changeScoreDisplay(scoreDisplay);
     provider.changeFontSize(fontSize);
-    provider.changeAppThemeMode(appThemeMode);
+    provider.changeAppBrightnessSetting(appThemeMode);
     provider.changeIsOledTheme(isOledTheme);
     provider.changeTapNavigation(tapNavigation);
     provider.changeIsVerseBarPinned(isVerseBarPinned);
@@ -185,20 +186,20 @@ class TestHelper {
   }
 
   /// Pumps widget and waits for animations to settle
-  static Future<void> pumpAndSettle(tester, [Duration? duration]) async {
+  static Future<void> pumpAndSettle(WidgetTester tester, [Duration? duration]) async {
     await tester.pumpAndSettle(duration ?? const Duration(milliseconds: 100));
   }
 
   /// Common expect statements for widget presence
-  static void expectWidgetToBePresent(finder) {
+  static void expectWidgetToBePresent(Finder finder) {
     expect(finder, findsOneWidget);
   }
 
-  static void expectWidgetToBeAbsent(finder) {
+  static void expectWidgetToBeAbsent(Finder finder) {
     expect(finder, findsNothing);
   }
 
-  static void expectWidgetsCount(finder, int count) {
+  static void expectWidgetsCount(Finder finder, int count) {
     expect(finder, findsNWidgets(count));
   }
 }

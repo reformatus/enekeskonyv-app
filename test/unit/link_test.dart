@@ -2,6 +2,7 @@ import 'package:enekeskonyv/cues/link.dart';
 import 'package:enekeskonyv/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../helpers/test_helper.dart';
 
 void main() {
@@ -113,7 +114,7 @@ void main() {
             builder: (context) {
               return ElevatedButton(
                 onPressed: () {
-                  showShareDialog(context, testTitle, testLink);
+                  showShareDialog(context, testTitle, verseId: testLink);
                 },
                 child: const Text('Show Dialog'),
               );

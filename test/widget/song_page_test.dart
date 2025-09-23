@@ -84,7 +84,6 @@ void main() {
 
       // Previous verse and song buttons should be disabled
       final prevVerseButtons = find.byIcon(Icons.keyboard_arrow_left);
-      final prevSongButtons = find.byIcon(Icons.skip_previous);
       
       // Check if buttons are disabled (onPressed == null)
       if (tester.any(prevVerseButtons)) {
