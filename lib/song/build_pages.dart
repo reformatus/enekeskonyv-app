@@ -1,6 +1,8 @@
 // Builds the pages for the current song's verses.
 import 'package:enekeskonyv/song/song_page_state.dart';
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:markdown_widget/widget/blocks/container/table.dart';
 import 'package:markdown_widget/widget/markdown.dart';
 
 import '../settings_provider.dart';
@@ -28,6 +30,16 @@ List<List<Widget>> buildPages(
           data: song['markdown'],
           shrinkWrap: true,
           selectable: false,
+          config: MarkdownConfig(
+            configs: [
+              TableConfig(
+                wrapper: (child) => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: child,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ]);
