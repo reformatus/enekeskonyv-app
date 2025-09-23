@@ -22,24 +22,27 @@ class TextIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? displayedText = text;
-    // Don't display button text when it wouldn't fit
-    if (text != null && text!.length > 8) {
-      displayedText = null;
-    }
     return Tooltip(
       message: tooltip,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Stack(
-            alignment: displayedText != null ? alignment : Alignment.center,
+            alignment: text != null ? alignment : Alignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 13, 17, 13),
-                child: Text(
-                  displayedText ?? '',
-                  style: TextStyle(color: onTap != null ? null : disabledColor),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 60),
+                  child: Text(
+                    text ?? '',
+                    style: TextStyle(
+                      color: onTap != null ? null : disabledColor,
+                    ),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
               Icon(
