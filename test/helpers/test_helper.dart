@@ -4,9 +4,22 @@ import 'package:enekeskonyv/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'mock_test_environment.dart';
 
 /// Test helper utilities for the Énekeskönyv app
 class TestHelper {
+  /// Sets up complete test environment including mocks
+  static void setupTestEnvironment() {
+    MockTestEnvironment.setUp();
+    setupSharedPreferences();
+    setupMockSongBooks();
+  }
+
+  /// Cleans up test environment
+  static void cleanupTestEnvironment() {
+    MockTestEnvironment.tearDown();
+    cleanup();
+  }
   /// Creates mock song books data for testing
   static Map<String, dynamic> createMockSongBooks() {
     return {
