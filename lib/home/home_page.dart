@@ -352,8 +352,15 @@ class HomePageChapterWidget extends StatelessWidget {
                   chapterItem.title)
           ? HomePageSongWidget(chapterItem.title, settings)
           : ExpansionTile(
+              key: ValueKey(
+                'chapter-${settings.bookAsString}-${chapterItem.title}',
+              ),
               shape: Border(),
               visualDensity: VisualDensity.compact,
+              initiallyExpanded: settings.getIsChapterExpanded(
+                settings.bookAsString,
+                chapterItem.title,
+              ),
               title: Row(
                 children: [
                   Expanded(child: Text(chapterItem.title)),
@@ -368,6 +375,13 @@ class HomePageChapterWidget extends StatelessWidget {
                     ),
                 ],
               ),
+              onExpansionChanged: (isOpen) {
+                settings.setChapterExpandedState(
+                  settings.book,
+                  chapterItem.title,
+                  isOpen,
+                );
+              },
               children: buildHomepageItems(
                 chapterItem.children,
                 settings,

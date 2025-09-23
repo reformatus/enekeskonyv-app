@@ -26,6 +26,7 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultSearchNumericKeyboard = false;
   static const String defaultSelectedCue = 'Kedvencek';
   static const String defaultCueStore = '{"Kedvencek": []}';
+  static const String defaultExpandedChapters = '{}';
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -39,6 +40,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
   String _selectedCue = defaultSelectedCue;
   Map _cueStore = jsonDecode(defaultCueStore);
+  Map _expandedChapters = jsonDecode(defaultExpandedChapters);
 
   bool _initialized = false;
 
@@ -54,6 +56,17 @@ class SettingsProvider extends ChangeNotifier {
   bool get searchNumericKeyboard => _searchNumericKeyboard;
   String get selectedCue => _selectedCue;
   Map get cueStore => _cueStore;
+  Map get expandedChapters => _expandedChapters;
+
+  // Returns whether a chapter should be initially expanded for a given book key ("21" or "48")
+  bool getIsChapterExpanded(String bookKey, String chapterTitle) {
+    final bookMap = _expandedChapters[bookKey];
+    if (bookMap is Map) {
+      final value = bookMap[chapterTitle];
+      return value == true;
+    }
+    return false;
+  }
 
   String get bookAsString {
     switch (_book) {
@@ -170,6 +183,23 @@ class SettingsProvider extends ChangeNotifier {
     _searchNumericKeyboard = value;
     notifyListeners();
     setPref('searchNumericKeyboard', value);
+  }
+
+  //! Home chapter expansion states
+  Future setChapterExpandedState(
+    Book book,
+    String chapterTitle,
+    bool isOpen,
+  ) async {
+    final bookKey = book.name; // '21' or '48'
+    if (_expandedChapters[bookKey] == null ||
+        _expandedChapters[bookKey] is! Map) {
+      _expandedChapters[bookKey] = <String, bool>{};
+    }
+    // Update state
+    (_expandedChapters[bookKey] as Map)[chapterTitle] = isOpen;
+    notifyListeners();
+    setPref('expandedChapters', jsonEncode(_expandedChapters));
   }
 
   //! Cuelists
@@ -311,6 +341,9 @@ class SettingsProvider extends ChangeNotifier {
           defaultSearchNumericKeyboard;
       _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
       _cueStore = jsonDecode(prefs.getString('setStore') ?? defaultCueStore);
+      _expandedChapters = jsonDecode(
+        prefs.getString('expandedChapters') ?? defaultExpandedChapters,
+      );
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
@@ -339,6 +372,7 @@ class SettingsProvider extends ChangeNotifier {
     _searchNumericKeyboard = defaultSearchNumericKeyboard;
     _selectedCue = defaultSelectedCue;
     _cueStore = jsonDecode(defaultCueStore);
+    _expandedChapters = jsonDecode(defaultExpandedChapters);
   }
 
   void showError(String message, Object? e, StackTrace? s) {
