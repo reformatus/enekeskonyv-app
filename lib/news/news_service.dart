@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/news.dart';
+import 'news.dart';
 
 class NewsService {
   static const String defaultNewsApiUrl = 'https://reformatus.github.io/enekeskonyv-app/news.json';

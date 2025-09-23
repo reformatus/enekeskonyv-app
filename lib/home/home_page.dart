@@ -12,14 +12,14 @@ import 'package:provider/provider.dart';
 
 import '../cues/cues_page.dart';
 import '../cues/link.dart';
-import '../models/news.dart';
+import '../news/news.dart';
+import '../news/news_dialog.dart';
+import '../news/news_service.dart';
 import '../quick_settings_dialog.dart';
 import '../search_page.dart';
-import '../services/news_service.dart';
 import '../settings_provider.dart';
 import '../song/song_page.dart';
 import '../utils.dart';
-import '../widgets/news_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

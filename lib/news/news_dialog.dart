@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/news.dart';
+import 'news.dart';
 
 class NewsDialog extends StatelessWidget {
   final News news;
