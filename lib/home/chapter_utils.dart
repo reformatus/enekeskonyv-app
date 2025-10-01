@@ -29,68 +29,96 @@ class HomePageChapterItem extends HomePageItem {
 
 Future<Map<String, List<HomePageItem>>> getHomeChapterTree() async {
   if (songBooks.isEmpty) {
-    throw Exception('Load songBooks before using getHomePageItems!');
+    throw Exception('Az énekeskönyv még nincs betöltve. Próbálja újra!');
   }
 
-  Map chaptersJson =
-      (jsonDecode(await rootBundle.loadString('assets/fejezetek.json')) as Map);
+  try {
+    final String chaptersResponse = await rootBundle.loadString(
+      'assets/fejezetek.json',
+    );
+    final Map chaptersJson = jsonDecode(chaptersResponse) as Map;
 
-  List<HomePageItem> getChapterTreeForBook(String bookKey) {
-    Iterable<MapEntry> chapterEntries = chaptersJson[bookKey].entries;
-
-    List<HomePageSongsItem> songsItems = [];
-
-    List<HomePageItem> chaptersFromEntries(Iterable<MapEntry> entries) {
-      List<HomePageItem> items = [];
-
-      for (MapEntry entry in entries) {
-        switch (entry.value) {
-          case Map map:
-            // Further nesting
-            items.add(
-              HomePageChapterItem(entry.key, chaptersFromEntries(map.entries)),
-            );
-            break;
-          case String string:
-            // Starting song key
-            final songsItem = HomePageSongsItem(string);
-            items.add(HomePageChapterItem(entry.key, [songsItem]));
-            songsItems.add(songsItem);
-            break;
-          default:
-            throw Exception('Invalid chapter data JSON');
+    List<HomePageItem> getChapterTreeForBook(String bookKey) {
+      try {
+        if (!chaptersJson.containsKey(bookKey)) {
+          throw Exception('A könyv fejezetek nem találhatók: $bookKey');
         }
+
+        Iterable<MapEntry> chapterEntries = chaptersJson[bookKey].entries;
+
+        List<HomePageSongsItem> songsItems = [];
+
+        List<HomePageItem> chaptersFromEntries(Iterable<MapEntry> entries) {
+          List<HomePageItem> items = [];
+
+          for (MapEntry entry in entries) {
+            switch (entry.value) {
+              case Map map:
+                // Further nesting
+                items.add(
+                  HomePageChapterItem(
+                    entry.key,
+                    chaptersFromEntries(map.entries),
+                  ),
+                );
+                break;
+              case String string:
+                // Starting song key
+                final songsItem = HomePageSongsItem(string);
+                items.add(HomePageChapterItem(entry.key, [songsItem]));
+                songsItems.add(songsItem);
+                break;
+              default:
+                throw Exception('Invalid chapter data JSON');
+            }
+          }
+
+          return items;
+        }
+
+        List<HomePageItem> chapterTree = chaptersFromEntries(chapterEntries);
+        final firstSongsItem = HomePageSongsItem(null);
+        chapterTree.insert(0, firstSongsItem);
+        songsItems.insert(0, firstSongsItem);
+
+        if (!songBooks.containsKey(bookKey)) {
+          throw Exception('Az énekeskönyv adatok nem találhatók: $bookKey');
+        }
+
+        List<String> songKeys = (songBooks[bookKey] as Map<String, dynamic>)
+            .keys
+            .toList();
+
+        for (var i = 0; i < songsItems.length; i++) {
+          final item = songsItems[i];
+
+          try {
+            // Does not handle songKey defined in fejezetek.json missing in enekeskonyv.json, make sure to validate data.
+            item.songKeys.addAll(
+              songKeys.getRange(
+                item.startingSongKey == null
+                    ? 0
+                    : songKeys.indexOf(item.startingSongKey!),
+                (i >= (songsItems.length - 1))
+                    ? songKeys.length
+                    : songKeys.indexOf(songsItems[i + 1].startingSongKey!),
+              ),
+            );
+          } catch (e) {
+            // If song key is not found, skip this range but continue processing
+            continue;
+          }
+        }
+
+        return chapterTree;
+      } catch (e) {
+        // Return empty list if chapter processing fails
+        return [];
       }
-
-      return items;
     }
 
-    List<HomePageItem> chapterTree = chaptersFromEntries(chapterEntries);
-    final firstSongsItem = HomePageSongsItem(null);
-    chapterTree.insert(0, firstSongsItem);
-    songsItems.insert(0, firstSongsItem);
-
-    List<String> songKeys = (songBooks[bookKey] as Map<String, dynamic>).keys
-        .toList();
-
-    for (var i = 0; i < songsItems.length; i++) {
-      final item = songsItems[i];
-
-      // Does not handle songKey defined in fejezetek.json missing in enekeskonyv.json, make sure to validate data.
-      item.songKeys.addAll(
-        songKeys.getRange(
-          item.startingSongKey == null
-              ? 0
-              : songKeys.indexOf(item.startingSongKey!),
-          (i >= (songsItems.length - 1))
-              ? songKeys.length
-              : songKeys.indexOf(songsItems[i + 1].startingSongKey!),
-        ),
-      );
-    }
-
-    return chapterTree;
+    return chaptersJson.map((k, v) => MapEntry(k, getChapterTreeForBook(k)));
+  } catch (e) {
+    throw Exception('Nem sikerült betölteni a fejezetek adatait: $e');
   }
-
-  return chaptersJson.map((k, v) => MapEntry(k, getChapterTreeForBook(k)));
 }

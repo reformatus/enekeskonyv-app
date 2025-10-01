@@ -15,6 +15,7 @@ import '../cues/link.dart';
 import '../news/news.dart';
 import '../news/news_dialog.dart';
 import '../news/news_service.dart';
+import '../error_handler.dart';
 import '../quick_settings_dialog.dart';
 import '../search_page.dart';
 import '../settings_provider.dart';
@@ -32,6 +33,22 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic> jsonSongBooks = {};
   late ScrollController scrollController;
   bool _newsChecked = false;
+
+  // Collect controllers of all chapter ExpansionTiles currently in the tree
+  final List<_ChapterControllerRef> _chapterControllers = [];
+  // All chapter titles for the current book; used for bulk state updates
+  List<String> _allChapterTitles = [];
+
+  void _registerChapterController(
+    ExpansibleController controller,
+    String title,
+  ) {
+    _chapterControllers.add(_ChapterControllerRef(controller, title));
+  }
+
+  void _unregisterChapterController(ExpansibleController controller) {
+    _chapterControllers.removeWhere((e) => e.controller == controller);
+  }
 
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
@@ -78,17 +95,60 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> readJson() async {
-    final String response = await rootBundle.loadString(
-      'assets/enekeskonyv.json',
-    );
-    jsonSongBooks =
-        (await compute(json.decode, response))
-            as LinkedHashMap<String, dynamic>;
-    songBooks = jsonSongBooks;
-    chapterTree = await getHomeChapterTree();
+    try {
+      final String response = await rootBundle.loadString(
+        'assets/enekeskonyv.json',
+      );
 
-    setState(() {});
-    initDeepLinks();
+      try {
+        jsonSongBooks =
+            (await compute(json.decode, response))
+                as LinkedHashMap<String, dynamic>;
+      } catch (e, s) {
+        if (mounted) {
+          await GlobalErrorHandler.handleDataError(
+            context: context,
+            error: e,
+            stackTrace: s,
+          );
+        }
+        return;
+      }
+
+      songBooks = jsonSongBooks;
+
+      try {
+        chapterTree = await getHomeChapterTree();
+      } catch (e, s) {
+        if (mounted) {
+          await GlobalErrorHandler.handleError(
+            context: context,
+            title: 'Fejezetek betöltési hiba',
+            message:
+                'A fejezetek betöltése nem sikerült. Ellenőrizze az alkalmazás telepítését.',
+            error: e,
+            stackTrace: s,
+          );
+        }
+        // Continue without chapter tree
+      }
+
+      if (mounted) {
+        setState(() {});
+        initDeepLinks();
+      }
+    } catch (e, s) {
+      if (mounted) {
+        await GlobalErrorHandler.handleError(
+          context: context,
+          title: 'Énekeskönyv betöltési hiba',
+          message:
+              'Az énekeskönyv adatainak betöltése sikertelen. Ellenőrizze az alkalmazás telepítését.',
+          error: e,
+          stackTrace: s,
+        );
+      }
+    }
   }
 
   @override
@@ -140,6 +200,9 @@ class _HomePageState extends State<HomePage> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           checkAndShowNews();
         });
+        
+        // Update cached chapter titles for current book
+        _allChapterTitles = _collectChapterTitlesForBook(settings.bookAsString);
 
         return Scaffold(
           body: CustomScrollView(
@@ -149,7 +212,6 @@ class _HomePageState extends State<HomePage> {
               SliverAppBar(
                 pinned: true,
                 floating: true,
-
                 expandedHeight: 105,
                 toolbarHeight: 0,
                 automaticallyImplyLeading: false,
@@ -228,61 +290,135 @@ class _HomePageState extends State<HomePage> {
                     child: IntrinsicHeight(
                       child: Row(
                         children: [
-                          Expanded(
-                            child: Card(
-                              key: const Key(
-                                '_MyHomePageState.SearchSongButton',
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 3,
-                              margin: const EdgeInsets.all(7),
-                              semanticContainer: true,
-                              child: InkWell(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchPage(
-                                      book: settings.book,
-                                      settingsProvider: settings,
-                                    ),
-                                  ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Icon(Icons.search),
-                                    ),
-                                    Text(
-                                      'Keresés vagy ugrás...',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Toggle-all button on the left
                           Tooltip(
-                            message: 'Kedvencek és listák',
+                            message: 'Összes nyit/zár',
                             child: Card(
                               margin: const EdgeInsets.only(
                                 top: 7,
-                                right: 7,
+                                left: 7,
                                 bottom: 7,
                               ),
                               elevation: 3,
                               clipBehavior: Clip.antiAlias,
                               child: InkWell(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => CuesPage(context),
+                                onTap: () {
+                                  final settings =
+                                      Provider.of<SettingsProvider>(context);
+                                  final bookKey = settings.bookAsString;
+                                  final anyClosed = _chapterControllers.any(
+                                    (e) => !settings.getIsChapterExpanded(
+                                      bookKey,
+                                      e.title,
+                                    ),
+                                  );
+                                  final targetOpen = anyClosed;
+                                  // Persist for all chapters (including off-screen)
+                                  settings.setAllChaptersExpandedState(
+                                    settings.book,
+                                    targetOpen,
+                                    _allChapterTitles,
+                                  );
+                                  // Update visible controllers
+                                  for (final ref in _chapterControllers) {
+                                    if (targetOpen) {
+                                      ref.controller.expand();
+                                    } else {
+                                      ref.controller.collapse();
+                                    }
+                                  }
+                                  setState(() {});
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Builder(
+                                    builder: (context) {
+                                      final settings =
+                                          Provider.of<SettingsProvider>(
+                                            context,
+                                          );
+                                      final bookKey = settings.bookAsString;
+                                      final anyClosed = _chapterControllers.any(
+                                        (e) => !settings.getIsChapterExpanded(
+                                          bookKey,
+                                          e.title,
+                                        ),
+                                      );
+                                      return Icon(
+                                        anyClosed
+                                            ? Icons.unfold_more
+                                            : Icons.unfold_less,
+                                      );
+                                    },
                                   ),
                                 ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Center(child: Icon(Icons.star)),
+                              ),
+                            ),
+                          ),
+                          // Search card (center, expands)
+                          Expanded(
+                            child: Hero(
+                              tag: 'searchbutton',
+                              child: Card(
+                                key: const Key(
+                                  '_MyHomePageState.SearchSongButton',
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                elevation: 3,
+                                margin: const EdgeInsets.all(7),
+                                semanticContainer: true,
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SearchPage(
+                                        book: settings.book,
+                                        settingsProvider: settings,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Icon(Icons.search),
+                                      ),
+                                      Text(
+                                        'Keresés vagy ugrás...',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Favorites button (right)
+                          Tooltip(
+                            message: 'Kedvencek és listák',
+                            child: Hero(
+                              tag: 'favouritesbutton',
+                              child: Card(
+                                margin: const EdgeInsets.only(
+                                  top: 7,
+                                  right: 7,
+                                  bottom: 7,
+                                ),
+                                elevation: 3,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => CuesPage(context),
+                                    ),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(child: Icon(Icons.star)),
+                                  ),
                                 ),
                               ),
                             ),
@@ -297,6 +433,8 @@ class _HomePageState extends State<HomePage> {
                 children: buildHomepageItems(
                   chapterTree[settings.bookAsString]!,
                   settings,
+                  registerController: _registerChapterController,
+                  unregisterController: _unregisterChapterController,
                 ),
               ),
             ],
@@ -312,12 +450,21 @@ List<Widget> buildHomepageItems(
   List<HomePageItem> items,
   SettingsProvider settings, {
   int initialDepth = 0,
+  void Function(ExpansibleController controller, String title)?
+  registerController,
+  void Function(ExpansibleController controller)? unregisterController,
 }) {
   return items
       .map<Iterable<Widget>>(
         (e) => switch (e) {
           HomePageChapterItem chapter => [
-            HomePageChapterWidget(chapter, settings, depth: initialDepth),
+            HomePageChapterWidget(
+              chapter,
+              settings,
+              depth: initialDepth,
+              registerController: registerController,
+              unregisterController: unregisterController,
+            ),
           ],
           HomePageSongsItem songs => songs.songKeys.map(
             (k) => HomePageSongWidget(k, settings),
@@ -351,22 +498,47 @@ class HomePageSongWidget extends StatelessWidget {
   }
 }
 
-class HomePageChapterWidget extends StatelessWidget {
+class HomePageChapterWidget extends StatefulWidget {
   const HomePageChapterWidget(
     this.chapterItem,
     this.settings, {
     required this.depth,
+    this.registerController,
+    this.unregisterController,
     super.key,
   });
   final HomePageChapterItem chapterItem;
   final SettingsProvider settings;
   final int depth;
+  final void Function(ExpansibleController controller, String title)?
+  registerController;
+  final void Function(ExpansibleController controller)? unregisterController;
+
+  @override
+  State<HomePageChapterWidget> createState() => _HomePageChapterWidgetState();
+}
+
+class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
+  late final ExpansibleController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ExpansibleController();
+    widget.registerController?.call(_controller, widget.chapterItem.title);
+  }
+
+  @override
+  void dispose() {
+    widget.unregisterController?.call(_controller);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.hardEdge,
-      elevation: switch (depth) {
+      elevation: switch (widget.depth) {
         0 => 0.0,
         1 => 1.0,
         2 => 6.0,
@@ -377,40 +549,80 @@ class HomePageChapterWidget extends StatelessWidget {
       surfaceTintColor: Theme.of(context).colorScheme.onPrimaryContainer,
       borderOnForeground: true,
       child:
-          (chapterItem.children.length == 1 &&
-              chapterItem.children.first is HomePageSongsItem &&
-              (chapterItem.children.first as HomePageSongsItem)
+          (widget.chapterItem.children.length == 1 &&
+              widget.chapterItem.children.first is HomePageSongsItem &&
+              (widget.chapterItem.children.first as HomePageSongsItem)
                       .songKeys
                       .length ==
                   1 &&
-              (chapterItem.children.first as HomePageSongsItem)
+              (widget.chapterItem.children.first as HomePageSongsItem)
                       .songKeys
                       .first ==
-                  chapterItem.title)
-          ? HomePageSongWidget(chapterItem.title, settings)
+                  widget.chapterItem.title)
+          ? HomePageSongWidget(widget.chapterItem.title, widget.settings)
           : ExpansionTile(
+              key: ValueKey(
+                'chapter-${widget.settings.bookAsString}-${widget.chapterItem.title}',
+              ),
+              controller: _controller,
               shape: Border(),
               visualDensity: VisualDensity.compact,
+              initiallyExpanded: widget.settings.getIsChapterExpanded(
+                widget.settings.bookAsString,
+                widget.chapterItem.title,
+              ),
               title: Row(
                 children: [
-                  Expanded(child: Text(chapterItem.title)),
-                  if (chapterItem.startingSongKey != null &&
-                      chapterItem.startingSongKey!.length < 7)
+                  Expanded(child: Text(widget.chapterItem.title)),
+                  if (widget.chapterItem.startingSongKey != null &&
+                      widget.chapterItem.startingSongKey!.length < 7)
                     Padding(
                       padding: EdgeInsetsGeometry.only(left: 5),
                       child: Text(
-                        chapterItem.startingSongKey!,
+                        widget.chapterItem.startingSongKey!,
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ),
                 ],
               ),
+              onExpansionChanged: (isOpen) {
+                widget.settings.setChapterExpandedState(
+                  widget.settings.book,
+                  widget.chapterItem.title,
+                  isOpen,
+                );
+              },
               children: buildHomepageItems(
-                chapterItem.children,
-                settings,
-                initialDepth: depth + 1,
+                widget.chapterItem.children,
+                widget.settings,
+                initialDepth: widget.depth + 1,
+                registerController: widget.registerController,
+                unregisterController: widget.unregisterController,
               ),
             ),
     );
   }
+}
+
+class _ChapterControllerRef {
+  _ChapterControllerRef(this.controller, this.title);
+  final ExpansibleController controller;
+  final String title;
+}
+
+// Utility: collect all chapter titles recursively for a given book
+List<String> _collectChapterTitlesForItems(List<HomePageItem> items) {
+  final titles = <String>[];
+  for (final item in items) {
+    if (item is HomePageChapterItem) {
+      titles.add(item.title);
+      titles.addAll(_collectChapterTitlesForItems(item.children));
+    }
+  }
+  return titles;
+}
+
+List<String> _collectChapterTitlesForBook(String bookKey) {
+  final tree = chapterTree[bookKey] ?? const <HomePageItem>[];
+  return _collectChapterTitlesForItems(tree);
 }

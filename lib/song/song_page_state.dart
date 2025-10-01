@@ -48,7 +48,8 @@ class SongStateProvider extends ChangeNotifier {
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
           (inCue ||
-              SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
+              Provider.of<SettingsProvider>(context).scoreDisplay ==
+                  ScoreDisplay.all)
           ? verse
           : 0,
       initial: true,
@@ -288,7 +289,8 @@ class SongStateProvider extends ChangeNotifier {
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
           (inCue ||
-              SettingsProvider.of(context).scoreDisplay == ScoreDisplay.all)
+              Provider.of<SettingsProvider>(context).scoreDisplay ==
+                  ScoreDisplay.all)
           ? verse
           : 0,
       initial: true,
@@ -313,5 +315,11 @@ class SongStateProvider extends ChangeNotifier {
 
   static SongStateProvider of(BuildContext context) {
     return Provider.of<SongStateProvider>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    verseBarHideTimer?.cancel();
+    super.dispose();
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
@@ -9,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'cues/link.dart';
 import 'news/past_news_page.dart';
+import 'error_handler.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
 import 'utils.dart';
@@ -60,78 +63,71 @@ class QuickSettingsDialog extends StatelessWidget {
                       ],
                       const SettingsSectionTitle('Beállítások'),
                       const SettingsSectionTitle('Kotta', subtitle: true),
-                      Platform.isIOS
-                          ? Padding(
-                              padding: const EdgeInsets.all(8),
-                              child:
-                                  CupertinoSlidingSegmentedControl<
-                                    ScoreDisplay
-                                  >(
-                                    children: <ScoreDisplay, Widget>{
-                                      ScoreDisplay.all: Text(
-                                        getScoreDisplayName(ScoreDisplay.all),
-                                      ),
-                                      ScoreDisplay.first: Text(
-                                        getScoreDisplayName(ScoreDisplay.first),
-                                      ),
-                                      ScoreDisplay.none: Text(
-                                        getScoreDisplayName(ScoreDisplay.none),
-                                      ),
-                                    },
-                                    groupValue: settings.scoreDisplay,
-                                    onValueChanged: (ScoreDisplay? value) {
-                                      settings.changeScoreDisplay(
-                                        value ??
-                                            SettingsProvider
-                                                .defaultScoreDisplay,
-                                      );
-                                    },
-                                  ),
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                RadioListTile<ScoreDisplay>(
-                                  title: Text(
-                                    getScoreDisplayName(ScoreDisplay.all),
-                                  ),
-                                  value: ScoreDisplay.all,
-                                  groupValue: settings.scoreDisplay,
-                                  onChanged: (ScoreDisplay? value) {
-                                    settings.changeScoreDisplay(
-                                      value ??
-                                          SettingsProvider.defaultScoreDisplay,
-                                    );
-                                  },
-                                ),
-                                RadioListTile<ScoreDisplay>(
-                                  title: Text(
-                                    getScoreDisplayName(ScoreDisplay.first),
-                                  ),
-                                  value: ScoreDisplay.first,
-                                  groupValue: settings.scoreDisplay,
-                                  onChanged: (ScoreDisplay? value) {
-                                    settings.changeScoreDisplay(
-                                      value ??
-                                          SettingsProvider.defaultScoreDisplay,
-                                    );
-                                  },
-                                ),
-                                RadioListTile<ScoreDisplay>(
-                                  title: Text(
-                                    getScoreDisplayName(ScoreDisplay.none),
-                                  ),
-                                  value: ScoreDisplay.none,
-                                  groupValue: settings.scoreDisplay,
-                                  onChanged: (ScoreDisplay? value) {
-                                    settings.changeScoreDisplay(
-                                      value ??
-                                          SettingsProvider.defaultScoreDisplay,
-                                    );
-                                  },
-                                ),
-                              ],
+                      if (Platform.isIOS)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: CupertinoSlidingSegmentedControl<ScoreDisplay>(
+                            children: <ScoreDisplay, Widget>{
+                              ScoreDisplay.all: Text(
+                                getScoreDisplayName(ScoreDisplay.all),
+                              ),
+                              ScoreDisplay.first: Text(
+                                getScoreDisplayName(ScoreDisplay.first),
+                              ),
+                              ScoreDisplay.none: Text(
+                                getScoreDisplayName(ScoreDisplay.none),
+                              ),
+                            },
+                            groupValue: settings.scoreDisplay,
+                            onValueChanged: (ScoreDisplay? value) {
+                              settings.changeScoreDisplay(
+                                value ?? SettingsProvider.defaultScoreDisplay,
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            RadioMenuButton<ScoreDisplay>(
+                              value: ScoreDisplay.all,
+                              groupValue: settings.scoreDisplay,
+                              onChanged: (ScoreDisplay? value) {
+                                settings.changeScoreDisplay(
+                                  value ?? SettingsProvider.defaultScoreDisplay,
+                                );
+                              },
+                              child: Text(
+                                getScoreDisplayName(ScoreDisplay.all),
+                              ),
                             ),
+                            RadioMenuButton<ScoreDisplay>(
+                              value: ScoreDisplay.first,
+                              groupValue: settings.scoreDisplay,
+                              onChanged: (ScoreDisplay? value) {
+                                settings.changeScoreDisplay(
+                                  value ?? SettingsProvider.defaultScoreDisplay,
+                                );
+                              },
+                              child: Text(
+                                getScoreDisplayName(ScoreDisplay.first),
+                              ),
+                            ),
+                            RadioMenuButton<ScoreDisplay>(
+                              value: ScoreDisplay.none,
+                              groupValue: settings.scoreDisplay,
+                              onChanged: (ScoreDisplay? value) {
+                                settings.changeScoreDisplay(
+                                  value ?? SettingsProvider.defaultScoreDisplay,
+                                );
+                              },
+                              child: Text(
+                                getScoreDisplayName(ScoreDisplay.none),
+                              ),
+                            ),
+                          ],
+                        ),
                       const SettingsSectionTitle('Színek', subtitle: true),
                       ListTile(
                         title: const Text('Alkalmazás témája'),
@@ -243,22 +239,32 @@ class QuickSettingsDialog extends StatelessWidget {
                           label: const Text('Megosztás'),
                         ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          launchUrl(
-                            Uri.parse(
-                              Mailto(
-                                to: ['app@reflabs.hu'],
-                                subject: songData != null
-                                    ? 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)'
-                                    : 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}',
-                                body: '''
+                        onPressed: () async {
+                          try {
+                            await launchUrl(
+                              Uri.parse(
+                                Mailto(
+                                  to: ['app@reflabs.hu'],
+                                  subject: songData != null
+                                      ? 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: ${songData?['number']} / ${verseIndex + 1}. vers (${book?.name} könyv)'
+                                      : 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}',
+                                  body: '''
 Kérlek, írd le a hibát: App, kotta, szöveghiba? Melyik sorban? Egyéb megjegyzés?
 Csatolhatsz képet is.''',
-                              ).toString(),
-                            ),
-                          );
+                                ).toString(),
+                              ),
+                            );
+                          } catch (e, s) {
+                            await GlobalErrorHandler.handleNetworkError(
+                              context: context,
+                              error: e,
+                              stackTrace: s,
+                            );
+                          }
 
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         icon: const Icon(Icons.flag_rounded),
                         label: const Text('Hibajelentés'),
@@ -289,11 +295,21 @@ by RefLabs''',
                                 const SizedBox(width: 5),
                                 TextButton.icon(
                                   label: const Text('Forráskód'),
-                                  onPressed: () => launchUrl(
-                                    Uri.parse(
-                                      'https://github.com/reformatus/enekeskonyv-app',
-                                    ),
-                                  ),
+                                  onPressed: () async {
+                                    try {
+                                      await launchUrl(
+                                        Uri.parse(
+                                          'https://github.com/reformatus/enekeskonyv-app',
+                                        ),
+                                      );
+                                    } catch (e, s) {
+                                      await GlobalErrorHandler.handleNetworkError(
+                                        context: context,
+                                        error: e,
+                                        stackTrace: s,
+                                      );
+                                    }
+                                  },
                                   icon: const Icon(Icons.code),
                                 ),
                                 const SizedBox(width: 5),
@@ -327,7 +343,6 @@ by RefLabs''',
                                           onPressed: () {
                                             settings.factoryReset().then(
                                               (value) =>
-                                                  // ignore: use_build_context_synchronously
                                                   Navigator.pop(context),
                                             );
                                           },
