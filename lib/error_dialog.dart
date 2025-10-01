@@ -27,27 +27,17 @@ class ErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      icon: const Icon(
-        Icons.error_outline,
-        color: Colors.red,
-        size: 48,
-      ),
+      icon: const Icon(Icons.error_outline, color: Colors.red, size: 48),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(message, style: const TextStyle(fontSize: 16)),
             if (showDetails && (error != null || stackTrace != null)) ...[
               const SizedBox(height: 16),
               const Divider(),
@@ -130,7 +120,7 @@ class ErrorDialog extends StatelessWidget {
     StackTrace? stackTrace,
   }) async {
     bool showDetails = false;
-    
+
     while (true) {
       final result = await showDialog<String>(
         context: context,
@@ -206,8 +196,10 @@ class ErrorDialog extends StatelessWidget {
           Uri.parse(
             Mailto(
               to: ['app@reflabs.hu'],
-              subject: 'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: $title',
-              body: '''
+              subject:
+                  'Hibajelentés ${settings.packageInfo.version}+${settings.packageInfo.buildNumber}: $title',
+              body:
+                  '''
 
 
 Kérjük, írja le fölé, mit csinált amikor a hiba fellépett:

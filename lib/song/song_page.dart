@@ -60,7 +60,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           // settings. Needed for changing the number of pages when
           // changing scoreDisplay.
           if (!_listenerAdded) {
-            Provider.of<SettingsProvider>(context).addListener(() {
+            Provider.of<SettingsProvider>(context, listen: false).addListener(() {
               SongStateProvider.of(
                 context,
               ).settingsListener(context: context, vsync: this);

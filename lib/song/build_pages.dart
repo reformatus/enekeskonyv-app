@@ -19,7 +19,7 @@ List<List<Widget>> buildPages(
   var state = SongStateProvider.of(context);
   // Nested list; a page is just a list of widgets.
   final List<List<Widget>> pages = [];
-  SettingsProvider settings = Provider.of<SettingsProvider>(context);
+  SettingsProvider settings = Provider.of<SettingsProvider>(context, listen: false);
 
   var song = songBooks[book.name][songKey];
 
@@ -173,7 +173,7 @@ List<List<Widget>> buildPages(
 int getNumOfPages(Book book, String songKey, BuildContext context, bool inCue) {
   // When all verses should have scores displayed, every verse should have
   // its own page.
-  if (Provider.of<SettingsProvider>(context).scoreDisplay == ScoreDisplay.all ||
+  if (Provider.of<SettingsProvider>(context, listen: false).scoreDisplay == ScoreDisplay.all ||
       inCue) {
     if (songBooks[book.name][songKey]['markdown'] != null) return 1;
     return songBooks[book.name][songKey]['texts'].length;

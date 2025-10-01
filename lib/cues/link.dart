@@ -39,7 +39,7 @@ String? openAppLink(Uri uri, BuildContext context) {
       );
       return null;
     case 'c': // Cue
-      var settings = Provider.of<SettingsProvider>(context);
+      var settings = Provider.of<SettingsProvider>(context, listen: false);
 
       List<String> parts;
 

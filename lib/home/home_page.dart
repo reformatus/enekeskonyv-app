@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 
 import '../cues/cues_page.dart';
 import '../cues/link.dart';
-import '../news/news.dart';
 import '../news/news_dialog.dart';
 import '../news/news_service.dart';
 import '../error_handler.dart';
@@ -69,18 +68,21 @@ class _HomePageState extends State<HomePage> {
   Future<void> checkAndShowNews() async {
     if (_newsChecked || !mounted) return;
     _newsChecked = true;
-    
-    final settings = SettingsProvider.of(context);
+
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     if (!settings.initialized) return;
-    
+
     try {
       final allNews = await NewsService.fetchNews();
-      final unreadNews = NewsService.getUnreadNews(allNews, settings.readNewsIds);
-      
+      final unreadNews = NewsService.getUnreadNews(
+        allNews,
+        settings.readNewsIds,
+      );
+
       if (unreadNews.isNotEmpty && mounted) {
         // Wait a bit to ensure the UI is fully built
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         if (mounted) {
           await NewsOverlay.showNewsSequence(
             context,
@@ -200,7 +202,7 @@ class _HomePageState extends State<HomePage> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           checkAndShowNews();
         });
-        
+
         // Update cached chapter titles for current book
         _allChapterTitles = _collectChapterTitlesForBook(settings.bookAsString);
 
@@ -304,7 +306,10 @@ class _HomePageState extends State<HomePage> {
                               child: InkWell(
                                 onTap: () {
                                   final settings =
-                                      Provider.of<SettingsProvider>(context);
+                                      Provider.of<SettingsProvider>(
+                                        context,
+                                        listen: false,
+                                      );
                                   final bookKey = settings.bookAsString;
                                   final anyClosed = _chapterControllers.any(
                                     (e) => !settings.getIsChapterExpanded(
@@ -435,7 +440,7 @@ class _HomePageState extends State<HomePage> {
                   settings,
                   registerController: _registerChapterController,
                   unregisterController: _unregisterChapterController,
-                ),
+                ).followedBy([SizedBox(height: 20)]).toList(),
               ),
             ],
           ),

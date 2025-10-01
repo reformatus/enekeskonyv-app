@@ -48,7 +48,7 @@ class SongStateProvider extends ChangeNotifier {
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
           (inCue ||
-              Provider.of<SettingsProvider>(context).scoreDisplay ==
+              Provider.of<SettingsProvider>(context, listen: false).scoreDisplay ==
                   ScoreDisplay.all)
           ? verse
           : 0,
@@ -289,7 +289,7 @@ class SongStateProvider extends ChangeNotifier {
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
           (inCue ||
-              Provider.of<SettingsProvider>(context).scoreDisplay ==
+              Provider.of<SettingsProvider>(context, listen: false).scoreDisplay ==
                   ScoreDisplay.all)
           ? verse
           : 0,

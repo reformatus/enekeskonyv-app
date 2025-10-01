@@ -115,7 +115,7 @@ void onTapUp(
   Offset tapDownPosition,
   TickerProvider vsync,
 ) {
-  var settings = Provider.of<SettingsProvider>(context);
+  var settings = Provider.of<SettingsProvider>(context, listen: false);
   var state = SongStateProvider.of(context);
 
   // Only do anything if tap navigation is enabled.
@@ -133,7 +133,7 @@ void onTapUp(
       // Go backward (to the previous verse).
       state.switchVerse(
         next: false,
-        settingsProvider: Provider.of<SettingsProvider>(context),
+        settingsProvider: Provider.of<SettingsProvider>(context, listen: false),
         context: context,
         vsync: vsync,
       );
@@ -147,7 +147,7 @@ void onTapUp(
       // Go forward (to the next verse).
       state.switchVerse(
         next: true,
-        settingsProvider: Provider.of<SettingsProvider>(context),
+        settingsProvider: Provider.of<SettingsProvider>(context, listen: false),
         context: context,
         vsync: vsync,
       );

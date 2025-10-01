@@ -484,13 +484,6 @@ $s''',
       );
     }
   }
-
-  /*
-  // of method for easy access
-  static SettingsProvider of(BuildContext context) {
-    return Provider.of<SettingsProvider>(context, listen: false);
-  }
-*/
 }
 
 // @see https://stackoverflow.com/a/29567669
