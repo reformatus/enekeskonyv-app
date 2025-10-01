@@ -22,8 +22,8 @@ dependencies:
   diacritic: ^0.1.4
   app_links: ^6.3.0
   qr_flutter: ^4.1.0
-  share_plus: ^11.1.0
-  package_info_plus: ^8.0.2
+  share_plus: ^12.0.0
+  package_info_plus: ^9.0.0
   markdown_widget: ^2.3.2+8
 
 dev_dependencies:
