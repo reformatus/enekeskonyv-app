@@ -12,6 +12,9 @@ import 'package:provider/provider.dart';
 
 import '../cues/cues_page.dart';
 import '../cues/link.dart';
+import '../news/news.dart';
+import '../news/news_dialog.dart';
+import '../news/news_service.dart';
 import '../error_handler.dart';
 import '../quick_settings_dialog.dart';
 import '../search_page.dart';
@@ -29,6 +32,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map<String, dynamic> jsonSongBooks = {};
   late ScrollController scrollController;
+  bool _newsChecked = false;
 
   // Collect controllers of all chapter ExpansionTiles currently in the tree
   final List<_ChapterControllerRef> _chapterControllers = [];
@@ -60,6 +64,34 @@ class _HomePageState extends State<HomePage> {
         );
       }
     });
+  }
+
+  Future<void> checkAndShowNews() async {
+    if (_newsChecked || !mounted) return;
+    _newsChecked = true;
+    
+    final settings = SettingsProvider.of(context);
+    if (!settings.initialized) return;
+    
+    try {
+      final allNews = await NewsService.fetchNews();
+      final unreadNews = NewsService.getUnreadNews(allNews, settings.readNewsIds);
+      
+      if (unreadNews.isNotEmpty && mounted) {
+        // Wait a bit to ensure the UI is fully built
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        if (mounted) {
+          await NewsOverlay.showNewsSequence(
+            context,
+            unreadNews,
+            (newsId) => settings.markNewsAsRead(newsId),
+          );
+        }
+      }
+    } catch (e) {
+      // Silently handle any errors - news functionality should not break the app
+    }
   }
 
   Future<void> readJson() async {
@@ -164,6 +196,11 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
+        // Schedule news check after the main UI is built
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          checkAndShowNews();
+        });
+        
         // Update cached chapter titles for current book
         _allChapterTitles = _collectChapterTitlesForBook(settings.bookAsString);
 

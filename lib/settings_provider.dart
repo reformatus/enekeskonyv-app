@@ -27,6 +27,7 @@ class SettingsProvider extends ChangeNotifier {
   static const bool defaultSearchNumericKeyboard = false;
   static const String defaultSelectedCue = 'Kedvencek';
   static const String defaultCueStore = '{"Kedvencek": []}';
+  static const String defaultReadNewsIds = '[]';
   static const String defaultExpandedChapters = '{}';
 
   Book _book = defaultBook;
@@ -41,6 +42,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _searchNumericKeyboard = defaultSearchNumericKeyboard;
   String _selectedCue = defaultSelectedCue;
   Map _cueStore = jsonDecode(defaultCueStore);
+  List<String> _readNewsIds = [];
   Map _expandedChapters = jsonDecode(defaultExpandedChapters);
 
   bool _initialized = false;
@@ -57,6 +59,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get searchNumericKeyboard => _searchNumericKeyboard;
   String get selectedCue => _selectedCue;
   Map get cueStore => _cueStore;
+  List<String> get readNewsIds => _readNewsIds;
   Map get expandedChapters => _expandedChapters;
 
   // Returns whether a chapter should be initially expanded for a given book key ("21" or "48")
@@ -279,6 +282,19 @@ class SettingsProvider extends ChangeNotifier {
     setPref('setStore', jsonEncode(_cueStore));
   }
 
+  //! News
+  Future markNewsAsRead(String newsId) async {
+    if (!_readNewsIds.contains(newsId)) {
+      _readNewsIds.add(newsId);
+      notifyListeners();
+      setPref('readNewsIds', jsonEncode(_readNewsIds));
+    }
+  }
+
+  bool isNewsRead(String newsId) {
+    return _readNewsIds.contains(newsId);
+  }
+
   Future factoryReset() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -379,6 +395,8 @@ class SettingsProvider extends ChangeNotifier {
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
+      _readNewsIds = (jsonDecode(prefs.getString('readNewsIds') ?? defaultReadNewsIds) as List)
+          .cast<String>();
     } catch (e, s) {
       // On any unexpected error, use default settings.
       assignDefaults();
@@ -408,6 +426,7 @@ class SettingsProvider extends ChangeNotifier {
     _searchNumericKeyboard = defaultSearchNumericKeyboard;
     _selectedCue = defaultSelectedCue;
     _cueStore = jsonDecode(defaultCueStore);
+    _readNewsIds = jsonDecode(defaultReadNewsIds).cast<String>();
     _expandedChapters = jsonDecode(defaultExpandedChapters);
   }
 

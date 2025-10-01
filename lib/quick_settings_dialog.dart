@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'cues/link.dart';
+import 'news/past_news_page.dart';
 import 'error_handler.dart';
 import 'settings_provider.dart';
 import 'song/song_page.dart';
@@ -354,6 +355,19 @@ by RefLabs''',
                                     Icons.replay_outlined,
                                     color: Colors.red,
                                   ),
+                                ),
+                                const SizedBox(width: 5),
+                                TextButton.icon(
+                                  label: const Text('Hírek'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => const PastNewsPage(),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.newspaper),
                                 ),
                               ],
                             ),
