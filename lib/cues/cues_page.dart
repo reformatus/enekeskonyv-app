@@ -21,90 +21,95 @@ class CuesPage extends StatelessWidget {
       builder: (context, settings, child) {
         return Scaffold(
           appBar: AppBar(
-            title: DropdownButtonHideUnderline(
-              child: DropdownButton<String?>(
-                key: dropdownKey,
-                isExpanded: true,
-                value: settings.selectedCue,
-                onChanged: (value) {
-                  if (value == null) {
-                    showNewCueDialog(context, settings);
-                    return;
-                  }
-                  settings.changeSelectedCue(value);
-                },
-                selectedItemBuilder: (context) {
-                  // Need to insert an element to the beginning of the list
-                  // to account for New button
-                  return ['', ...settings.cueStore.keys]
-                      .map(
-                        (cue) => Center(
-                          widthFactor: 1,
-                          child: Text(
-                            settings.selectedCue,
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList();
-                },
-                items: [
-                  // The first item of the dropdown is the new cue button
-                  // Due to this being an actual dropdown element, we later
-                  // have to do some index shuffling to get the correct cue
-                  DropdownMenuItem<String?>(
-                    value: null,
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Icon(
-                            Icons.add,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        Text(
-                          'Új lista',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // And then the rest follows
-                  ...settings.cueStore.keys.map(
-                    (cue) => DropdownMenuItem<String?>(
-                      value: cue,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              cue,
-                              softWrap: false,
-                              overflow: TextOverflow.fade,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
+            title: Hero(
+              tag: 'favouritesbutton',
+              child: Material(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String?>(
+                    key: dropdownKey,
+                    isExpanded: true,
+                    value: settings.selectedCue,
+                    onChanged: (value) {
+                      if (value == null) {
+                        showNewCueDialog(context, settings);
+                        return;
+                      }
+                      settings.changeSelectedCue(value);
+                    },
+                    selectedItemBuilder: (context) {
+                      // Need to insert an element to the beginning of the list
+                      // to account for New button
+                      return ['', ...settings.cueStore.keys]
+                          .map(
+                            (cue) => Center(
+                              widthFactor: 1,
+                              child: Text(
+                                settings.selectedCue,
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () =>
-                                showDeleteCueDialog(cue, context, settings),
-                          ),
-                        ],
+                          )
+                          .toList();
+                    },
+                    items: [
+                      // The first item of the dropdown is the new cue button
+                      // Due to this being an actual dropdown element, we later
+                      // have to do some index shuffling to get the correct cue
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Icon(
+                                Icons.add,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            Text(
+                              'Új lista',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      // And then the rest follows
+                      ...settings.cueStore.keys.map(
+                        (cue) => DropdownMenuItem<String?>(
+                          value: cue,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  cue,
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () =>
+                                    showDeleteCueDialog(cue, context, settings),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -198,13 +203,13 @@ class CuesPage extends StatelessWidget {
                         child: ListTile(
                           subtitle: Text(
                             '''
-Itt jelennek meg a Kedvencként jelölt versszakok.
-${settings.scoreDisplay == ScoreDisplay.all ? 'Kedvencnek jelöléshez használd a csillag gombot a kotta bal alsó sarkában.' : 'Kedvencnek jelöléshez nyomd hosszan a kívánt versszakot.'}
-
-Tippek:
-- Több listát is készíthetsz a felső sávra koppintva. Mindig a fent kiválasztott listát szerkesztheted az ének oldalán.
-- A listáidat meg is oszthatod. Ha egy más által készített lista linkjét megnyitod, azt hozzáadjuk a listáidhoz.
-- Ha egy versszakot többször hozzá szeretnél adni, vagy csak gyorsan szeretnél haladni, használd az Ének hozzáfűzés gombot a felső sávban.''',
+        Itt jelennek meg a Kedvencként jelölt versszakok.
+          ${settings.scoreDisplay == ScoreDisplay.all ? 'Kedvencnek jelöléshez használd a csillag gombot a kotta bal alsó sarkában.' : 'Kedvencnek jelöléshez nyomd hosszan a kívánt versszakot.'}
+        
+        Tippek:
+        - Több listát is készíthetsz a felső sávra koppintva. Mindig a fent kiválasztott listát szerkesztheted az ének oldalán.
+        - A listáidat meg is oszthatod. Ha egy más által készített lista linkjét megnyitod, azt hozzáadjuk a listáidhoz.
+        - Ha egy versszakot többször hozzá szeretnél adni, vagy csak gyorsan szeretnél haladni, használd az Ének hozzáfűzés gombot a felső sávban.''',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.secondary,
                               fontStyle: FontStyle.italic,

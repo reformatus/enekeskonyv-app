@@ -4,7 +4,6 @@ import 'package:enekeskonyv/home/chapter_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:mailto/mailto.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -121,7 +120,11 @@ class SettingsProvider extends ChangeNotifier {
         if (value is String) prefs.setString(key, value);
       });
     } catch (e, s) {
-      showError('Nem sikerült menteni a beállítást ($key). Az alkalmazás továbbra is használható, de a változtatás elveszhet újraindításkor.', e, s);
+      showError(
+        'Nem sikerült menteni a beállítást ($key). Az alkalmazás továbbra is használható, de a változtatás elveszhet újraindításkor.',
+        e,
+        s,
+      );
     }
   }
 
@@ -300,14 +303,22 @@ class SettingsProvider extends ChangeNotifier {
         version: '#.#.#',
         buildNumber: '###',
       );
-      showError('Nem sikerült lekérdezni az alkalmazás verziószámát. Ez nem befolyásolja az alkalmazás működését.', e, s);
+      showError(
+        'Nem sikerült lekérdezni az alkalmazás verziószámát. Ez nem befolyásolja az alkalmazás működését.',
+        e,
+        s,
+      );
     }
 
     SharedPreferences prefs;
     try {
       prefs = await SharedPreferences.getInstance();
     } catch (e, s) {
-      showError('Nem sikerült betölteni a beállításokat. Az alkalmazás az alapértelmezett beállításokkal fog működni.', e, s);
+      showError(
+        'Nem sikerült betölteni a beállításokat. Az alkalmazás az alapértelmezett beállításokkal fog működni.',
+        e,
+        s,
+      );
       return;
     }
 
@@ -373,7 +384,11 @@ class SettingsProvider extends ChangeNotifier {
       assignDefaults();
 
       // Show error message.
-      showError('Hiba történt a személyes beállítások betöltése közben. Az alkalmazás az alapértelmezett beállításokkal fog működni.', e, s);
+      showError(
+        'Hiba történt a személyes beállítások betöltése közben. Az alkalmazás az alapértelmezett beállításokkal fog működni.',
+        e,
+        s,
+      );
     }
 
     notifyListeners();
@@ -451,10 +466,12 @@ $s''',
     }
   }
 
+  /*
   // of method for easy access
   static SettingsProvider of(BuildContext context) {
     return Provider.of<SettingsProvider>(context, listen: false);
   }
+*/
 }
 
 // @see https://stackoverflow.com/a/29567669

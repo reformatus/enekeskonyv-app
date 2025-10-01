@@ -67,9 +67,11 @@ class _HomePageState extends State<HomePage> {
       final String response = await rootBundle.loadString(
         'assets/enekeskonyv.json',
       );
-      
+
       try {
-        jsonSongBooks = (await compute(json.decode, response)) as LinkedHashMap<String, dynamic>;
+        jsonSongBooks =
+            (await compute(json.decode, response))
+                as LinkedHashMap<String, dynamic>;
       } catch (e, s) {
         if (mounted) {
           await GlobalErrorHandler.handleDataError(
@@ -80,9 +82,9 @@ class _HomePageState extends State<HomePage> {
         }
         return;
       }
-      
+
       songBooks = jsonSongBooks;
-      
+
       try {
         chapterTree = await getHomeChapterTree();
       } catch (e, s) {
@@ -90,7 +92,8 @@ class _HomePageState extends State<HomePage> {
           await GlobalErrorHandler.handleError(
             context: context,
             title: 'Fejezetek betöltési hiba',
-            message: 'A fejezetek betöltése nem sikerült, de az énekek továbbra is elérhetők.',
+            message:
+                'A fejezetek betöltése nem sikerült. Ellenőrizze az alkalmazás telepítését.',
             error: e,
             stackTrace: s,
           );
@@ -107,7 +110,8 @@ class _HomePageState extends State<HomePage> {
         await GlobalErrorHandler.handleError(
           context: context,
           title: 'Énekeskönyv betöltési hiba',
-          message: 'Az énekeskönyv adatainak betöltése sikertelen. Ellenőrizze az alkalmazás telepítését.',
+          message:
+              'Az énekeskönyv adatainak betöltése sikertelen. Ellenőrizze az alkalmazás telepítését.',
           error: e,
           stackTrace: s,
         );
@@ -262,7 +266,8 @@ class _HomePageState extends State<HomePage> {
                               clipBehavior: Clip.antiAlias,
                               child: InkWell(
                                 onTap: () {
-                                  final settings = SettingsProvider.of(context);
+                                  final settings =
+                                      Provider.of<SettingsProvider>(context);
                                   final bookKey = settings.bookAsString;
                                   final anyClosed = _chapterControllers.any(
                                     (e) => !settings.getIsChapterExpanded(
@@ -291,9 +296,10 @@ class _HomePageState extends State<HomePage> {
                                   padding: const EdgeInsets.all(10),
                                   child: Builder(
                                     builder: (context) {
-                                      final settings = SettingsProvider.of(
-                                        context,
-                                      );
+                                      final settings =
+                                          Provider.of<SettingsProvider>(
+                                            context,
+                                          );
                                       final bookKey = settings.bookAsString;
                                       final anyClosed = _chapterControllers.any(
                                         (e) => !settings.getIsChapterExpanded(
@@ -314,37 +320,41 @@ class _HomePageState extends State<HomePage> {
                           ),
                           // Search card (center, expands)
                           Expanded(
-                            child: Card(
-                              key: const Key(
-                                '_MyHomePageState.SearchSongButton',
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 3,
-                              margin: const EdgeInsets.all(7),
-                              semanticContainer: true,
-                              child: InkWell(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchPage(
-                                      book: settings.book,
-                                      settingsProvider: settings,
+                            child: Hero(
+                              tag: 'searchbutton',
+                              child: Card(
+                                key: const Key(
+                                  '_MyHomePageState.SearchSongButton',
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                elevation: 3,
+                                margin: const EdgeInsets.all(7),
+                                semanticContainer: true,
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SearchPage(
+                                        book: settings.book,
+                                        settingsProvider: settings,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: Icon(Icons.search),
-                                    ),
-                                    Text(
-                                      'Keresés vagy ugrás...',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge,
-                                    ),
-                                  ],
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Icon(Icons.search),
+                                      ),
+                                      Text(
+                                        'Keresés vagy ugrás...',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -352,23 +362,26 @@ class _HomePageState extends State<HomePage> {
                           // Favorites button (right)
                           Tooltip(
                             message: 'Kedvencek és listák',
-                            child: Card(
-                              margin: const EdgeInsets.only(
-                                top: 7,
-                                right: 7,
-                                bottom: 7,
-                              ),
-                              elevation: 3,
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => CuesPage(context),
-                                  ),
+                            child: Hero(
+                              tag: 'favouritesbutton',
+                              child: Card(
+                                margin: const EdgeInsets.only(
+                                  top: 7,
+                                  right: 7,
+                                  bottom: 7,
                                 ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child: Center(child: Icon(Icons.star)),
+                                elevation: 3,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => CuesPage(context),
+                                    ),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(child: Icon(Icons.star)),
+                                  ),
                                 ),
                               ),
                             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -38,7 +39,7 @@ String? openAppLink(Uri uri, BuildContext context) {
       );
       return null;
     case 'c': // Cue
-      var settings = SettingsProvider.of(context);
+      var settings = Provider.of<SettingsProvider>(context);
 
       List<String> parts;
 

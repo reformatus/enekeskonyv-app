@@ -457,32 +457,39 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
             title: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: textController,
-                    focusNode: keyboardFocusNode,
-                    autofocus: true,
-                    autocorrect: false,
-                    style: const TextStyle(fontWeight: FontWeight.normal),
-                    decoration: const InputDecoration(
-                      hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                  child: Hero(
+                    tag: 'searchbutton',
+                    child: Material(
+                      child: TextField(
+                        controller: textController,
+                        focusNode: keyboardFocusNode,
+                        autofocus: true,
+                        autocorrect: false,
+                        style: const TextStyle(fontWeight: FontWeight.normal),
+                        decoration: const InputDecoration(
+                          hintText: 'Keresés vagy ugrás (pl: 150,3)',
+                        ),
+                        keyboardType: settings.searchNumericKeyboard
+                            ? const TextInputType.numberWithOptions(
+                                decimal: true,
+                              )
+                            : TextInputType.text,
+                        onChanged: (e) {
+                          setState(() {
+                            searchText = e;
+                          });
+                        },
+                        // Prevent keyboard from closing on submit
+                        onEditingComplete: () {},
+                        onSubmitted: (e) {
+                          onSubmit();
+                          textController.text = '';
+                          setState(() {
+                            searchText = '';
+                          });
+                        },
+                      ),
                     ),
-                    keyboardType: settings.searchNumericKeyboard
-                        ? const TextInputType.numberWithOptions(decimal: true)
-                        : TextInputType.text,
-                    onChanged: (e) {
-                      setState(() {
-                        searchText = e;
-                      });
-                    },
-                    // Prevent keyboard from closing on submit
-                    onEditingComplete: () {},
-                    onSubmitted: (e) {
-                      onSubmit();
-                      textController.text = '';
-                      setState(() {
-                        searchText = '';
-                      });
-                    },
                   ),
                 ),
                 // A button to clear the search text.

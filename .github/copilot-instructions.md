@@ -23,7 +23,7 @@ This is a Flutter app for Hungarian Reformed hymn books (21-es kék and 48-as fe
 - **Verse IDs**: Format `"book.song.verse"` (e.g., `"48.1.0"` for 48th book, song 1, verse 1)
 - **Theme colors**: Blue for 21-es book, amber for 48-as book
 - **Navigation**: Always use `MaterialPageRoute` with proper context
-- **State management**: Access settings via `SettingsProvider.of(context)`
+- **State management**: Access settings via `Provider.of<SettingsProvider>(context)`
 
 ## Development Workflow
 
@@ -57,7 +57,7 @@ The app enables wakelock globally in `main.dart` to prevent screen sleep during 
 - All settings changes go through `SettingsProvider` methods
 - Use `notifyListeners()` after state changes
 - Persist via `setPref()` helper method
-- Access current settings via `SettingsProvider.of(context)`
+- Access current settings via `Provider.of<SettingsProvider>(context)`
 
 ### Navigation & Deep Linking
 - Handle app links in `HomePage.initDeepLinks()`
