@@ -294,6 +294,19 @@ by RefLabs''',
                               children: [
                                 const SizedBox(width: 5),
                                 TextButton.icon(
+                                  label: const Text('Hírek'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PastNewsPage(),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.newspaper),
+                                ),
+                                TextButton.icon(
                                   label: const Text('Forráskód'),
                                   onPressed: () async {
                                     try {
@@ -324,6 +337,7 @@ by RefLabs''',
                                   ),
                                   icon: const Icon(Icons.gavel),
                                 ),
+                                const SizedBox(width: 5),
                                 TextButton.icon(
                                   label: const Text('Visszaállítás'),
                                   onPressed: () => showDialog(
@@ -355,19 +369,6 @@ by RefLabs''',
                                     Icons.replay_outlined,
                                     color: Colors.red,
                                   ),
-                                ),
-                                const SizedBox(width: 5),
-                                TextButton.icon(
-                                  label: const Text('Hírek'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => const PastNewsPage(),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.newspaper),
                                 ),
                               ],
                             ),
