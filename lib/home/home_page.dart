@@ -558,12 +558,11 @@ class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
               (widget.chapterItem.children.first as HomePageSongsItem)
                       .songKeys
                       .length ==
-                  1 &&
-              (widget.chapterItem.children.first as HomePageSongsItem)
-                      .songKeys
-                      .first ==
-                  widget.chapterItem.title)
-          ? HomePageSongWidget(widget.chapterItem.title, widget.settings)
+                  1)
+          ? HomePageSongWidget(
+              widget.chapterItem.children.first.startingSongKey!,
+              widget.settings,
+            )
           : ExpansionTile(
               key: ValueKey(
                 'chapter-${widget.settings.bookAsString}-${widget.chapterItem.title}',
