@@ -578,7 +578,7 @@ class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
                 children: [
                   Expanded(child: Text(widget.chapterItem.title)),
                   if (widget.chapterItem.startingSongKey != null &&
-                      widget.chapterItem.startingSongKey!.length < 7)
+                      widget.chapterItem.startingSongKey!.length <= 3)
                     Padding(
                       padding: EdgeInsetsGeometry.only(left: 5),
                       child: Text(
