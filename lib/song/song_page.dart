@@ -33,6 +33,15 @@ class SongPage extends StatefulWidget {
 }
 
 class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
+  late SettingsProvider settingsProvider;
+  late VoidCallback listenerClosure;
+
+  @override
+  void dispose() {
+    settingsProvider.removeListener(listenerClosure);
+    super.dispose();
+  }
+
   bool _listenerAdded = false;
 
   @override
@@ -60,11 +69,16 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           // settings. Needed for changing the number of pages when
           // changing scoreDisplay.
           if (!_listenerAdded) {
-            Provider.of<SettingsProvider>(context, listen: false).addListener(() {
+            settingsProvider = Provider.of<SettingsProvider>(
+              context,
+              listen: false,
+            );
+            listenerClosure = () {
               SongStateProvider.of(
                 context,
               ).settingsListener(context: context, vsync: this);
-            });
+            };
+            settingsProvider.addListener(listenerClosure);
             _listenerAdded = true;
           }
 
@@ -134,10 +148,9 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                           tooltip: 'Főoldal',
                                           icon: const Icon(Icons.menu_book),
                                           onPressed: () {
-                                            Navigator.pushNamedAndRemoveUntil(
+                                            Navigator.popUntil(
                                               context,
-                                              '/',
-                                              (route) => false,
+                                              ModalRoute.withName('/'),
                                             );
                                           },
                                         ),

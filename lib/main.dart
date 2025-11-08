@@ -22,42 +22,50 @@ class Enekeskonyv extends StatefulWidget {
   State<Enekeskonyv> createState() => _EnekeskonyvState();
 }
 
-class _EnekeskonyvState extends State<Enekeskonyv> {
-  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'navigatorKey',
+);
+GlobalKey scaffoldKey = GlobalKey(debugLabel: 'scaffoldKey');
 
+class _EnekeskonyvState extends State<Enekeskonyv> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SettingsProvider>(
       create: (_) => SettingsProvider()..initialize(navigatorKey),
-      child: Consumer<SettingsProvider>(builder: (context, settings, child) {
-        // Initialize global error handler once settings are ready
-        if (settings.initialized) {
-          GlobalErrorHandler.initialize(
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, child) {
+          // Initialize global error handler once settings are ready
+          if (settings.initialized) {
+            GlobalErrorHandler.initialize(
+              navigatorKey: navigatorKey,
+              settingsProvider: settings,
+            );
+          }
+
+          return MaterialApp(
             navigatorKey: navigatorKey,
-            settingsProvider: settings,
-          );
-        }
-        
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          title: 'Énekeskönyv',
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-                seedColor:
-                    settings.book == Book.black ? Colors.amber : Colors.blue,
+            debugShowCheckedModeBanner: false,
+            title: 'Énekeskönyv',
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: settings.book == Book.black
+                    ? Colors.amber
+                    : Colors.blue,
                 brightness: settings.getCurrentAppBrightness(context),
-                surface: settings.isOledTheme &&
+                surface:
+                    settings.isOledTheme &&
                         settings.getCurrentAppBrightness(context) ==
                             Brightness.dark
                     ? Colors.black
-                    : null),
-          ),
-          home: const HomePage(),
-        );
-      }),
+                    : null,
+              ),
+            ),
+            home: const HomePage(),
+          );
+        },
+      ),
     );
   }
 }

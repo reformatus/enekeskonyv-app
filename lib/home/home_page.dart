@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:app_links/app_links.dart';
 import 'package:enekeskonyv/home/chapter_utils.dart';
+import 'package:enekeskonyv/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -170,13 +171,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
-        if (!settings.initialized) {
-          return Scaffold(appBar: AppBar(title: const Text('Betöltés...')));
-        }
-
         final isIOS = Platform.isIOS;
 
-        if (songBooks.isEmpty) {
+        if (!settings.initialized || songBooks.isEmpty) {
           return Scaffold(
             body: Padding(
               padding: const EdgeInsets.all(32.0),
@@ -185,7 +182,9 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Énekeskönyvek betöltése...',
+                      songBooks.isEmpty
+                          ? 'Énekeskönyvek betöltése...'
+                          : 'Beállítások betöltése...',
                       style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -444,7 +443,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          key: const Key('_MyHomePageState'),
+          key: scaffoldKey,
         );
       },
     );

@@ -8,13 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'error_dialog.dart';
+import 'main.dart';
 
 Map<String, dynamic> songBooks = {};
 Map<String, List<HomePageItem>> chapterTree = {};
 
 class SettingsProvider extends ChangeNotifier {
-  late GlobalKey<NavigatorState> navigatorKey;
-
   static const Book defaultBook = Book.blue;
   static const ScoreDisplay defaultScoreDisplay = ScoreDisplay.all;
   static const double defaultFontSize = 14.0;
@@ -306,8 +305,6 @@ class SettingsProvider extends ChangeNotifier {
   late PackageInfo packageInfo;
 
   Future initialize(GlobalKey<NavigatorState> navigatorKey) async {
-    this.navigatorKey = navigatorKey;
-
     await Future.delayed(Duration.zero); // Wait for navigatorKey to be set.
 
     try {
@@ -395,8 +392,10 @@ class SettingsProvider extends ChangeNotifier {
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
-      _readNewsIds = (jsonDecode(prefs.getString('readNewsIds') ?? defaultReadNewsIds) as List)
-          .cast<String>();
+      _readNewsIds =
+          (jsonDecode(prefs.getString('readNewsIds') ?? defaultReadNewsIds)
+                  as List)
+              .cast<String>();
     } catch (e, s) {
       // On any unexpected error, use default settings.
       assignDefaults();
