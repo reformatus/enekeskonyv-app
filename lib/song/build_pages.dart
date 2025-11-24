@@ -15,11 +15,15 @@ List<List<Widget>> buildPages(
   Book book,
   String songKey,
   BuildContext context,
+  bool isFullscreen,
 ) {
   var state = SongStateProvider.of(context);
   // Nested list; a page is just a list of widgets.
   final List<List<Widget>> pages = [];
-  SettingsProvider settings = Provider.of<SettingsProvider>(context, listen: false);
+  SettingsProvider settings = Provider.of<SettingsProvider>(
+    context,
+    listen: false,
+  );
 
   var song = songBooks[book.name][songKey];
 
@@ -67,6 +71,7 @@ List<List<Widget>> buildPages(
           book,
           songKey,
           context,
+          isFullscreen: isFullscreen,
         );
 
         // If song is displayed on single page, apply favourite functionality
@@ -94,7 +99,11 @@ List<List<Widget>> buildPages(
           );
           // Otherwise just display a passive sheet widget
         } else {
-          page.add(score);
+          if (isFullscreen) {
+            page.add(Expanded(child: score));
+          } else {
+            page.add(score);
+          }
         }
       } else {
         page.add(
@@ -173,7 +182,8 @@ List<List<Widget>> buildPages(
 int getNumOfPages(Book book, String songKey, BuildContext context, bool inCue) {
   // When all verses should have scores displayed, every verse should have
   // its own page.
-  if (Provider.of<SettingsProvider>(context, listen: false).scoreDisplay == ScoreDisplay.all ||
+  if (Provider.of<SettingsProvider>(context, listen: false).scoreDisplay ==
+          ScoreDisplay.all ||
       inCue) {
     if (songBooks[book.name][songKey]['markdown'] != null) return 1;
     return songBooks[book.name][songKey]['texts'].length;

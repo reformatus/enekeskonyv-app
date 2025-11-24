@@ -78,8 +78,9 @@ Widget getScore(
   int verseIndex,
   Book book,
   String songKey,
-  BuildContext context,
-) {
+  BuildContext context, {
+  bool isFullscreen = false,
+}) {
   // The actual verse number is the number (well, any text) before the first
   // dot of the verse text.
   final verseNumber = songBooks[book.name][songKey]['texts'][verseIndex].split(
@@ -99,9 +100,12 @@ Widget getScore(
     // size. This covers two cases:
     // - rotating the device,
     // - devices with different widths.
-    width:
-        MediaQuery.of(context).size.width *
-        ((orientation == Orientation.portrait) ? 1.0 : 0.7),
+    width: isFullscreen
+        ? (orientation == Orientation.portrait
+              ? MediaQuery.of(context).size.width
+              : null)
+        : MediaQuery.of(context).size.width *
+              ((orientation == Orientation.portrait) ? 1.0 : 0.7),
     colorFilter: ColorFilter.mode(
       Theme.of(context).textTheme.titleSmall!.color!,
       BlendMode.srcIn,
@@ -114,6 +118,7 @@ void onTapUp(
   BuildContext context,
   Offset tapDownPosition,
   TickerProvider vsync,
+  VoidCallback onToggleFullscreen,
 ) {
   var settings = Provider.of<SettingsProvider>(context, listen: false);
   var state = SongStateProvider.of(context);
@@ -124,13 +129,15 @@ void onTapUp(
   // Bail out early if tap ended more than 3.0 away from where it started.
   if ((details.globalPosition - tapDownPosition).distance > 3.0) return;
 
-  if ((MediaQuery.of(context).size.width / 2) > details.globalPosition.dx) {
+  final width = MediaQuery.of(context).size.width;
+
+  if (details.globalPosition.dx < width / 3) {
+    // Left third: Backward
     if (state.inCue) {
       if (state.cueElementExists(settings, next: false)) {
         state.advanceCue(context, settings, vsync, backward: true);
       }
     } else {
-      // Go backward (to the previous verse).
       state.switchVerse(
         next: false,
         settingsProvider: Provider.of<SettingsProvider>(context, listen: false),
@@ -138,13 +145,13 @@ void onTapUp(
         vsync: vsync,
       );
     }
-  } else {
+  } else if (details.globalPosition.dx > 2 * width / 3) {
+    // Right third: Forward
     if (state.inCue) {
       if (state.cueElementExists(settings, next: true)) {
         state.advanceCue(context, settings, vsync);
       }
     } else {
-      // Go forward (to the next verse).
       state.switchVerse(
         next: true,
         settingsProvider: Provider.of<SettingsProvider>(context, listen: false),
@@ -152,5 +159,8 @@ void onTapUp(
         vsync: vsync,
       );
     }
+  } else {
+    // Middle third: Toggle fullscreen
+    onToggleFullscreen();
   }
 }

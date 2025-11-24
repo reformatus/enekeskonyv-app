@@ -43,6 +43,29 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   }
 
   bool _listenerAdded = false;
+  bool _isFullscreen = false;
+
+  void _toggleFullscreen() {
+    setState(() {
+      _isFullscreen = !_isFullscreen;
+      if (_isFullscreen) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Kilépés teljes képernyős módból: Koppintson a kotta közepére',
+            ),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'OK',
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,40 +158,65 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                               child: NestedScrollView(
                                 controller: state.scrollController,
                                 headerSliverBuilder: ((context, innerBoxIsScrolled) {
-                                  return [
-                                    SliverOverlapAbsorber(
-                                      handle:
-                                          NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                            context,
+                                  return _isFullscreen
+                                      ? [
+                                          SliverOverlapAbsorber(
+                                            handle:
+                                                NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                                  context,
+                                                ),
+                                            sliver: SliverToBoxAdapter(),
                                           ),
-                                      sliver: SliverAppBar(
-                                        // Instead of the back button on the left, use
-                                        // this to go home immediately.
-                                        leading: IconButton(
-                                          tooltip: 'Főoldal',
-                                          icon: const Icon(Icons.menu_book),
-                                          onPressed: () {
-                                            Navigator.popUntil(
-                                              context,
-                                              ModalRoute.withName('/'),
-                                            );
-                                          },
-                                        ),
-                                        pinned:
-                                            orientation == Orientation.portrait,
-                                        // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
-                                        expandedHeight: 57,
-                                        title: Text(
-                                          getSongTitle(
-                                            songBooks[state.book.name][state
-                                                .songKey],
+                                        ]
+                                      : [
+                                          SliverOverlapAbsorber(
+                                            handle:
+                                                NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                                  context,
+                                                ),
+                                            sliver: SliverAppBar(
+                                              // Instead of the back button on the left, use
+                                              // this to go home immediately.
+                                              leading: IconButton(
+                                                tooltip: 'Főoldal',
+                                                icon: const Icon(
+                                                  Icons.menu_book,
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.popUntil(
+                                                    context,
+                                                    ModalRoute.withName('/'),
+                                                  );
+                                                },
+                                              ),
+                                              pinned:
+                                                  orientation ==
+                                                  Orientation.portrait,
+                                              // @see https://github.com/flutter/flutter/issues/79077#issuecomment-1226882532
+                                              expandedHeight: 57,
+                                              title: Text(
+                                                getSongTitle(
+                                                  songBooks[state
+                                                      .book
+                                                      .name][state.songKey],
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                                maxLines: 2,
+                                              ),
+                                              actions: [
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.fullscreen,
+                                                  ),
+                                                  tooltip: 'Teljes képernyő',
+                                                  onPressed: _toggleFullscreen,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          style: const TextStyle(fontSize: 18),
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                    ),
-                                  ];
+                                        ];
                                 }),
                                 body: Builder(
                                   builder: (BuildContext context) {
@@ -183,6 +231,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                           context,
                                           tapDownPosition,
                                           this,
+                                          _toggleFullscreen,
                                         ),
                                         // Only have a separated space for verse bar
                                         // when it's enabled, visible and pinned.
@@ -203,6 +252,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                       state,
                                                       orientation,
                                                       context,
+                                                      _isFullscreen,
                                                     ),
                                                   ),
                                                   VerseBar(
@@ -221,6 +271,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                     state,
                                                     orientation,
                                                     context,
+                                                    _isFullscreen,
                                                   ),
                                                   // The verse bar is animated
                                                   // in and out of the screen
@@ -250,10 +301,11 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            ControllerButtons(
-                              orientation: orientation,
-                              vsync: this,
-                            ),
+                            if (!_isFullscreen)
+                              ControllerButtons(
+                                orientation: orientation,
+                                vsync: this,
+                              ),
                           ],
                         ),
                       );
@@ -273,36 +325,59 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
     SongStateProvider state,
     Orientation orientation,
     BuildContext context,
+    bool isFullscreen,
   ) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final useFullscreenLayout =
+        isFullscreen &&
+        (settings.scoreDisplay == ScoreDisplay.all || state.inCue);
+
     return TabBarView(
       controller: state.tabController,
       physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
-      children: buildPages(orientation, state.book, state.songKey, context).map(
-        (tabContentList) {
-          return Builder(
-            builder: (BuildContext context) {
-              return Padding(
-                // Prevent having score and/or text
-                // sticking to the side of the
-                // display.
-                padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverOverlapInjector(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context,
-                      ),
-                    ),
-                    SliverList(
-                      delegate: SliverChildListDelegate.fixed(tabContentList),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ).toList(),
+      children:
+          buildPages(
+            orientation,
+            state.book,
+            state.songKey,
+            context,
+            isFullscreen,
+          ).map((tabContentList) {
+            return Builder(
+              builder: (BuildContext context) {
+                return Padding(
+                  // Prevent having score and/or text
+                  // sticking to the side of the
+                  // display.
+                  padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                  child: useFullscreenLayout
+                      ? SizedBox.expand(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: tabContentList,
+                          ),
+                        )
+                      : CustomScrollView(
+                          slivers: [
+                            if (!isFullscreen)
+                              SliverOverlapInjector(
+                                handle:
+                                    NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                      context,
+                                    ),
+                              ),
+                            SliverList(
+                              delegate: SliverChildListDelegate.fixed(
+                                tabContentList,
+                              ),
+                            ),
+                          ],
+                        ),
+                );
+              },
+            );
+          }).toList(),
     );
   }
 }
