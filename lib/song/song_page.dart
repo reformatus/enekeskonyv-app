@@ -58,7 +58,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
-                'Kilépés teljes képernyős módból: Koppintson a kotta közepére',
+                'Kilépés teljes képernyős módból: Koppints a kotta közepére',
               ),
               duration: const Duration(seconds: 5),
               action: SnackBarAction(
