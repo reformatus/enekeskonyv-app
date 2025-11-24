@@ -34,22 +34,6 @@ class _HomePageState extends State<HomePage> {
   late ScrollController scrollController;
   bool _newsChecked = false;
 
-  // Collect controllers of all chapter ExpansionTiles currently in the tree
-  final List<_ChapterControllerRef> _chapterControllers = [];
-  // All chapter titles for the current book; used for bulk state updates
-  List<String> _allChapterTitles = [];
-
-  void _registerChapterController(
-    ExpansibleController controller,
-    String title,
-  ) {
-    _chapterControllers.add(_ChapterControllerRef(controller, title));
-  }
-
-  void _unregisterChapterController(ExpansibleController controller) {
-    _chapterControllers.removeWhere((e) => e.controller == controller);
-  }
-
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
 
@@ -202,9 +186,6 @@ class _HomePageState extends State<HomePage> {
           checkAndShowNews();
         });
 
-        // Update cached chapter titles for current book
-        _allChapterTitles = _collectChapterTitlesForBook(settings.bookAsString);
-
         return Scaffold(
           body: CustomScrollView(
             controller: scrollController,
@@ -309,29 +290,9 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         listen: false,
                                       );
-                                  final bookKey = settings.bookAsString;
-                                  final anyClosed = _chapterControllers.any(
-                                    (e) => !settings.getIsChapterExpanded(
-                                      bookKey,
-                                      e.title,
-                                    ),
+                                  settings.changeChaptersExpanded(
+                                    !settings.chaptersExpanded,
                                   );
-                                  final targetOpen = anyClosed;
-                                  // Persist for all chapters (including off-screen)
-                                  settings.setAllChaptersExpandedState(
-                                    settings.book,
-                                    targetOpen,
-                                    _allChapterTitles,
-                                  );
-                                  // Update visible controllers
-                                  for (final ref in _chapterControllers) {
-                                    if (targetOpen) {
-                                      ref.controller.expand();
-                                    } else {
-                                      ref.controller.collapse();
-                                    }
-                                  }
-                                  setState(() {});
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
@@ -341,17 +302,10 @@ class _HomePageState extends State<HomePage> {
                                           Provider.of<SettingsProvider>(
                                             context,
                                           );
-                                      final bookKey = settings.bookAsString;
-                                      final anyClosed = _chapterControllers.any(
-                                        (e) => !settings.getIsChapterExpanded(
-                                          bookKey,
-                                          e.title,
-                                        ),
-                                      );
                                       return Icon(
-                                        anyClosed
-                                            ? Icons.unfold_more
-                                            : Icons.unfold_less,
+                                        settings.chaptersExpanded
+                                            ? Icons.unfold_less
+                                            : Icons.unfold_more,
                                       );
                                     },
                                   ),
@@ -437,8 +391,6 @@ class _HomePageState extends State<HomePage> {
                 children: buildHomepageItems(
                   chapterTree[settings.bookAsString]!,
                   settings,
-                  registerController: _registerChapterController,
-                  unregisterController: _unregisterChapterController,
                 ).followedBy([SizedBox(height: 20)]).toList(),
               ),
             ],
@@ -454,21 +406,12 @@ List<Widget> buildHomepageItems(
   List<HomePageItem> items,
   SettingsProvider settings, {
   int initialDepth = 0,
-  void Function(ExpansibleController controller, String title)?
-  registerController,
-  void Function(ExpansibleController controller)? unregisterController,
 }) {
   return items
       .map<Iterable<Widget>>(
         (e) => switch (e) {
           HomePageChapterItem chapter => [
-            HomePageChapterWidget(
-              chapter,
-              settings,
-              depth: initialDepth,
-              registerController: registerController,
-              unregisterController: unregisterController,
-            ),
+            HomePageChapterWidget(chapter, settings, depth: initialDepth),
           ],
           HomePageSongsItem songs => songs.songKeys.map(
             (k) => HomePageSongWidget(k, settings),
@@ -507,37 +450,17 @@ class HomePageChapterWidget extends StatefulWidget {
     this.chapterItem,
     this.settings, {
     required this.depth,
-    this.registerController,
-    this.unregisterController,
     super.key,
   });
   final HomePageChapterItem chapterItem;
   final SettingsProvider settings;
   final int depth;
-  final void Function(ExpansibleController controller, String title)?
-  registerController;
-  final void Function(ExpansibleController controller)? unregisterController;
 
   @override
   State<HomePageChapterWidget> createState() => _HomePageChapterWidgetState();
 }
 
 class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
-  late final ExpansibleController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = ExpansibleController();
-    widget.registerController?.call(_controller, widget.chapterItem.title);
-  }
-
-  @override
-  void dispose() {
-    widget.unregisterController?.call(_controller);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -565,15 +488,11 @@ class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
             )
           : ExpansionTile(
               key: ValueKey(
-                'chapter-${widget.settings.bookAsString}-${widget.chapterItem.title}',
+                'chapter-${widget.settings.bookAsString}-${widget.settings.chaptersExpanded}-${widget.chapterItem.title}',
               ),
-              controller: _controller,
               shape: Border(),
               visualDensity: VisualDensity.compact,
-              initiallyExpanded: widget.settings.getIsChapterExpanded(
-                widget.settings.bookAsString,
-                widget.chapterItem.title,
-              ),
+              initiallyExpanded: widget.settings.chaptersExpanded,
               title: Row(
                 children: [
                   Expanded(child: Text(widget.chapterItem.title)),
@@ -588,44 +507,12 @@ class _HomePageChapterWidgetState extends State<HomePageChapterWidget> {
                     ),
                 ],
               ),
-              onExpansionChanged: (isOpen) {
-                widget.settings.setChapterExpandedState(
-                  widget.settings.book,
-                  widget.chapterItem.title,
-                  isOpen,
-                );
-              },
               children: buildHomepageItems(
                 widget.chapterItem.children,
                 widget.settings,
                 initialDepth: widget.depth + 1,
-                registerController: widget.registerController,
-                unregisterController: widget.unregisterController,
               ),
             ),
     );
   }
-}
-
-class _ChapterControllerRef {
-  _ChapterControllerRef(this.controller, this.title);
-  final ExpansibleController controller;
-  final String title;
-}
-
-// Utility: collect all chapter titles recursively for a given book
-List<String> _collectChapterTitlesForItems(List<HomePageItem> items) {
-  final titles = <String>[];
-  for (final item in items) {
-    if (item is HomePageChapterItem) {
-      titles.add(item.title);
-      titles.addAll(_collectChapterTitlesForItems(item.children));
-    }
-  }
-  return titles;
-}
-
-List<String> _collectChapterTitlesForBook(String bookKey) {
-  final tree = chapterTree[bookKey] ?? const <HomePageItem>[];
-  return _collectChapterTitlesForItems(tree);
 }

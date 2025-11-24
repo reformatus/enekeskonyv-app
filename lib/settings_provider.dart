@@ -27,7 +27,7 @@ class SettingsProvider extends ChangeNotifier {
   static const String defaultSelectedCue = 'Kedvencek';
   static const String defaultCueStore = '{"Kedvencek": []}';
   static const String defaultReadNewsIds = '[]';
-  static const String defaultExpandedChapters = '{}';
+  static const bool defaultChaptersExpanded = true;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -42,7 +42,7 @@ class SettingsProvider extends ChangeNotifier {
   String _selectedCue = defaultSelectedCue;
   Map _cueStore = jsonDecode(defaultCueStore);
   List<String> _readNewsIds = [];
-  Map _expandedChapters = jsonDecode(defaultExpandedChapters);
+  bool _chaptersExpanded = defaultChaptersExpanded;
 
   bool _initialized = false;
 
@@ -59,17 +59,7 @@ class SettingsProvider extends ChangeNotifier {
   String get selectedCue => _selectedCue;
   Map get cueStore => _cueStore;
   List<String> get readNewsIds => _readNewsIds;
-  Map get expandedChapters => _expandedChapters;
-
-  // Returns whether a chapter should be initially expanded for a given book key ("21" or "48")
-  bool getIsChapterExpanded(String bookKey, String chapterTitle) {
-    final bookMap = _expandedChapters[bookKey];
-    if (bookMap is Map) {
-      final value = bookMap[chapterTitle];
-      return value == true;
-    }
-    return false;
-  }
+  bool get chaptersExpanded => _chaptersExpanded;
 
   String get bookAsString {
     switch (_book) {
@@ -193,39 +183,10 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   //! Home chapter expansion states
-  Future setChapterExpandedState(
-    Book book,
-    String chapterTitle,
-    bool isOpen,
-  ) async {
-    final bookKey = book.name; // '21' or '48'
-    if (_expandedChapters[bookKey] == null ||
-        _expandedChapters[bookKey] is! Map) {
-      _expandedChapters[bookKey] = <String, bool>{};
-    }
-    // Update state
-    (_expandedChapters[bookKey] as Map)[chapterTitle] = isOpen;
+  Future changeChaptersExpanded(bool value) async {
+    _chaptersExpanded = value;
     notifyListeners();
-    setPref('expandedChapters', jsonEncode(_expandedChapters));
-  }
-
-  // Bulk update expansion states for multiple chapters in a single notify/persist
-  Future setAllChaptersExpandedState(
-    Book book,
-    bool isOpen,
-    Iterable<String> chapterTitles,
-  ) async {
-    final bookKey = book.name;
-    if (_expandedChapters[bookKey] == null ||
-        _expandedChapters[bookKey] is! Map) {
-      _expandedChapters[bookKey] = <String, bool>{};
-    }
-    final map = (_expandedChapters[bookKey] as Map);
-    for (final title in chapterTitles) {
-      map[title] = isOpen;
-    }
-    notifyListeners();
-    setPref('expandedChapters', jsonEncode(_expandedChapters));
+    setPref('chaptersExpanded', value);
   }
 
   //! Cuelists
@@ -386,9 +347,8 @@ class SettingsProvider extends ChangeNotifier {
           defaultSearchNumericKeyboard;
       _selectedCue = prefs.getString('selectedCue') ?? selectedCue;
       _cueStore = jsonDecode(prefs.getString('setStore') ?? defaultCueStore);
-      _expandedChapters = jsonDecode(
-        prefs.getString('expandedChapters') ?? defaultExpandedChapters,
-      );
+      _chaptersExpanded =
+          prefs.getBool('chaptersExpanded') ?? defaultChaptersExpanded;
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
@@ -426,7 +386,7 @@ class SettingsProvider extends ChangeNotifier {
     _selectedCue = defaultSelectedCue;
     _cueStore = jsonDecode(defaultCueStore);
     _readNewsIds = jsonDecode(defaultReadNewsIds).cast<String>();
-    _expandedChapters = jsonDecode(defaultExpandedChapters);
+    _chaptersExpanded = defaultChaptersExpanded;
   }
 
   void showError(String message, Object? e, StackTrace? s) {
