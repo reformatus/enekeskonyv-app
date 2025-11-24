@@ -29,6 +29,7 @@ class SettingsProvider extends ChangeNotifier {
   static const String defaultReadNewsIds = '[]';
   static const bool defaultChaptersExpanded = true;
   static const bool defaultShowErrors = false;
+  static const bool defaultShowFullscreenHint = true;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -45,6 +46,7 @@ class SettingsProvider extends ChangeNotifier {
   List<String> _readNewsIds = [];
   bool _chaptersExpanded = defaultChaptersExpanded;
   bool _showErrors = defaultShowErrors;
+  bool _showFullscreenHint = defaultShowFullscreenHint;
 
   bool _initialized = false;
 
@@ -63,6 +65,7 @@ class SettingsProvider extends ChangeNotifier {
   List<String> get readNewsIds => _readNewsIds;
   bool get chaptersExpanded => _chaptersExpanded;
   bool get showErrors => _showErrors;
+  bool get showFullscreenHint => _showFullscreenHint;
 
   String get bookAsString {
     switch (_book) {
@@ -196,6 +199,12 @@ class SettingsProvider extends ChangeNotifier {
     _showErrors = value;
     notifyListeners();
     setPref('showErrors', value);
+  }
+
+  Future changeShowFullscreenHint(bool value) async {
+    _showFullscreenHint = value;
+    notifyListeners();
+    setPref('showFullscreenHint', value);
   }
 
   //! Cuelists
@@ -359,6 +368,8 @@ class SettingsProvider extends ChangeNotifier {
       _chaptersExpanded =
           prefs.getBool('chaptersExpanded') ?? defaultChaptersExpanded;
       _showErrors = prefs.getBool('showErrors') ?? defaultShowErrors;
+      _showFullscreenHint =
+          prefs.getBool('showFullscreenHint') ?? defaultShowFullscreenHint;
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
@@ -398,6 +409,7 @@ class SettingsProvider extends ChangeNotifier {
     _readNewsIds = jsonDecode(defaultReadNewsIds).cast<String>();
     _chaptersExpanded = defaultChaptersExpanded;
     _showErrors = defaultShowErrors;
+    _showFullscreenHint = defaultShowFullscreenHint;
   }
 
   void showError(String message, Object? e, StackTrace? s) {

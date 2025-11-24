@@ -48,7 +48,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   void _toggleFullscreen() {
     setState(() {
       _isFullscreen = !_isFullscreen;
-      if (_isFullscreen) {
+      if (_isFullscreen && settingsProvider.showFullscreenHint) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
@@ -56,8 +56,9 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
             ),
             duration: const Duration(seconds: 5),
             action: SnackBarAction(
-              label: 'OK',
+              label: 'Ne mutassa többet',
               onPressed: () {
+                settingsProvider.changeShowFullscreenHint(false);
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               },
             ),
