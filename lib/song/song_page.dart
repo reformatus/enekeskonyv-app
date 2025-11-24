@@ -38,6 +38,10 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
     settingsProvider.removeListener(listenerClosure);
     super.dispose();
   }
@@ -48,21 +52,29 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   void _toggleFullscreen() {
     setState(() {
       _isFullscreen = !_isFullscreen;
-      if (_isFullscreen && settingsProvider.showFullscreenHint) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Kilépés teljes képernyős módból: Koppintson a kotta közepére',
+      if (_isFullscreen) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+        if (settingsProvider.showFullscreenHint) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Kilépés teljes képernyős módból: Koppintson a kotta közepére',
+              ),
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'Ne mutassa többet',
+                onPressed: () {
+                  settingsProvider.changeShowFullscreenHint(false);
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
             ),
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'Ne mutassa többet',
-              onPressed: () {
-                settingsProvider.changeShowFullscreenHint(false);
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              },
-            ),
-          ),
+          );
+        }
+      } else {
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.manual,
+          overlays: SystemUiOverlay.values,
         );
       }
     });
