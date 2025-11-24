@@ -9,7 +9,7 @@ import 'settings_provider.dart';
 class GlobalErrorHandler {
   static late GlobalKey<NavigatorState> _navigatorKey;
   static late SettingsProvider _settingsProvider;
-  
+
   /// Initialize the global error handler
   static void initialize({
     required GlobalKey<NavigatorState> navigatorKey,
@@ -17,7 +17,7 @@ class GlobalErrorHandler {
   }) {
     _navigatorKey = navigatorKey;
     _settingsProvider = settingsProvider;
-    
+
     // Handle Flutter framework errors (widget errors, render errors, etc.)
     FlutterError.onError = (FlutterErrorDetails details) {
       // Log the error for debugging
@@ -27,22 +27,23 @@ class GlobalErrorHandler {
         stackTrace: details.stack,
         name: 'ErrorHandler',
       );
-      
+
       // In debug mode, use the default Flutter error handler
       if (kDebugMode) {
         FlutterError.presentError(details);
         return;
       }
-      
+
       // In release mode, show user-friendly error dialog
       _showErrorDialog(
         title: 'Alkalmazáshiba',
-        message: 'Váratlan hiba történt az alkalmazásban. Ha a probléma folytatódik, kérjük küldjön hibajelentést.',
+        message:
+            'Váratlan hiba történt az alkalmazásban. Ha a probléma folytatódik, kérjük küldjön hibajelentést.',
         error: details.exception,
         stackTrace: details.stack,
       );
     };
-    
+
     // Handle async errors that are not caught by Flutter
     PlatformDispatcher.instance.onError = (error, stackTrace) {
       developer.log(
@@ -51,25 +52,26 @@ class GlobalErrorHandler {
         stackTrace: stackTrace,
         name: 'ErrorHandler',
       );
-      
+
       // In debug mode, also print to console
       if (kDebugMode) {
         debugPrint('Uncaught async error: $error');
         debugPrint('Stack trace: $stackTrace');
       }
-      
+
       // Show user-friendly error dialog
       _showErrorDialog(
         title: 'Háttérhiba',
-        message: 'Hiba történt egy háttérműveletnél. Az alkalmazás továbbra is használható.',
+        message:
+            'Hiba történt egy háttérműveletnél. Az alkalmazás továbbra is használható.',
         error: error,
         stackTrace: stackTrace,
       );
-      
+
       return true; // Indicates that we handled the error
     };
   }
-  
+
   /// Shows error dialog if navigator context is available
   static void _showErrorDialog({
     required String title,
@@ -77,6 +79,9 @@ class GlobalErrorHandler {
     Object? error,
     StackTrace? stackTrace,
   }) {
+    // Check if error reporting is enabled
+    if (!_settingsProvider.showErrors) return;
+
     // Use a timer to ensure we don't block the error handling
     Timer(const Duration(milliseconds: 100), () {
       final context = _navigatorKey.currentContext;
@@ -92,7 +97,7 @@ class GlobalErrorHandler {
       }
     });
   }
-  
+
   /// Manually handle an error with custom context
   static Future<void> handleError({
     required BuildContext context,
@@ -108,7 +113,7 @@ class GlobalErrorHandler {
       stackTrace: stackTrace,
       name: 'ErrorHandler',
     );
-    
+
     await ErrorDialog.show(
       context: context,
       title: title,
@@ -118,7 +123,7 @@ class GlobalErrorHandler {
       stackTrace: stackTrace,
     );
   }
-  
+
   /// Handle network/connectivity errors with specific messaging
   static Future<void> handleNetworkError({
     required BuildContext context,
@@ -128,12 +133,13 @@ class GlobalErrorHandler {
     await handleError(
       context: context,
       title: 'Kapcsolati hiba',
-      message: 'Nem sikerült kapcsolódni az internethez. Ellenőrizze a hálózati kapcsolatot és próbálja újra.',
+      message:
+          'Nem sikerült kapcsolódni az internethez. Ellenőrizze a hálózati kapcsolatot és próbálja újra.',
       error: error,
       stackTrace: stackTrace,
     );
   }
-  
+
   /// Handle file/storage errors with specific messaging
   static Future<void> handleStorageError({
     required BuildContext context,
@@ -143,12 +149,13 @@ class GlobalErrorHandler {
     await handleError(
       context: context,
       title: 'Tárolási hiba',
-      message: 'Hiba történt az adatok mentése vagy betöltése közben. Ellenőrizze, hogy van-e elegendő tárhely.',
+      message:
+          'Hiba történt az adatok mentése vagy betöltése közben. Ellenőrizze, hogy van-e elegendő tárhely.',
       error: error,
       stackTrace: stackTrace,
     );
   }
-  
+
   /// Handle parsing/data format errors
   static Future<void> handleDataError({
     required BuildContext context,
@@ -158,7 +165,8 @@ class GlobalErrorHandler {
     await handleError(
       context: context,
       title: 'Adatformátum hiba',
-      message: 'Az alkalmazás adatai sérültek vagy hibás formátumúak. Próbálja meg újraindítani az alkalmazást.',
+      message:
+          'Az alkalmazás adatai sérültek vagy hibás formátumúak. Próbálja meg újraindítani az alkalmazást.',
       error: error,
       stackTrace: stackTrace,
     );

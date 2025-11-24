@@ -271,6 +271,22 @@ Csatolhatsz képet is.''',
                       ),
                       if (songData == null) ...[
                         const Divider(endIndent: 70, indent: 70),
+                        ListTile(
+                          title: const Text('Alkalmazáshibák megjelenítése'),
+                          trailing: Platform.isIOS
+                              ? CupertinoSwitch(
+                                  value: settings.showErrors,
+                                  onChanged: (value) {
+                                    settings.changeShowErrors(value);
+                                  },
+                                )
+                              : Switch(
+                                  value: settings.showErrors,
+                                  onChanged: (value) {
+                                    settings.changeShowErrors(value);
+                                  },
+                                ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text(
@@ -356,8 +372,7 @@ by RefLabs''',
                                         FilledButton(
                                           onPressed: () {
                                             settings.factoryReset().then(
-                                              (value) =>
-                                                  Navigator.pop(context),
+                                              (value) => Navigator.pop(context),
                                             );
                                           },
                                           child: const Text('Végleges törlés!'),

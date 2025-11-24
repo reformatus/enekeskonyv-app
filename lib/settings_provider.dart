@@ -28,6 +28,7 @@ class SettingsProvider extends ChangeNotifier {
   static const String defaultCueStore = '{"Kedvencek": []}';
   static const String defaultReadNewsIds = '[]';
   static const bool defaultChaptersExpanded = true;
+  static const bool defaultShowErrors = false;
 
   Book _book = defaultBook;
   ScoreDisplay _scoreDisplay = defaultScoreDisplay;
@@ -43,6 +44,7 @@ class SettingsProvider extends ChangeNotifier {
   Map _cueStore = jsonDecode(defaultCueStore);
   List<String> _readNewsIds = [];
   bool _chaptersExpanded = defaultChaptersExpanded;
+  bool _showErrors = defaultShowErrors;
 
   bool _initialized = false;
 
@@ -60,6 +62,7 @@ class SettingsProvider extends ChangeNotifier {
   Map get cueStore => _cueStore;
   List<String> get readNewsIds => _readNewsIds;
   bool get chaptersExpanded => _chaptersExpanded;
+  bool get showErrors => _showErrors;
 
   String get bookAsString {
     switch (_book) {
@@ -187,6 +190,12 @@ class SettingsProvider extends ChangeNotifier {
     _chaptersExpanded = value;
     notifyListeners();
     setPref('chaptersExpanded', value);
+  }
+
+  Future changeShowErrors(bool value) async {
+    _showErrors = value;
+    notifyListeners();
+    setPref('showErrors', value);
   }
 
   //! Cuelists
@@ -349,6 +358,7 @@ class SettingsProvider extends ChangeNotifier {
       _cueStore = jsonDecode(prefs.getString('setStore') ?? defaultCueStore);
       _chaptersExpanded =
           prefs.getBool('chaptersExpanded') ?? defaultChaptersExpanded;
+      _showErrors = prefs.getBool('showErrors') ?? defaultShowErrors;
       if (!cueStore.containsKey(_selectedCue)) {
         _selectedCue = defaultSelectedCue;
       }
@@ -387,6 +397,7 @@ class SettingsProvider extends ChangeNotifier {
     _cueStore = jsonDecode(defaultCueStore);
     _readNewsIds = jsonDecode(defaultReadNewsIds).cast<String>();
     _chaptersExpanded = defaultChaptersExpanded;
+    _showErrors = defaultShowErrors;
   }
 
   void showError(String message, Object? e, StackTrace? s) {
