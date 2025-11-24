@@ -67,6 +67,10 @@ class _SearchPageState extends State<SearchPage> {
         });
       }
     });
+    // Wait for the Hero transition to finish before requesting focus.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      keyboardFocusNode.requestFocus();
+    });
   }
 
   List<Widget> getSearchResults() {
@@ -463,7 +467,6 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
                       child: TextField(
                         controller: textController,
                         focusNode: keyboardFocusNode,
-                        autofocus: true,
                         autocorrect: false,
                         style: const TextStyle(fontWeight: FontWeight.normal),
                         decoration: const InputDecoration(
