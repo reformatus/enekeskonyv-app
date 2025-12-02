@@ -120,18 +120,32 @@ void onTapUp(
   TickerProvider vsync,
   VoidCallback onToggleFullscreen,
 ) {
-  var settings = Provider.of<SettingsProvider>(context, listen: false);
-  var state = SongStateProvider.of(context);
-
-  // Only do anything if tap navigation is enabled.
-  if (!settings.tapNavigation) return;
+  final settings = Provider.of<SettingsProvider>(context, listen: false);
 
   // Bail out early if tap ended more than 3.0 away from where it started.
   if ((details.globalPosition - tapDownPosition).distance > 3.0) return;
 
   final width = MediaQuery.of(context).size.width;
+  final dx = details.globalPosition.dx;
+  final isLeftThird = dx < width / 3;
+  final isRightThird = dx > 2 * width / 3;
+  final isMiddleThird = !isLeftThird && !isRightThird;
 
-  if (details.globalPosition.dx < width / 3) {
+  // Always allow toggling fullscreen from the middle third.
+  if (isMiddleThird) {
+    onToggleFullscreen();
+    return;
+  }
+
+  // When tap navigation is disabled, use any tap for fullscreen toggling.
+  if (!settings.tapNavigation) {
+    onToggleFullscreen();
+    return;
+  }
+
+  final state = SongStateProvider.of(context);
+
+  if (isLeftThird) {
     // Left third: Backward
     if (state.inCue) {
       if (state.cueElementExists(settings, next: false)) {
@@ -145,7 +159,7 @@ void onTapUp(
         vsync: vsync,
       );
     }
-  } else if (details.globalPosition.dx > 2 * width / 3) {
+  } else if (isRightThird) {
     // Right third: Forward
     if (state.inCue) {
       if (state.cueElementExists(settings, next: true)) {
@@ -159,8 +173,5 @@ void onTapUp(
         vsync: vsync,
       );
     }
-  } else {
-    // Middle third: Toggle fullscreen
-    onToggleFullscreen();
   }
 }
