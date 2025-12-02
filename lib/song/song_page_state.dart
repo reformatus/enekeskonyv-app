@@ -33,6 +33,9 @@ class SongStateProvider extends ChangeNotifier {
 
   bool get inCue => _cueIndex != null;
 
+  bool get hasMarkdownContent =>
+      songBooks[book.name][songKey]['markdown'] != null;
+
   SongStateProvider({
     required String songKey,
     required this.verse,

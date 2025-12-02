@@ -49,9 +49,10 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   bool _listenerAdded = false;
   bool _isFullscreen = false;
 
-  void _toggleFullscreen() {
+  void _setFullscreen(bool enable) {
+    if (_isFullscreen == enable) return;
     setState(() {
-      _isFullscreen = !_isFullscreen;
+      _isFullscreen = enable;
       if (_isFullscreen) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
         if (settingsProvider.showFullscreenHint) {
@@ -78,6 +79,10 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
         );
       }
     });
+  }
+
+  void _toggleFullscreen() {
+    _setFullscreen(!_isFullscreen);
   }
 
   @override
@@ -117,6 +122,17 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
             settingsProvider.addListener(listenerClosure);
             _listenerAdded = true;
           }
+
+          final isMarkdownContent = state.hasMarkdownContent;
+          if (isMarkdownContent && _isFullscreen) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _setFullscreen(false);
+            });
+          }
+          final bool isFullscreenAllowed = !isMarkdownContent;
+          final VoidCallback toggleFullscreenIfAllowed = isFullscreenAllowed
+              ? _toggleFullscreen
+              : () {};
 
           return Theme(
             data: ThemeData(
@@ -223,8 +239,12 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                                   icon: const Icon(
                                                     Icons.fullscreen,
                                                   ),
-                                                  tooltip: 'Teljes képernyő',
-                                                  onPressed: _toggleFullscreen,
+                                                  tooltip: isFullscreenAllowed
+                                                      ? 'Teljes képernyő'
+                                                      : 'Szöveges tartalomnál nem érhető el',
+                                                  onPressed: isFullscreenAllowed
+                                                      ? _toggleFullscreen
+                                                      : null,
                                                 ),
                                               ],
                                             ),
@@ -244,7 +264,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                           context,
                                           tapDownPosition,
                                           this,
-                                          _toggleFullscreen,
+                                          toggleFullscreenIfAllowed,
                                         ),
                                         // Only have a separated space for verse bar
                                         // when it's enabled, visible and pinned.
