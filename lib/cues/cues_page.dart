@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -123,9 +124,7 @@ class CuesPage extends StatelessWidget {
                     List<String> parts = verseId.split('.');
                     String songKey = parts[1];
                     int verseIndex = int.parse(parts[2]);
-                    Book book = Book.values.firstWhere(
-                      (b) => b.name == parts[0],
-                    );
+                    Book book = Book.fromName(parts[0]);
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -225,7 +224,7 @@ class CuesPage extends StatelessWidget {
                                 oldIndex,
                                 newIndex,
                               ),
-                          physics: Platform.isIOS
+                          physics: !kIsWeb && Platform.isIOS
                               ? const BouncingScrollPhysics()
                               : null,
                           children: getVerseTiles(settings),
@@ -370,7 +369,7 @@ class CuesPage extends StatelessWidget {
     int cueIndex,
     SettingsProvider settings,
   ) {
-    Book book = Book.values.firstWhere((b) => b.name == bookName);
+    Book book = Book.fromName(bookName);
     var song = songBooks[bookName][songKey];
     String verse;
     String? verseNumber;

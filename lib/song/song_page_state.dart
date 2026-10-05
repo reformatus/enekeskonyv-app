@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../settings_provider.dart';
 import '../utils.dart';
 import 'build_pages.dart';
+import 'utils.dart';
 
 class SongStateProvider extends ChangeNotifier {
   late int song;
@@ -33,6 +34,16 @@ class SongStateProvider extends ChangeNotifier {
 
   bool get inCue => _cueIndex != null;
 
+  // Whether this song's verses each get their own page/tab — the same rule
+  // getNumOfPages uses to size the TabController, so verse navigation can
+  // never target a tab index that does not exist (e.g. songs with no score).
+  bool versesArePaged(SettingsProvider settings) => shouldSplitPagesByVerse(
+    scoreDisplay: settings.scoreDisplay,
+    inCue: inCue,
+    hasScore: songHasScore(book, songKey),
+    usesSingleScorePage: songUsesSingleScorePage(book, songKey),
+  );
+
   bool get hasMarkdownContent =>
       songBooks[book.name][songKey]['markdown'] != null;
 
@@ -50,12 +61,7 @@ class SongStateProvider extends ChangeNotifier {
       vsync: vsync,
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
-          (inCue ||
-              Provider.of<SettingsProvider>(
-                    context,
-                    listen: false,
-                  ).scoreDisplay ==
-                  ScoreDisplay.all)
+          versesArePaged(Provider.of<SettingsProvider>(context, listen: false))
           ? verse
           : 0,
       initial: true,
@@ -71,6 +77,9 @@ class SongStateProvider extends ChangeNotifier {
   }) {
     initialIndex ??= tabController.index;
     numOfPages ??= tabController.length;
+    // verse is a logical position (e.g. the cue's target verse); clamp the
+    // controller index so callers can never pass an out-of-range index.
+    initialIndex = initialIndex.clamp(0, numOfPages - 1);
 
     tabs.clear();
 
@@ -124,7 +133,7 @@ class SongStateProvider extends ChangeNotifier {
 
   // To retrieve the song data, the key (the actual number of the song) is
   // needed, not the index (the position in the list).
-  String get songKey => songBooks[book.name].keys.elementAt(song);
+  String get songKey => songKeyFor(book, song);
 
   void showThenHideVerseBar() {
     if (DateTime.now().difference(barLastShownAtTime) <
@@ -153,7 +162,7 @@ class SongStateProvider extends ChangeNotifier {
     if (next) {
       // Only allow switching to the next verse when all verses should have
       // scores (and there _is_ a next verse).
-      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+      if (versesArePaged(settingsProvider) &&
           songBooks[book.name][songKey]['texts'] != null &&
           verse < songBooks[book.name][songKey]['texts'].length - 1) {
         verse++;
@@ -164,13 +173,13 @@ class SongStateProvider extends ChangeNotifier {
     } else {
       // Only allow switching to the previous verse when all verses should
       // have scores (and there _is_ a previous verse).
-      if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+      if (versesArePaged(settingsProvider) &&
           songBooks[book.name][songKey]['texts'] != null &&
           verse > 0) {
         verse--;
       } else if (song > 0) {
         song--;
-        if ((settingsProvider.scoreDisplay == ScoreDisplay.all || inCue) &&
+        if (versesArePaged(settingsProvider) &&
             songBooks[book.name][songKey]['texts'] != null) {
           // This songKey must be recalculated to be able to fetch the number
           // of verses for the previous song.
@@ -279,12 +288,12 @@ class SongStateProvider extends ChangeNotifier {
     TickerProvider vsync,
   ) {
     var parts = verseId.split('.');
-    Book book = Book.values.firstWhere((b) => b.name == parts[0]);
+    Book book = Book.fromName(parts[0]);
     String songKey = parts[1];
     int verseIndex = int.parse(parts[2]);
 
     this.book = book;
-    song = songBooks[book.name].keys.toList().indexOf(songKey);
+    song = songIndexFor(book, songKey);
     verse = verseIndex;
     _cueIndex = cueIndex;
 
@@ -295,12 +304,7 @@ class SongStateProvider extends ChangeNotifier {
       vsync: vsync,
       numOfPages: getNumOfPages(book, songKey, context, inCue),
       initialIndex:
-          (inCue ||
-              Provider.of<SettingsProvider>(
-                    context,
-                    listen: false,
-                  ).scoreDisplay ==
-                  ScoreDisplay.all)
+          versesArePaged(Provider.of<SettingsProvider>(context, listen: false))
           ? verse
           : 0,
       initial: true,
@@ -314,9 +318,13 @@ class SongStateProvider extends ChangeNotifier {
   }
 
   void scrollVerseBarToCurrent({bool animate = true}) {
-    if (tabKeys[verse]!.currentContext == null) return;
+    // verse is a logical position (e.g. the cue's target verse), not always a
+    // tab index: scoreless songs keep verse N while owning a single-page
+    // controller, so tabKeys[verse] may not exist.
+    final key = tabKeys[verse];
+    if (key?.currentContext == null) return;
     Scrollable.ensureVisible(
-      tabKeys[verse]!.currentContext!,
+      key!.currentContext!,
       alignment: 0.5,
       duration: animate ? const Duration(milliseconds: 300) : Duration.zero,
       curve: Curves.ease,

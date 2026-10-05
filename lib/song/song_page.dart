@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -138,9 +139,7 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
             data: ThemeData(
               useMaterial3: true,
               colorScheme: ColorScheme.fromSeed(
-                seedColor: state.book == Book.black
-                    ? Colors.amber
-                    : Colors.blue,
+                seedColor: state.book.themeColor,
                 brightness: settings.getCurrentSheetBrightness(context),
                 surface:
                     settings.isOledTheme &&
@@ -271,9 +270,9 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
                                         child:
                                             (settings.isVerseBarPinned &&
                                                 settings.isVerseBarEnabled &&
-                                                (settings.scoreDisplay ==
-                                                        ScoreDisplay.all ||
-                                                    state.inCue))
+                                                state.versesArePaged(
+                                                  settings,
+                                                ))
                                             // If the verse bar is pinned, we don't
                                             // need to animate it. Also, we use a Column
                                             // so that no content is hidden behind the
@@ -362,12 +361,11 @@ class _SongPageState extends State<SongPage> with TickerProviderStateMixin {
   ) {
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final useFullscreenLayout =
-        isFullscreen &&
-        (settings.scoreDisplay == ScoreDisplay.all || state.inCue);
+        isFullscreen && state.versesArePaged(settings);
 
     return TabBarView(
       controller: state.tabController,
-      physics: Platform.isIOS ? const BouncingScrollPhysics() : null,
+      physics: !kIsWeb && Platform.isIOS ? const BouncingScrollPhysics() : null,
       children:
           buildPages(
             orientation,

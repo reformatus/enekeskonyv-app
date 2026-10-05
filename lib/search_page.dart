@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:diacritic/diacritic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -512,7 +513,7 @@ Hozzáfűzéshez koppints a találatra, vagy használd a Kész gombot.
             ),
           ),
           floatingActionButton:
-              (Platform.isIOS &&
+              (!kIsWeb && Platform.isIOS &&
                   settings.searchNumericKeyboard &&
                   searchText.isNotEmpty)
               // Show a Done button on iOS when using the numeric keyboard,

@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
-        final isIOS = Platform.isIOS;
+        final isIOS = !kIsWeb && Platform.isIOS;
 
         if (!settings.initialized || songBooks.isEmpty) {
           return Scaffold(
@@ -389,7 +389,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SliverList.list(
                 children: buildHomepageItems(
-                  chapterTree[settings.bookAsString]!,
+                  chapterTree[settings.bookAsString] ?? [],
                   settings,
                 ).followedBy([SizedBox(height: 20)]).toList(),
               ),
@@ -440,7 +440,7 @@ class HomePageSongWidget extends StatelessWidget {
           ),
         );
       },
-      key: const Key('_MyHomePageState.ListTile'),
+      key: ValueKey('${settings.bookAsString}.$songKey'),
     );
   }
 }

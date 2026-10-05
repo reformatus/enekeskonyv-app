@@ -67,15 +67,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get showErrors => _showErrors;
   bool get showFullscreenHint => _showFullscreenHint;
 
-  String get bookAsString {
-    switch (_book) {
-      case Book.black:
-        return '48';
-
-      case Book.blue:
-        return '21';
-    }
-  }
+  String get bookAsString => _book.name;
 
   Brightness getCurrentAppBrightness(BuildContext context) {
     switch (appThemeMode) {
@@ -329,7 +321,7 @@ class SettingsProvider extends ChangeNotifier {
       // First try migrating from previous version.
       String? bookMigrateString = prefs.getString('book');
       if (bookMigrateString != null) {
-        _book = bookMigrateString == '21' ? Book.blue : Book.black;
+        _book = Book.fromName(bookMigrateString);
         // Save the new entry and remove old one.
         await prefs.setInt('bookEnum', _book.index);
         await prefs.remove('book');
@@ -471,12 +463,29 @@ $s''',
 // @see https://stackoverflow.com/a/29567669
 enum Book {
   black('48'),
-  blue('21');
+  blue('21'),
+  erdelyi('erdelyi');
 
   final String name;
 
-  String get displayName =>
-      this == Book.black ? '48-as (fekete)' : '21-es (kék)';
+  String get displayName => switch (this) {
+    Book.black => '48-as (fekete)',
+    Book.blue => '21-es (kék)',
+    Book.erdelyi => 'Erdélyi Református',
+  };
+
+  Color get themeColor => switch (this) {
+    Book.black => Colors.amber,
+    Book.blue => Colors.blue,
+    Book.erdelyi => Colors.green,
+  };
+
+  static Book fromName(String name) {
+    for (final book in values) {
+      if (book.name == name) return book;
+    }
+    throw ArgumentError.value(name, 'name', 'Unknown songbook');
+  }
 
   const Book(this.name);
 }

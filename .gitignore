@@ -32,7 +32,6 @@
 /build/
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -48,6 +47,30 @@ app.*.map.json
 # Custom
 assets/ref21/*.svg
 assets/ref48/*.svg
+
+# Generated per-verse Erdelyi scores; regenerate via
+# tool/import_reformatus_scores.py. Per-verse files are gitignored and
+# regenerated locally, except the ref48-fallback sets whose sources
+# cannot be regenerated from the publisher PDFs (the untracked ref48
+# pack above). Downloaded score-page PNGs are provenance only.
+assets/referdelyi/*-001.png
+assets/referdelyi/*-v*.svg
+!assets/referdelyi/referdelyi-177-v*.svg
+!assets/referdelyi/referdelyi-183-v*.svg
+!assets/referdelyi/referdelyi-206-v*.svg
+!assets/referdelyi/referdelyi-280-v*.svg
+!assets/referdelyi/referdelyi-283-v*.svg
+!assets/referdelyi/referdelyi-288-v*.svg
+!assets/referdelyi/referdelyi-304-v*.svg
+!assets/referdelyi/referdelyi-324-v*.svg
+!assets/referdelyi/referdelyi-328-v*.svg
+!assets/referdelyi/referdelyi-335-v*.svg
+!assets/referdelyi/referdelyi-338-v*.svg
+!assets/referdelyi/referdelyi-349-v*.svg
+!assets/referdelyi/referdelyi-357-v*.svg
+!assets/referdelyi/referdelyi-383-v*.svg
+!assets/referdelyi/referdelyi-396-v*.svg
+!assets/referdelyi/referdelyi-405-v*.svg
 
 # Windows (just used for debugging)
 windows/

@@ -3,6 +3,8 @@ import 'dart:core';
 
 import 'settings_provider.dart';
 
+final Map<String, Map<String, dynamic>> _songLookupCache = {};
+
 String getSongTitle(LinkedHashMap song) {
   return (song['number'] != null ? song['number'] + ': ' : '') + song['title'];
 }
@@ -31,7 +33,7 @@ Verse parseVerseId(String verseId) {
   String bookName = parts[0];
   Book book;
   try {
-    book = Book.values.firstWhere((element) => element.name == bookName);
+    book = Book.fromName(bookName);
   } catch (e) {
     throw 'Könyv nem található.';
   }
@@ -55,10 +57,39 @@ Verse parseVerseId(String verseId) {
 
 // Helpers for translating between song index and key where needed.
 // Prefer using songKey across the app; these are for unavoidable cases.
+Map<String, dynamic> _songLookup(Book book) {
+  final bookName = book.name;
+  final songs = songBooks[bookName];
+  final cached = _songLookupCache[bookName];
+
+  if (cached != null &&
+      identical(cached['songs'], songs) &&
+      cached['count'] == songs.length) {
+    return cached;
+  }
+
+  final keys = songs.keys.cast<String>().toList(growable: false);
+  final indices = <String, int>{};
+  for (var i = 0; i < keys.length; i++) {
+    indices[keys[i]] = i;
+  }
+
+  final lookup = {
+    'songs': songs,
+    'count': keys.length,
+    'keys': keys,
+    'indices': indices,
+  };
+  _songLookupCache[bookName] = lookup;
+  return lookup;
+}
+
 String songKeyFor(Book book, int songIndex) {
-  return songBooks[book.name].keys.elementAt(songIndex);
+  final lookup = _songLookup(book);
+  return (lookup['keys'] as List<String>)[songIndex];
 }
 
 int songIndexFor(Book book, String songKey) {
-  return songBooks[book.name].keys.toList().indexOf(songKey);
+  final lookup = _songLookup(book);
+  return (lookup['indices'] as Map<String, int>)[songKey] ?? -1;
 }

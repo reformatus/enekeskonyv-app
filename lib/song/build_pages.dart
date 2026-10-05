@@ -10,6 +10,44 @@ import '../settings_provider.dart';
 import '../utils.dart';
 import 'utils.dart';
 
+Widget _buildVerseText(
+  BuildContext context,
+  SettingsProvider settings,
+  String verseId,
+  String verseText,
+) {
+  return GestureDetector(
+    onLongPress: settings.getIsInSelectedCue(verseId)
+        ? () => settings.removeAllInstancesFromCue(settings.selectedCue, verseId)
+        : () => settings.addToCue(settings.selectedCue, verseId),
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge!.color,
+            fontSize: settings.fontSize,
+          ),
+          children: [
+            if (settings.getIsInSelectedCue(verseId))
+              WidgetSpan(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 1.5, right: 3),
+                  child: Icon(Icons.star, size: settings.fontSize),
+                ),
+              ),
+            TextSpan(
+              text: '${verseText.split('.')[0]}.',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(text: verseText.split('.').skip(1).join('.')),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 List<List<Widget>> buildPages(
   Orientation orientation,
   Book book,
@@ -26,6 +64,14 @@ List<List<Widget>> buildPages(
   );
 
   var song = songBooks[book.name][songKey];
+  final hasScore = songHasScore(book, songKey);
+  final usesSingleScorePage = songUsesSingleScorePage(book, songKey);
+  final splitPagesByVerse = shouldSplitPagesByVerse(
+    scoreDisplay: settings.scoreDisplay,
+    inCue: state.inCue,
+    hasScore: hasScore,
+    usesSingleScorePage: usesSingleScorePage,
+  );
 
   if (song['markdown'] != null) {
     pages.add([
@@ -62,9 +108,17 @@ List<List<Widget>> buildPages(
       var verseId = getVerseId(book, songKey, verseIndex);
 
       // Add either the score or the text of the current verse, as needed.
-      if (state.inCue ||
-          settings.scoreDisplay == ScoreDisplay.all ||
-          (settings.scoreDisplay == ScoreDisplay.first && verseIndex == 0)) {
+      if (shouldRenderScore(
+        scoreDisplay: settings.scoreDisplay,
+        inCue: state.inCue,
+        verseIndex: verseIndex,
+        hasScore: hasScore,
+      )) {
+        final supplementVerseText = shouldSupplementVerseTextForRepeatedScore(
+          book,
+          songKey,
+          verseIndex,
+        );
         Widget score = getScore(
           orientation,
           verseIndex,
@@ -75,7 +129,7 @@ List<List<Widget>> buildPages(
         );
 
         // If song is displayed on single page, apply favourite functionality
-        if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue)) {
+        if (!splitPagesByVerse) {
           page.add(
             GestureDetector(
               onLongPress: settings.getIsInSelectedCue(verseId)
@@ -99,56 +153,29 @@ List<List<Widget>> buildPages(
           );
           // Otherwise just display a passive sheet widget
         } else {
-          if (isFullscreen) {
+          if (isFullscreen && !supplementVerseText) {
             page.add(Expanded(child: score));
           } else {
             page.add(score);
           }
+          if (supplementVerseText) {
+            page.add(
+              _buildVerseText(
+                context,
+                settings,
+                verseId,
+                song['texts'][verseIndex],
+              ),
+            );
+          }
         }
       } else {
         page.add(
-          GestureDetector(
-            onLongPress: settings.getIsInSelectedCue(verseId)
-                ? () => settings.removeAllInstancesFromCue(
-                    settings.selectedCue,
-                    verseId,
-                  )
-                : () => settings.addToCue(settings.selectedCue, verseId),
-            child: Padding(
-              // Add space between verses.
-              padding: const EdgeInsets.only(bottom: 8),
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyLarge!.color,
-                    fontSize: settings.fontSize,
-                  ),
-                  children: [
-                    if (settings.getIsInSelectedCue(verseId))
-                      WidgetSpan(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 1.5, right: 3),
-                          child: Icon(Icons.star, size: settings.fontSize),
-                        ),
-                      ),
-                    // Display verse number (everything before and including
-                    // the first dot) in bold.
-                    TextSpan(
-                      text: '${song['texts'][verseIndex].split('.')[0]}.',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    // Display rest of verse text normally (split at dots,
-                    // skip the first slice, join the rest).
-                    TextSpan(
-                      text: song['texts'][verseIndex]
-                          .split('.')
-                          .skip(1)
-                          .join('.'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          _buildVerseText(
+            context,
+            settings,
+            verseId,
+            song['texts'][verseIndex],
           ),
         );
       }
@@ -164,14 +191,14 @@ List<List<Widget>> buildPages(
       // When all verses should have scores displayed, every verse should have
       // its own page, and a new page should start (for the next verse, if
       // any).
-      if (settings.scoreDisplay == ScoreDisplay.all || state.inCue) {
+      if (splitPagesByVerse) {
         pages.add(page);
         page = <Widget>[];
       }
     }
     // When NOT all verses should have scores displayed, the single page that
     // has been built so far should definitely be displayed.
-    if (!(settings.scoreDisplay == ScoreDisplay.all || state.inCue)) {
+    if (!splitPagesByVerse) {
       pages.add(page);
     }
   }
@@ -180,11 +207,17 @@ List<List<Widget>> buildPages(
 }
 
 int getNumOfPages(Book book, String songKey, BuildContext context, bool inCue) {
+  final settings = Provider.of<SettingsProvider>(context, listen: false);
+  final hasScore = songHasScore(book, songKey);
+  final usesSingleScorePage = songUsesSingleScorePage(book, songKey);
   // When all verses should have scores displayed, every verse should have
   // its own page.
-  if (Provider.of<SettingsProvider>(context, listen: false).scoreDisplay ==
-          ScoreDisplay.all ||
-      inCue) {
+  if (shouldSplitPagesByVerse(
+    scoreDisplay: settings.scoreDisplay,
+    inCue: inCue,
+    hasScore: hasScore,
+    usesSingleScorePage: usesSingleScorePage,
+  )) {
     if (songBooks[book.name][songKey]['markdown'] != null) return 1;
     return songBooks[book.name][songKey]['texts'].length;
   }

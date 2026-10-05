@@ -13,6 +13,45 @@ A 21-es (kék) és 48-as (fekete) református énekeskönyv:
 - világos/sötét mód, külön az alkalmazásra és a kottára,
 - teljesen offline működés
 
+## Complete Local Build
+
+The Flutter app lives in this repository. The sister repositories under the
+organization are used for content and conversion work:
+- `reformatus/enekeskonyv`: source text/docs for the legacy books
+- `reformatus/convert-scripts`: import and score-splitting utilities
+
+They are useful when regenerating content, but they are not required to compile
+the Flutter app itself.
+
+One important exception: the repo does not currently track the legacy
+`assets/ref21/*.svg` and `assets/ref48/*.svg` score packs. Without them, the app
+still builds, but the old songbooks will fall back to verse text instead of
+showing scores.
+
+To restore the official legacy score assets into a local checkout, run:
+
+```bash
+tool/restore_official_scores.sh /path/to/com.github.reformatus.enekeskonyv.apk
+```
+
+Or, if the official app is installed on a connected Android device:
+
+```bash
+tool/restore_official_scores.sh
+```
+
+The same applies to the generated Erdélyi verse scores: the repo tracks the
+`assets/referdelyi/*-001.svg` source sheets, while the per-verse
+`assets/referdelyi/*-v*.svg` files are generated and intentionally untracked
+(they are large and reproducible). Without them the app still builds, but
+Erdélyi songs fall back to verse text. To generate them on a fresh checkout:
+
+```bash
+python3 tool/import_reformatus_scores.py --rebuild-generated-verse-svgs
+```
+
+(needs `fontTools` and `pyphen`; see `tool/README.md`).
+
 [Adatvédelmi irányelvek](PRIVACY.md)
 
 <sup><sub>A Google Play és a Google Play-logó a Google LLC védjegyei.<br />Apple logo® and App Store® are trademarks of Apple Inc., registered in the U.S. and other countries.</sub></sup>
