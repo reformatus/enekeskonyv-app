@@ -251,9 +251,8 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future reorderCue(String cue, int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
-    }
+    // ReorderableListView.onReorderItem already adjusts newIndex for the
+    // item removed at oldIndex, so it is the item's final index.
     final item = _cueStore[cue].removeAt(oldIndex);
     _cueStore[cue].insert(newIndex, item);
     notifyListeners();

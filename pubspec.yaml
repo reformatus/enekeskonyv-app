@@ -6,12 +6,12 @@ publish_to: 'none'
 version: 3.2.9+70
 
 environment:
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^2.0.0
   flutter_svg: ^2.0.4
   wakelock_plus: ^1.1.0
   provider: ^6.0.4
@@ -20,13 +20,13 @@ dependencies:
   mailto: ^2.0.0
   fading_edge_scrollview: ^4.1.1
   diacritic: ^0.1.4
-  app_links: ^6.3.0
+  app_links: ^7.2.2
   qr_flutter: ^4.1.0
-  share_plus: ^12.0.0
-  package_info_plus: ^9.0.0
+  share_plus: ^13.3.1
+  package_info_plus: ^10.2.2
   markdown_widget: ^2.3.2+8
   http: ^1.1.0
-  intl: ^0.19.0
+  intl: ^0.20.3
 
 dev_dependencies:
   integration_test:

@@ -42,8 +42,8 @@ class SongStateProvider extends ChangeNotifier {
     required this.book,
     required TickerProvider vsync,
     required BuildContext context,
-    required int? cueIndex,
-  }) : _cueIndex = cueIndex {
+    required this._cueIndex,
+  }) {
     // Initialize internal index from provided songKey
     song = songIndexFor(book, songKey);
     initTabController(
