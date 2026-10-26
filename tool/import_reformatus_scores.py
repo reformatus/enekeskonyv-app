@@ -372,6 +372,7 @@ def detect_svg_lyric_blocks(svg_text: str) -> tuple[SvgLyricBlock | None, SvgLyr
         return [(y_value, pts) for y_value, pts in clusters]
 
     blocks = []
+    sub_prominent: dict[str, list[SvgLyricRow]] = {}
     for font_id, row_positions in font_rows.items():
         rows = [_make_row(y_value, pts) for y_value, pts in _cluster_y(row_positions)]
         rows.sort(key=lambda row: row.y)
@@ -386,6 +387,9 @@ def detect_svg_lyric_blocks(svg_text: str) -> tuple[SvgLyricBlock | None, SvgLyr
         prominence_threshold = max(8, int(peak_count * 0.30))
         prominent_rows = [
             row for row in rows if row.glyph_count >= prominence_threshold
+        ]
+        sub_prominent[font_id] = [
+            row for row in rows if row.glyph_count < prominence_threshold
         ]
         if len(prominent_rows) < 2:
             continue
@@ -483,6 +487,14 @@ def detect_svg_lyric_blocks(svg_text: str) -> tuple[SvgLyricBlock | None, SvgLyr
             and re.match(r'p\d+-', block.font_id).group(0)
             != score_piece.group(0)
         )
+    ]
+    # Short same-font rows strictly inside the score span (refrain labels
+    # like 'A Golgotán:', trailing 'a-men.') fall under the prominence cut
+    # but carry sung words — without them their syllables overflow.
+    extra_rows += [
+        row
+        for row in sub_prominent.get(score_block.font_id, [])
+        if first_y < row.y < last_y and row.glyph_count >= 6
     ]
     if extra_rows:
         score_block = SvgLyricBlock(
@@ -1099,6 +1111,33 @@ def _topmost_staff_line_y(svg_text: str) -> float | None:
     """Y of the first staff's top line, or None for staff-less pages."""
     clusters = _staff_clusters(svg_text)
     return clusters[0][0] if clusters else None
+
+
+def _is_prose_page(
+    rows: list[SvgLyricRow],
+    hyphenated: list[bool],
+    staff_bands: list[tuple[float, float]],
+) -> bool:
+    """True when the score block should render as flowing prose.
+
+    Staff-less pages are prose only when the text block is shaped like a
+    paragraph: uniform ~20-unit row gaps (e.g. 464's chant text) or no
+    syllable hyphens at all.  Rhythm-notation sheets (e.g. 485's dash/dot
+    systems) carry syllabified lyric rows under non-staff notation — no
+    staff lines, but not prose.  With staff lines present, prose needs
+    both zero hyphenated rows and no row under a staff system.
+    """
+    uniform_prose = len(rows) >= 3 and all(
+        rows[i + 1].y - rows[i].y < 20.0 for i in range(len(rows) - 1)
+    )
+    return (not staff_bands and (uniform_prose or not any(hyphenated))) or (
+        not any(hyphenated)
+        and not any(
+            bottom < row.y <= bottom + 45.0
+            for row in rows
+            for _top, bottom in staff_bands
+        )
+    )
 
 
 def _lyric_group_mask(
@@ -2244,14 +2283,7 @@ def generate_score_files_from_svg_path(
         # just under a staff (e.g. song 330's unhyphenated lyric rows
         # must not be mistaken for prose).
         staff_bands = _staff_clusters(svg_text)
-        prose_page = not staff_bands or (
-            not any(hyphenated)
-            and not any(
-                bottom < row.y <= bottom + 45.0
-                for row in score_block.rows
-                for _top, bottom in staff_bands
-            )
-        )
+        prose_page = _is_prose_page(score_block.rows, hyphenated, staff_bands)
         if not prose_page:
             keep = _lyric_group_mask(
                 row_groups, score_block.rows, score_block.font_id, shapes

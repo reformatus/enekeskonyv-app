@@ -15,6 +15,7 @@ from import_reformatus_scores import (
 
     _FIXED_SYLLABLE_FONT,
     _has_severe_clipping,
+    _is_prose_page,
     _ref48_is_dot,
     _ref48_number_cluster,
     _ref48_lyric_rows,
@@ -370,6 +371,100 @@ class DetectSvgLyricBlocksTest(unittest.TestCase):
         self.assertEqual(score_block.font_id, '*')
         self.assertEqual([round(row.y, 1) for row in score_block.rows], [100.0, 150.0, 200.0])
         self.assertIsNone(footer_block)
+
+    def _prominent_svg(self, extra_uses: str) -> str:
+        rows = ''.join(
+            f'          <use xlink:href="#glyph-8-{i}" x="{10 + 10 * i}" y="{y}" />\n'
+            for y in (100, 150, 200)
+            for i in range(1, 10)
+        )
+        return f'''
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+{rows}{extra_uses}        </svg>
+        '''
+
+    def test_keeps_short_interior_same_font_row(self):
+        # Song 471: the 'A Golgotán:' refrain label is a 12-glyph row
+        # under the prominence cut — dropping it starves its sung
+        # syllables into overflow.
+        label = ''.join(
+            f'          <use xlink:href="#glyph-8-{i}" x="{30 + 10 * i}" y="125" />\n'
+            for i in range(1, 7)
+        )
+        score_block, _ = detect_svg_lyric_blocks(self._prominent_svg(label))
+
+        self.assertEqual(
+            [round(row.y, 1) for row in score_block.rows],
+            [100.0, 125.0, 150.0, 200.0],
+        )
+
+    def test_ignores_short_row_outside_score_span(self):
+        tail = ''.join(
+            f'          <use xlink:href="#glyph-8-{i}" x="{30 + 10 * i}" y="260" />\n'
+            for i in range(1, 7)
+        )
+        score_block, _ = detect_svg_lyric_blocks(self._prominent_svg(tail))
+
+        self.assertEqual(
+            [round(row.y, 1) for row in score_block.rows],
+            [100.0, 150.0, 200.0],
+        )
+
+    def test_ignores_short_interior_row_in_foreign_font(self):
+        # A short row in a different subset (footnote/caption) must not
+        # join the score's lyric rows.
+        note = ''.join(
+            f'          <use xlink:href="#glyph-9-{i}" x="{30 + 10 * i}" y="125" />\n'
+            for i in range(1, 7)
+        )
+        score_block, _ = detect_svg_lyric_blocks(self._prominent_svg(note))
+
+        self.assertEqual(score_block.font_id, '8')
+        self.assertEqual(
+            [round(row.y, 1) for row in score_block.rows],
+            [100.0, 150.0, 200.0],
+        )
+
+
+class IsProsePageTest(unittest.TestCase):
+    def _rows(self, ys):
+        return [SvgLyricRow(y=y, x_min=10, x_max=100, glyph_count=10) for y in ys]
+
+    def test_staffless_hyphenated_score_rows_are_not_prose(self):
+        # Song 485: dash/dot rhythm notation — no staff clusters, but
+        # syllabified lyric rows at score-like (non-uniform) gaps.
+        rows = self._rows([70, 160, 205, 295])
+        self.assertFalse(
+            _is_prose_page(rows, [True, True, True, True], [])
+        )
+
+    def test_staffless_uniform_paragraph_is_prose(self):
+        # Song 464-style chant text: even ~12-unit gaps read as a
+        # paragraph, not lyric systems.
+        rows = self._rows([70, 82, 94, 106])
+        self.assertTrue(
+            _is_prose_page(rows, [False, True, False, False], [])
+        )
+
+    def test_staffless_unhyphenated_block_is_prose(self):
+        # Verse paragraphs with no syllable hyphens (160/193/207/229/343/484).
+        rows = self._rows([70, 160, 205, 295])
+        self.assertTrue(
+            _is_prose_page(rows, [False, False, False, False], [])
+        )
+
+    def test_staffed_hyphenated_rows_are_not_prose(self):
+        rows = self._rows([70, 160, 205, 295])
+        self.assertFalse(
+            _is_prose_page(rows, [True, True, True, True], [(55.0, 62.0)])
+        )
+
+    def test_unhyphenated_rows_far_from_staff_are_prose(self):
+        # Unhyphenated rows whose y's sit nowhere under a staff bottom.
+        rows = self._rows([70, 160])
+        self.assertTrue(
+            _is_prose_page(rows, [False, False], [(10.0, 15.0)])
+        )
 
 
 class SplitVerseTextToRowsTest(unittest.TestCase):
