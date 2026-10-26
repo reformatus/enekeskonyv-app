@@ -26,14 +26,14 @@ different hymn/translation than the Erdélyi text.
   belongs to that other song.
 
 ### 485 — Íme, lészen a kései korban
-- **Suspect:** the sheet's dash/dot underlay has fewer note slots than
-  the Erdélyi verse — the last line "Aki vágyik az Úrra, betérhet."
-  never gets notes and renders as overflow. The printed underlay's line
-  order may also differ from the app verse.
-- **Scan:** the printed 485 page — compare every sung underlay line
-  word-by-word against the app verse, note whether the final line is
-  printed under notation at all, and check for a repeat sign that would
-  cover it.
+- **Handled:** the printed underlay interleaves verse lines as
+  1,3,2,4,5,6 (phrases 1–2 each carry two text rows); the sheet now
+  bakes that order via `tool/score_overrides.json` (`lyric_top` +
+  `underlay_text`), including the same interleave assumed for v2/v3.
+- **Scan:** the printed 485 page — confirm the underlay really pairs
+  lines 1+3 under phrase 1 and 2+4 under phrase 2, and that the same
+  pairing holds for verses 2–3. If the physical layout differs, adjust
+  `score_overrides.json` accordingly.
 
 ### 59 — Szabadíts meg engem, Úr Isten
 - **Suspect:** different translation/variant. Printed underlay (no. 140)

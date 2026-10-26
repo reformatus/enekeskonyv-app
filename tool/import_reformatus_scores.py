@@ -320,7 +320,9 @@ def _font_id_from_def(gid: str) -> str | None:
     return f'{match.group(1) or ""}{match.group(2)}'
 
 
-def detect_svg_lyric_blocks(svg_text: str) -> tuple[SvgLyricBlock | None, SvgLyricBlock | None]:
+def detect_svg_lyric_blocks(
+    svg_text: str, *, lyric_top: float = 48.0
+) -> tuple[SvgLyricBlock | None, SvgLyricBlock | None]:
     root = ET.fromstring(svg_text)
     font_rows: dict[str, dict[float, list[tuple[float, int]]]] = {}
     generic_rows: dict[float, list[float]] = {}
@@ -378,7 +380,7 @@ def detect_svg_lyric_blocks(svg_text: str) -> tuple[SvgLyricBlock | None, SvgLyr
         rows.sort(key=lambda row: row.y)
         # Header zone (title ~33.8, author ~41.5): never lyrics.  Dropping
         # these rows first keeps header fonts from distorting block gaps.
-        rows = [row for row in rows if row.y >= 48.0]
+        rows = [row for row in rows if row.y >= lyric_top]
         if len(rows) < 2:
             continue
         peak_count = max(row.glyph_count for row in rows)
@@ -2174,6 +2176,28 @@ def _printed_song_number(source_song_number: str) -> int | None:
     return _PRINTED_NUMBERS.get(int(source_song_number))
 
 
+_SCORE_OVERRIDES: dict[str, dict] | None = None
+
+
+def _score_override(song_number: str) -> dict:
+    """Per-song sheet-generation overrides from score_overrides.json.
+
+    Fields: ``lyric_top`` — y cutoff for header-zone rows (485's first
+    lyric row sits at 40 because the compressed page has no title);
+    ``underlay_text`` — verse index -> reordered verse string used for
+    sheet baking only, when the printed underlay's line order differs
+    from the app's verse order (485 interleaves lines as 1,3,2,4,5,6
+    under its dash/dot phrases).  The app's own verse text is untouched.
+    """
+    global _SCORE_OVERRIDES
+    if _SCORE_OVERRIDES is None:
+        p = Path(__file__).resolve().parent / 'score_overrides.json'
+        _SCORE_OVERRIDES = (
+            json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}
+        )
+    return _SCORE_OVERRIDES.get(str(int(song_number)), {})
+
+
 def _strip_printed_song_number(svg_text: str, printed_number: int) -> str:
     """Drop the score heading's printed song number when it does not match
     the app's song number — the app shows its own number, and the printed
@@ -2219,7 +2243,10 @@ def generate_score_files_from_svg_path(
         return []
 
     svg_text = svg_path.read_text()
-    score_block, footer_block = detect_svg_lyric_blocks(svg_text)
+    override = _score_override(target_song_number)
+    score_block, footer_block = detect_svg_lyric_blocks(
+        svg_text, lyric_top=override.get('lyric_top', 48.0)
+    )
     if score_block is None:
         return []
 
@@ -2309,6 +2336,12 @@ def generate_score_files_from_svg_path(
                 for group in row_groups
             ]
 
+    underlay_text = override.get('underlay_text', {})
+    bake_texts = [
+        underlay_text.get(str(i), verse_text)
+        for i, verse_text in enumerate(verse_texts)
+    ]
+
     # Compute a single font size across all verses so the entire song
     # uses one consistent size.  We take the minimum across verses.
     song_font = _FIXED_SYLLABLE_FONT
@@ -2322,7 +2355,7 @@ def generate_score_files_from_svg_path(
             if recovery_candidates_per_row is not None
             else None
         )
-        for verse_text in verse_texts:
+        for verse_text in bake_texts:
             lines, _leftover = split_verse_text_by_note_counts(
                 verse_text, note_counts, max_counts
             )
@@ -2336,7 +2369,7 @@ def generate_score_files_from_svg_path(
         and printed_number != int(target_song_number)
     )
     score_files = []
-    for verse_index, verse_text in enumerate(verse_texts):
+    for verse_index, verse_text in enumerate(bake_texts):
         output_path = generated_svg_path(target_song_number, verse_index)
         rendered = render_verse_svg(
             svg_text,
