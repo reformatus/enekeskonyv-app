@@ -219,7 +219,7 @@ class CuesPage extends StatelessWidget {
                       )
                     : SafeArea(
                         child: ReorderableListView(
-                          onReorder: (oldIndex, newIndex) =>
+                          onReorderItem: (oldIndex, newIndex) =>
                               settings.reorderCue(
                                 settings.selectedCue,
                                 oldIndex,

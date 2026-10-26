@@ -3,7 +3,6 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -20,12 +19,8 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
@@ -54,6 +49,14 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("release")
         }
+    }
+}
+
+// Built-in Kotlin (AGP 9): compiler options for the app's Kotlin sources.
+// See https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
