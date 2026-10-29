@@ -1039,6 +1039,23 @@ class UnderlayFillOrderTest(unittest.TestCase):
         self.assertEqual(plain, permuted)
         self.assertEqual(plain_left, perm_left)
 
+    def test_repeat_marker_is_not_a_lyric_word(self):
+        # The book's ":/:" prose repeat aid must not consume an onset slot
+        # or bake as text under a staff (the :| barline marks the repeat).
+        lines, leftover = _split_lines_for_rows(
+            'a1 a2 a3 a4 :/: b1 b2 b3 b4',
+            [4, 4],
+            None,
+            None,
+        )
+        self.assertEqual(lines, ['a1 a2 a3 a4', 'b1 b2 b3 b4'])
+        self.assertEqual(leftover, '')
+
+    def test_repeat_marker_stripped_in_width_split(self):
+        rows = split_verse_text_to_rows('a1 a2 :/: b1 b2', [50.0, 50.0])
+        for row in rows:
+            self.assertNotIn(':/:', row)
+
 
 if __name__ == '__main__':
     unittest.main()

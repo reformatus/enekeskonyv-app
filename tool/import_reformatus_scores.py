@@ -556,7 +556,10 @@ def detect_svg_lyric_blocks(
 
 
 def _normalize_verse_text(verse_text: str) -> str:
-    return re.sub(r'\s+', ' ', verse_text.replace('\n', ' ')).strip()
+    # ":/:" is the printed book's repeat-fold aid in prose verses; under a
+    # staff the repeat barline already carries it, so it must not bake as a
+    # lyric word.  Prose pages bypass this function and keep the marker.
+    return re.sub(r'\s+', ' ', verse_text.replace(':/:', ' ').replace('\n', ' ')).strip()
 
 
 def _measure_text_factory(measure_text):
