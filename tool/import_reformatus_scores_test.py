@@ -221,12 +221,12 @@ class SharedScoreAliasesTest(unittest.TestCase):
     def test_alias_fallback_caps_source_files_to_target_verse_count(self):
         songbook = {
             'erdelyi': {
-                '89': {
+                '42': {
                     'hasScore': True,
                     'scoreFiles': [
-                        'assets/referdelyi/referdelyi-089-v001.svg',
-                        'assets/referdelyi/referdelyi-089-v002.svg',
-                        'assets/referdelyi/referdelyi-089-v003.svg',
+                        'assets/referdelyi/referdelyi-042-v001.svg',
+                        'assets/referdelyi/referdelyi-042-v002.svg',
+                        'assets/referdelyi/referdelyi-042-v003.svg',
                     ],
                 },
                 '270': {
@@ -249,8 +249,8 @@ class SharedScoreAliasesTest(unittest.TestCase):
         self.assertEqual(
             songbook['erdelyi']['270']['scoreFiles'],
             [
-                'assets/referdelyi/referdelyi-089-v001.svg',
-                'assets/referdelyi/referdelyi-089-v002.svg',
+                'assets/referdelyi/referdelyi-042-v001.svg',
+                'assets/referdelyi/referdelyi-042-v002.svg',
             ],
         )
         self.assertEqual(

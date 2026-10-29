@@ -82,14 +82,50 @@ MISSING_NOTES_PATH = (
     Path(__file__).resolve().parents[1] / 'docs' / 'erdelyi-missing-notes.txt'
 )
 SCORES_DIR = Path(__file__).resolve().parents[1] / 'assets' / 'referdelyi'
+# Printed "Dallama a N. ének/zsoltár" melody pointers verified against the
+# physical Erdélyi hymnbook (docs/images_tmp photo survey, 2026-10-29).
+# Entries are only valid for songs whose own -001.svg is missing or is the
+# prose pointer page itself; songs whose digital source already carries a
+# real staff (e.g. 161, 263, 269, 352, 358, 406, 426) must NOT be listed —
+# the alias loop overwrites existing scoreFiles.
 SHARED_SCORE_ALIASES = {
+    '160': '208',
+    '163': '35',
+    '164': '75',
+    '178': '278',
+    '180': '75',
+    '183': '79',
+    '188': '201',
+    '193': '208',
+    '206': '353',
+    '207': '208',
     '219': '407',
-    '270': '89',
+    '229': '208',
+    '241': '194',
+    '266': '75',
+    '268': '204',
+    '270': '42',
     '271': '152',
     '272': '337',
     '274': '135',
     '275': '65',
+    '280': '66',
+    '281': '81',
+    '288': '42',
+    '289': '134',
+    '304': '303',
+    '324': '38',
+    '343': '337',
+    '349': '89',
+    '351': '403',
+    '357': '150',
+    '359': '407',
+    '383': '379',
+    '396': '375',
+    '420': '415',
     '427': '407',
+    '431': '38',
+    '432': '42',
 }
 
 _SVG_NS = 'http://www.w3.org/2000/svg'

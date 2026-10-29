@@ -1,133 +1,71 @@
-# Erdélyi — pages to check in the physical songbook
+# Erdélyi — physical-book verification results
 
-Every song needing a look at the real book, numeric order.
-Legend after the list explains each tag.
+145 photos of the printed Erdélyi hymnbook were compared against the app
+(docs/images_tmp, 2026-10-29). App numbering matches the printed numbering
+exactly (incl. H/-appendix entries). Three outcomes:
 
-- 059 — TEXT-DIVERGE
-- 160 — PROSE-PAGE
-- 163 — NO-SCORE
-- 164 — NO-SCORE
-- 177 — REF48-FALLBACK
-- 178 — NO-SCORE
-- 180 — NO-SCORE
-- 183 — REF48-FALLBACK
-- 188 — NO-SCORE
-- 193 — PROSE-PAGE
-- 206 — REF48-FALLBACK (v4/v6 wording variants — confirm)
-- 207 — PROSE-PAGE
-- 219 — SHARED-MELODY (uses 407's sheet)
-- 226 — NO-SCORE
-- 229 — PROSE-PAGE
-- 231 — TEXT-LONGER
-- 241 — NO-SCORE
-- 262 — NO-SCORE
-- 266 — NO-SCORE
-- 268 — NO-SCORE
-- 270 — SHARED-MELODY (uses 089's sheet)
-- 271 — SHARED-MELODY (uses 152's sheet)
-- 272 — SHARED-MELODY (uses 337's sheet)
-- 274 — SHARED-MELODY (uses 135's sheet)
-- 275 — SHARED-MELODY (uses 065's sheet)
-- 276 — NO-SCORE
-- 280 — REF48-FALLBACK
-- 281 — NO-SCORE
-- 283 — REF48-FALLBACK
-- 288 — REF48-FALLBACK
-- 289 — NO-SCORE
-- 304 — REF48-FALLBACK
-- 308 — TEXT-LONGER
-- 309 — TEXT-LONGER
-- 324 — REF48-FALLBACK
-- 326 — TEXT-LONGER
-- 328 — REF48-FALLBACK
-- 329 — NO-SCORE
-- 334 — TEXT-LONGER (~10 syllables unprinted)
-- 335 — REF48-FALLBACK
-- 338 — REF48-FALLBACK (renumbered in 1948 book)
-- 343 — PROSE-PAGE
-- 349 — REF48-FALLBACK
-- 351 — NO-SCORE
-- 357 — REF48-FALLBACK
-- 359 — NO-SCORE
-- 377 — NO-SCORE
-- 383 — REF48-FALLBACK
-- 387 — TEXT-LONGER
-- 396 — REF48-FALLBACK
-- 405 — REF48-FALLBACK (v7 cropped — confirm full text)
-- 406 — WRONG-SCORE (underlay is a different hymn)
-- 412 — TEXT-LONGER
-- 420 — NO-SCORE
-- 427 — SHARED-MELODY (uses 407's sheet)
-- 428 — TEXT-LONGER
-- 431 — NO-SCORE
-- 432 — NO-SCORE
-- 437 — NO-SCORE
-- 439 — NO-SCORE
-- 441 — NO-SCORE
-- 444 — NO-SCORE
-- 445 — NO-SCORE
-- 446 — NO-SCORE
-- 448 — NO-SCORE
-- 451 — NO-SCORE
-- 452 — NO-SCORE
-- 453 — NO-SCORE
-- 454 — NO-SCORE
-- 455 — NO-SCORE
-- 457 — NO-SCORE
-- 462 — NO-SCORE
-- 464 — NO-SCORE
-- 466 — NO-SCORE
-- 468 — NO-SCORE
-- 469 — NO-SCORE
-- 472 — NO-SCORE
-- 473 — TEXT-LONGER
-- 478 — NO-SCORE
-- 479 — NO-SCORE
-- 483 — NO-SCORE
-- 484 — PROSE-PAGE
-- 485 — VERIFY-FIX (confirm v2/v3 line pairing matches print)
-- 488 — NO-SCORE
-- 489 — NO-SCORE
-- 490 — NO-SCORE
-- 492 — NO-SCORE
-- 493 — NO-SCORE
-- 494 — NO-SCORE
-- 495 — NO-SCORE
-- 496 — NO-SCORE
-- 498 — NO-SCORE
-- 499 — NO-SCORE
-- 500 — NO-SCORE
-- 501 — NO-SCORE
-- 502 — NO-SCORE
-- 503 — NO-SCORE
-- 504 — GENERIC-BLOCK
+## RESOLVED — printed "Dallama a N." melody pointers now baked as aliases
 
-**Total: 98 songs** (56 no-score + 16 ref48 + 7 shared + 6 prose + 12 text issues + 1 generic)
+These songs print only prose + a melody pointer in the book. The app now
+generates their sheets from the pointed-to score (SHARED_SCORE_ALIASES):
 
-## Tags
+- 160 → 208 · 163 → 35 · 164 → 75 · 178 → 278 · 180 → 75 · 183 → 79
+- 188 → 201 (print: "201b. ének") · 193 → 208 · 206 → 353 · 207 → 208
+- 219 → 407 · 229 → 208 · 241 → 194 · 266 → 75 · 268 → 204
+- 270 → 42 (FIXED: was aliased to 89 — that is H/270's wedding hymn, a
+  different song; regular print-270 points to psalm 42)
+- 271 → 152 ("152a, 152b") · 272 → 337 · 274 → 135 · 275 → 65
+- 280 → 66 · 281 → 81 · 288 → 42 · 289 → 134 · 304 → 303 · 324 → 38
+- 343 → 337 · 349 → 89 · 351 → 403 · 357 → 150 · 359 → 407 · 383 → 379
+- 396 → 375 · 420 → 415 · 427 → 407 · 431 → 38 · 432 → 42
 
-- **NO-SCORE** — no score in the app at all. Scan the page so a score can be added.
-- **REF48-FALLBACK** — no Erdélyi scan existed; the app falls back to the 1948
-  hymnal's sheet (possibly renumbered/cropped). Scan the Erdélyi page to replace it.
-- **SHARED-MELODY** — app shows another song's sheet. Confirm the print really
-  says "az alábbi dallamra / a N. ének dallamára" pointing at that melody.
-- **PROSE-PAGE** — app detects the page as pure text (no staff/notation).
-  Confirm the physical page really has no melody.
-- **TEXT-LONGER** — the app's verse text has more syllables than the printed
-  underlay provides slots for; the tail renders as an extra italic line.
-  Check whether the print uses a shorter edition / different translation /
-  repeated refrain.
-- **TEXT-DIVERGE** — print seems to underlay a different translation/variant
-  (only ~2 lines match). Confirm which text belongs to the printed melody.
-- **WRONG-SCORE** — printed underlay is a different hymn ("Te-ben-ned bí-zom,
-  én Is-te-nem") than the Erdélyi verse ("Tebenned bízni, Ó, áldott Istenség").
-  Likely a wrong source page — verify.
-- **GENERIC-BLOCK** — 504's text sits in a generic block the analyzer can't
-  confidently classify. Check whether the page has a melody at all.
-- **VERIFY-FIX** — already fixed; scan only to confirm the fix matches print.
+Also confirmed by photo (already aliased or already correct):
+161, 179, 220, 228, 263, 269, 352, 358, 426 print pointers too, but the
+app's digitized source already carries a real staff with the correct
+underlay for these — left as-is. 406's score is likewise correct (its
+printed melody IS psalm-90's, matching the book's pointer to 90).
 
-## Global note (not per-song)
+## VERIFIED — flagged issues confirmed correct in the book
 
-Many scores bake the `:/:` verse-repeat marker literally into the lyrics
-(~120 songs, e.g. 358). That's a code-side wart fixable without the book —
-the print carries repeats in the notation itself.
+- 485 — printed underlay pairs verse lines 1+3 under phrase 1 and 2+4
+  under phrase 2, exactly as now baked (row 1 ends with a repeat sign).
+- 334 — printed score carries 52 underlay slots; the app verse has 62
+  syllables (refrain written out). The tail-line leftover is faithful.
+- 504 — own score confirmed (Draskóczy László, p. 696).
+- 59 — printed score underlays the app's verse text verbatim; the
+  divergent source underlay noted earlier is edition-internal only.
+- 309 — the book splits the song into 309a + 309b, both with own scores;
+  the app carries a single 309 sheet (documented difference).
+- 502 — printed underlay is bilingual HU+LA (dona nobis pacem); app
+  carries the Hungarian rows.
+
+## CANNOT FIX FROM PHOTOS — book has an own printed score but the
+## digitized source has no -001.svg (needs engraving/vectorization)
+
+177 · 226 · 262 · 276 · 283 · 329 · 335 · 338 · 377 · 405 · 437 · 439 ·
+441 · 444 · 445 · 446 · 448 · 451 · 452 · 453 · 454 · 455 · 457 · 462 ·
+464 · 466 · 468 · 469 · 472 · 478 · 479 · 483 · 484 · 488 · 489 · 490 ·
+492 · 493 · 494 · 495 · 496 · 498 · 499 · 500 · 501 · 502 · 503
+
+Notes:
+- 484 is special: the digitized -001.svg is a prose page, but the book
+  (p. 679) prints an own score — needs engraving, not an override.
+- 177/283/335/338/405 currently fall back to 1948-hymnal sheets; the
+  book's own melodies exist (Herman Miklós 1554; Debrecen 1774; Erfurt
+  1521; Kodály Psalmus Hungaricus; B. Monoetius 1565) but are not in the
+  digital source.
+- 231/308/309/326/387/412/428/473 have digital app scores; the book
+  confirms own scores exist. Residual underlay/verse-length differences
+  are edition differences — tails render as overflow lines, acceptable.
+- 308's book score is the Wittenberg-1523 Agnus Dei.
+
+## Photo gaps (not blocking — no flagged song lacked needed evidence)
+
+- Song 360's page (pp. 523–543 span) not photographed; the app already
+  has a valid source for 360.
+- Pages for 471, 475–477, 480–482, 487 not photographed; none flagged.
+- Minor crops: p. 308 bottom (188 v-tail), p. 333 bottom (208's staff
+  top), p. 480 left edge (328 verses), p. 635 right (448 v1). All
+  flagged content still legible elsewhere or non-critical.
+
+No retakes needed for the flagged set.
