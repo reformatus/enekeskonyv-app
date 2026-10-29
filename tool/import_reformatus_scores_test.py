@@ -16,6 +16,8 @@ from import_reformatus_scores import (
     _FIXED_SYLLABLE_FONT,
     _has_severe_clipping,
     _is_prose_page,
+    _split_lines_for_rows,
+    _underlay_fill_order,
     _ref48_is_dot,
     _ref48_number_cluster,
     _ref48_lyric_rows,
@@ -960,6 +962,82 @@ class Ref48SheetRepairTest(unittest.TestCase):
         self.assertEqual(len(rows), 4)
         cluster = _ref48_number_cluster(sheet, rows[0][1])
         self.assertEqual(len(cluster), 2)
+
+
+class UnderlayFillOrderTest(unittest.TestCase):
+    # Staff bands shaped like song 42: six systems, the first two carrying
+    # a doubled underlay under a repeat unit, the rest single lines.
+    STAFF_42 = [
+        (40.0, 56.0),
+        (97.0, 113.0),
+        (155.0, 170.0),
+        (199.0, 215.0),
+        (243.0, 259.0),
+        (287.0, 303.0),
+    ]
+
+    def test_paired_repeat_unit_fills_column_major(self):
+        # staff0 rows y=60,70; staff1 rows y=118,128; one row per staff after.
+        row_ys = [60.0, 70.0, 118.0, 128.0, 174.0, 219.0, 263.0, 307.0]
+        self.assertEqual(
+            _underlay_fill_order(row_ys, self.STAFF_42),
+            [0, 2, 1, 3, 4, 5, 6, 7],
+        )
+
+    def test_four_staff_run_interleaves_all_columns(self):
+        # Song 18 shape: four systems each with two underlay rows.
+        bands = [(50.0 + i * 50.0, 66.0 + i * 50.0) for i in range(8)]
+        row_ys = [70.0, 80.0, 120.0, 130.0, 170.0, 180.0, 220.0, 230.0]
+        self.assertEqual(
+            _underlay_fill_order(row_ys, bands),
+            [0, 2, 4, 6, 1, 3, 5, 7],
+        )
+
+    def test_lone_paired_row_stays_sequential(self):
+        # Song 208 shape [2,2,1,2,1,1]: only the first run interleaves.
+        bands = [(40.0 + i * 50.0, 56.0 + i * 50.0) for i in range(6)]
+        row_ys = [60.0, 70.0, 110.0, 120.0, 160.0, 210.0, 220.0, 260.0]
+        self.assertEqual(
+            _underlay_fill_order(row_ys, bands),
+            [0, 2, 1, 3, 4, 5, 6, 7],
+        )
+
+    def test_single_underlay_per_staff_returns_none(self):
+        row_ys = [60.0, 118.0, 174.0, 219.0, 263.0, 307.0]
+        self.assertIsNone(_underlay_fill_order(row_ys, self.STAFF_42))
+
+    def test_unequal_run_sizes_stay_sequential(self):
+        # [2,3] — not a uniform underlay block, no permutation.
+        bands = [(40.0, 56.0), (97.0, 113.0)]
+        row_ys = [60.0, 70.0, 118.0, 128.0, 138.0]
+        self.assertIsNone(_underlay_fill_order(row_ys, bands))
+
+    def test_too_few_rows_returns_none(self):
+        row_ys = [60.0, 70.0]
+        self.assertIsNone(
+            _underlay_fill_order(row_ys, self.STAFF_42[:1])
+        )
+
+    def test_permuted_split_scatters_lines_to_display_rows(self):
+        # Chunks c0..c3 fill display rows [0,2,1,3]: staff0 shows [c0,c2].
+        lines, _ = _split_lines_for_rows(
+            'a1 a2 a3 a4 b1 b2 b3 b4 c1 c2 c3 c4 d1 d2 d3 d4',
+            [4, 4, 4, 4],
+            None,
+            [0, 2, 1, 3],
+        )
+        self.assertEqual(lines[0], 'a1 a2 a3 a4')
+        self.assertEqual(lines[1], 'c1 c2 c3 c4')
+        self.assertEqual(lines[2], 'b1 b2 b3 b4')
+        self.assertEqual(lines[3], 'd1 d2 d3 d4')
+
+    def test_none_fill_order_matches_plain_split(self):
+        text = 'egy kettő három négy öt hat hét nyolc'
+        counts = [4, 4]
+        plain, plain_left = _split_lines_for_rows(text, counts, None, None)
+        permuted, perm_left = _split_lines_for_rows(text, counts, None, None)
+        self.assertEqual(plain, permuted)
+        self.assertEqual(plain_left, perm_left)
 
 
 if __name__ == '__main__':

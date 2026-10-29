@@ -1151,6 +1151,87 @@ def _topmost_staff_line_y(svg_text: str) -> float | None:
     return clusters[0][0] if clusters else None
 
 
+def _underlay_fill_order(
+    row_ys: list[float],
+    staff_bands: list[tuple[float, float]],
+) -> list[int] | None:
+    """Display-row indices in printed underlay fill order, or None.
+
+    Under a repeated phrase the printed book stacks one underlay row per
+    pass: a couplet's first line sits under phrase A and its second under
+    phrase B, so the underlay rows of neighbouring systems fill
+    column-major (first row of every system, then second rows), not in y
+    order.  A maximal run of >=2 consecutive systems carrying the same
+    count >=2 of underlay rows forms such a block; rows outside blocks
+    stay sequential.  Returns a permutation of range(len(row_ys)) only
+    when at least one block exists.
+    """
+    if len(row_ys) < 4:
+        return None
+    parents = [
+        max(
+            (i for i, (_top, bottom) in enumerate(staff_bands) if bottom <= y + 2.0),
+            default=-1,
+        )
+        for y in row_ys
+    ]
+    groups: list[list[int]] = []
+    for idx, parent in enumerate(parents):
+        if groups and parent >= 0 and parent == parents[groups[-1][0]]:
+            groups[-1].append(idx)
+        else:
+            groups.append([idx])
+    order: list[int] = []
+    paired = False
+    i = 0
+    while i < len(groups):
+        size = len(groups[i])
+        if size >= 2:
+            end = i + 1
+            while end < len(groups) and len(groups[end]) == size:
+                end += 1
+            if end - i >= 2:
+                for col in range(size):
+                    for gi in range(i, end):
+                        order.append(groups[gi][col])
+                paired = True
+                i = end
+                continue
+        order.extend(groups[i])
+        i += 1
+    return order if paired else None
+
+
+def _split_lines_for_rows(
+    verse_text: str,
+    note_counts: list[int],
+    max_counts: list[int] | None,
+    row_fill_order: list[int] | None,
+) -> tuple[list[str], str]:
+    """split_verse_text_by_note_counts honoring a row fill permutation.
+
+    The splitter sees rows in fill order so each produced line is sized
+    for the display row it will land on; lines are then scattered back to
+    display-row order.
+    """
+    if not row_fill_order:
+        return split_verse_text_by_note_counts(verse_text, note_counts, max_counts)
+    perm_counts = [note_counts[r] for r in row_fill_order]
+    perm_max = (
+        [max_counts[r] for r in row_fill_order]
+        if max_counts is not None
+        else None
+    )
+    perm_lines, leftover = split_verse_text_by_note_counts(
+        verse_text, perm_counts, perm_max
+    )
+    score_lines = [''] * len(note_counts)
+    for k, row in enumerate(row_fill_order):
+        if k < len(perm_lines):
+            score_lines[row] = perm_lines[k]
+    return score_lines, leftover
+
+
 def _is_prose_page(
     rows: list[SvgLyricRow],
     hyphenated: list[bool],
@@ -2064,6 +2145,7 @@ def render_verse_svg(
     forced_font_size: float | None = None,
     lyric_rows: list[SvgLyricRow] | None = None,
     prose_page: bool = False,
+    row_fill_order: list[int] | None = None,
 ) -> str:
     # lyric_rows are the display rows text is assigned to — same as
     # score_block.rows unless same-baseline fragment rows were merged.
@@ -2100,8 +2182,8 @@ def render_verse_svg(
             if recovery_candidates_per_row is not None
             else None
         )
-        score_lines, leftover_line = split_verse_text_by_note_counts(
-            verse_text, note_counts, max_counts
+        score_lines, leftover_line = _split_lines_for_rows(
+            verse_text, note_counts, max_counts, row_fill_order
         )
     else:
         score_lines = split_verse_text_to_rows(verse_text, target_widths)
@@ -2377,6 +2459,11 @@ def generate_score_files_from_svg_path(
         underlay_text.get(str(i), verse_text)
         for i, verse_text in enumerate(verse_texts)
     ]
+    row_fill_order = (
+        _underlay_fill_order([row.y for row in lyric_rows], staff_bands)
+        if note_onsets_per_row is not None and not prose_page
+        else None
+    )
 
     # Compute a single font size across all verses so the entire song
     # uses one consistent size.  We take the minimum across verses.
@@ -2392,8 +2479,8 @@ def generate_score_files_from_svg_path(
             else None
         )
         for verse_text in bake_texts:
-            lines, _leftover = split_verse_text_by_note_counts(
-                verse_text, note_counts, max_counts
+            lines, _leftover = _split_lines_for_rows(
+                verse_text, note_counts, max_counts, row_fill_order
             )
             verse_font = _compute_song_font_size(
                 lyric_rows, lines, note_onsets_per_row, recovery_candidates_per_row
@@ -2417,6 +2504,7 @@ def generate_score_files_from_svg_path(
             forced_font_size=song_font if note_onsets_per_row is not None else None,
             lyric_rows=lyric_rows,
             prose_page=prose_page,
+            row_fill_order=row_fill_order,
         )
         if strip_number:
             rendered = _strip_printed_song_number(rendered, printed_number)
