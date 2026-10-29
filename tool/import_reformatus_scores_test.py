@@ -14,9 +14,11 @@ from import_reformatus_scores import (
     _compute_song_font_size,
 
     _FIXED_SYLLABLE_FONT,
+    _compact_system_gaps,
     _has_severe_clipping,
     _is_prose_page,
     _split_lines_for_rows,
+    _staff_clusters,
     _underlay_fill_order,
     _ref48_is_dot,
     _ref48_number_cluster,
@@ -1055,6 +1057,125 @@ class UnderlayFillOrderTest(unittest.TestCase):
         rows = split_verse_text_to_rows('a1 a2 :/: b1 b2', [50.0, 50.0])
         for row in rows:
             self.assertNotIn(':/:', row)
+
+
+class CompactSystemGapsTest(unittest.TestCase):
+    """Page-break bands stitched mid-score compact to the printed break.
+
+    Fixture staves: five horizontal lines 4.25 apart starting at each
+    top y.  Staff-line paths sit inside <g> wrappers like the publisher
+    exports; extra elements append verbatim.
+    """
+
+    @staticmethod
+    def _staff(top: float) -> str:
+        return ''.join(
+            f'<g><path d="M 10 {top + k * 4.25:.3f} '
+            f'L 300 {top + k * 4.25:.3f}"/></g>'
+            for k in range(5)
+        )
+
+    def _page(self, tops, extra='') -> str:
+        body = ''.join(self._staff(t) for t in tops) + extra
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'xmlns:xlink="http://www.w3.org/1999/xlink" '
+            'viewBox="0 0 400 800">' + body + '</svg>'
+        )
+
+    def test_noop_when_pitches_uniform(self):
+        svg = self._page([40.0, 84.5, 129.0])
+        self.assertEqual(_compact_system_gaps(svg), svg)
+
+    def test_compacts_oversized_gap_and_shifts_lower_elements(self):
+        # Song 88 shape: 180-unit page break between systems 2 and 3.
+        extra = (
+            '<g><use y="110" xlink:href="#ul"/></g>'
+            '<g><use y="270" xlink:href="#note"/></g>'
+        )
+        out = _compact_system_gaps(
+            self._page([40.0, 84.5, 264.5, 309.0], extra)
+        )
+        bands = _staff_clusters(out)
+        pitches = [
+            bands[i + 1][0] - bands[i][0] for i in range(len(bands) - 1)
+        ]
+        self.assertAlmostEqual(pitches[1], 66.75, places=2)
+        self.assertAlmostEqual(pitches[0], 44.5, places=2)
+        self.assertAlmostEqual(pitches[2], 44.5, places=2)
+        uses = [
+            float(m.group(1))
+            for m in re.finditer(r'<use y="([\d.-]+)"', out)
+        ]
+        # Underlay at 110 belongs to the upper system (stays); the note
+        # at 270 rides up with the lower system by delta = 180 - 66.75.
+        self.assertAlmostEqual(uses[0], 110.0, places=2)
+        self.assertAlmostEqual(uses[1], 270.0 - 113.25, places=2)
+
+    def test_cut_keeps_clef_with_lower_system(self):
+        # Clef at 250 sits just above the lower staff — the widest
+        # element-free band is above it, so it travels with the system.
+        extra = (
+            '<g><use y="110" xlink:href="#ul"/></g>'
+            '<g><use y="250" xlink:href="#clef"/></g>'
+        )
+        out = _compact_system_gaps(
+            self._page([40.0, 84.5, 264.5, 309.0], extra)
+        )
+        uses = [
+            float(m.group(1))
+            for m in re.finditer(r'<use y="([\d.-]+)"', out)
+        ]
+        self.assertAlmostEqual(uses[0], 110.0, places=2)
+        self.assertAlmostEqual(uses[1], 250.0 - 113.25, places=2)
+
+    def test_bare_top_level_path_shifts_via_matrix(self):
+        # Song 004/209/256 shape: stems/beams are bare paths under root.
+        extra = (
+            '<path transform="matrix(0.9975,0,0,-0.9975,82,270)" '
+            'd="M 0 0 L 0 13.5"/>'
+        )
+        out = _compact_system_gaps(
+            self._page([40.0, 84.5, 264.5, 309.0], extra)
+        )
+        m = re.search(
+            r'matrix\(0.9975,0,0,-0.9975,82,([\d.-]+)\)', out
+        )
+        self.assertIsNotNone(m)
+        self.assertAlmostEqual(float(m.group(1)), 270.0 - 113.25, places=2)
+
+    def test_referenced_clip_rect_shifts(self):
+        extra = (
+            '<defs><clipPath id="c1">'
+            '<path d="M 0 240 L 400 240 L 400 280 L 0 280"/>'
+            '</clipPath></defs>'
+            '<g clip-path="url(#c1)"><use y="270" xlink:href="#n"/></g>'
+        )
+        out = _compact_system_gaps(
+            self._page([40.0, 84.5, 264.5, 309.0], extra)
+        )
+        self.assertIn('M 0 126.75', out)
+        self.assertIn('L 400 166.75', out)
+
+    def test_multiple_gaps_accumulate(self):
+        svg = self._page([40.0, 84.5, 264.5, 309.0, 489.5, 534.0])
+        out = _compact_system_gaps(svg)
+        bands = _staff_clusters(out)
+        pitches = [
+            bands[i + 1][0] - bands[i][0] for i in range(len(bands) - 1)
+        ]
+        self.assertEqual(
+            [round(p, 2) for p in pitches],
+            [44.5, 66.75, 44.5, 66.75, 44.5],
+        )
+
+    def test_viewbox_height_shrinks_by_total_delta(self):
+        out = _compact_system_gaps(
+            self._page([40.0, 84.5, 264.5, 309.0])
+        )
+        m = re.search(r'viewBox="0 0 400 ([\d.-]+)"', out)
+        self.assertIsNotNone(m)
+        self.assertAlmostEqual(float(m.group(1)), 800.0 - 113.25, places=2)
 
 
 if __name__ == '__main__':

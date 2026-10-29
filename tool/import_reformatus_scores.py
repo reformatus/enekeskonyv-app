@@ -1205,6 +1205,152 @@ def _underlay_fill_order(
     return order if paired else None
 
 
+# Inter-system pitch above this multiple of the page median means the band
+# is a stitched page break, not print spacing.
+_SYSTEM_GAP_RATIO = 1.6
+# Compacted pitch — the printed book's modest system-break proportion.
+_SYSTEM_GAP_TARGET = 1.5
+
+
+def _top_group_y(group: ET.Element, ns: str) -> float | None:
+    """Representative y of a top-level element: use@y, a path's matrix
+    translation, or the minimum absolute y in its path data."""
+    for use in group.iter(f'{ns}use'):
+        try:
+            return float(use.get('y', ''))
+        except ValueError:
+            continue
+    for path in group.iter(f'{ns}path'):
+        m = re.search(r'matrix\(([^)]+)\)', path.get('transform', ''))
+        if m:
+            parts = m.group(1).replace(',', ' ').split()
+            if len(parts) == 6:
+                return float(parts[5])
+        nums = [float(v) for v in re.findall(r'-?\d+\.?\d*', path.get('d', ''))]
+        if nums:
+            return min(nums[1::2])
+    return None
+
+
+def _shift_path_y(path: ET.Element, delta: float) -> None:
+    """Lower a path's drawn y by *delta* — through its matrix ty when
+    present, otherwise by prepending a translate transform."""
+    transform = path.get('transform', '')
+    m = re.match(r'matrix\(([\d.,\s-]+)\)(.*)$', transform.strip())
+    if m:
+        parts = m.group(1).replace(',', ' ').split()
+        if len(parts) == 6:
+            parts[5] = f'{float(parts[5]) - delta:.3f}'
+            path.set('transform', f'matrix({",".join(parts)}){m.group(2)}')
+            return
+    path.set('transform', f'translate(0 {-delta:.3f}){transform}')
+
+
+def _compact_system_gaps(svg_text: str) -> str:
+    """Shrink stitched page-break gaps to the printed system break.
+
+    Sources stitched from consecutive publisher pages keep the next
+    page's top margin as a tall empty band mid-score (e.g. 88 spanning
+    pages 184-185) where the book shows only a ~1.5x system break.  When
+    an inter-system pitch exceeds the page median by _SYSTEM_GAP_RATIO,
+    elements below the gap shift up until the pitch reaches
+    _SYSTEM_GAP_TARGET.  The cut is placed in the widest element-free
+    band inside the gap so underlay rows stay with their own staff and
+    next-system furniture (clefs, key signatures) travels with the
+    lower system.
+    """
+    bands = _staff_clusters(svg_text)
+    if len(bands) < 3:
+        return svg_text
+    pitches = [
+        bands[i + 1][0] - bands[i][0] for i in range(len(bands) - 1)
+    ]
+    normal = sorted(pitches)[len(pitches) // 2]
+    gaps = [
+        (i, pitch - _SYSTEM_GAP_TARGET * normal)
+        for i, pitch in enumerate(pitches)
+        if pitch > _SYSTEM_GAP_RATIO * normal
+    ]
+    if not gaps:
+        return svg_text
+
+    ns = '{' + _SVG_NS + '}'
+    root = ET.fromstring(svg_text)
+    groups = [
+        c for c in list(root) if c.tag in (f'{ns}g', f'{ns}path')
+    ]
+    group_ys = sorted(
+        (y, idx)
+        for idx, g in enumerate(groups)
+        if (y := _top_group_y(g, ns)) is not None
+    )
+    deltas = [0.0] * len(groups)
+    total_delta = 0.0
+    for i, delta in gaps:
+        lo, hi = bands[i][1], bands[i + 1][0]
+        inside = sorted(y for y, _ in group_ys if lo < y < hi)
+        bounds = [lo, *inside, hi]
+        spans = [
+            (bounds[j], bounds[j + 1])
+            for j in range(len(bounds) - 1)
+        ]
+        span = max(spans, key=lambda s: s[1] - s[0])
+        cut = (span[0] + span[1]) / 2
+        for y, idx in group_ys:
+            if y >= cut:
+                deltas[idx] += delta
+        total_delta += delta
+    # Leaf coordinates are edited in place — not a group transform — so
+    # every attribute downstream readers parse (use@y, path matrix ty)
+    # already reflects the shifted position.  Clip rects live in <defs>
+    # with absolute coordinates, so each clip referenced by a shifted
+    # group is shifted by the same delta (clips are referenced once).
+    clip_deltas: dict[str, float] = {}
+    for idx, delta in enumerate(deltas):
+        if not delta:
+            continue
+        for el in groups[idx].iter():
+            ref = re.match(
+                r'url\(#([^)]+)\)', el.get('clip-path', '')
+            )
+            if ref:
+                clip_deltas[ref.group(1)] = delta
+        for use in groups[idx].iter(f'{ns}use'):
+            try:
+                use.set('y', f'{float(use.get("y", 0.0)) - delta:.3f}')
+            except (TypeError, ValueError):
+                continue
+        for path in groups[idx].iter(f'{ns}path'):
+            _shift_path_y(path, delta)
+    for clip in root.iter(f'{ns}clipPath'):
+        delta = clip_deltas.get(clip.get('id', ''))
+        if not delta:
+            continue
+        for path in clip.iter(f'{ns}path'):
+            # absolute M/L coordinate pairs: every second number is a y.
+            nums = re.split(r'(-?\d+\.?\d*)', path.get('d', ''))
+            num_i = 0
+            for j, part in enumerate(nums):
+                if part and re.fullmatch(r'-?\d+\.?\d*', part):
+                    num_i += 1
+                    if num_i % 2 == 0:
+                        nums[j] = f'{float(part) - delta:.3f}'
+            path.set('d', ''.join(nums))
+
+    if total_delta <= 0:
+        return svg_text
+    parts = _view_box_parts(root)
+    if parts is not None:
+        height = float(parts[3]) - total_delta
+        root.set(
+            'viewBox',
+            f'{parts[0]} {parts[1]} {parts[2]} {height:.2f}',
+        )
+        if root.get('height') is not None:
+            root.set('height', f'{height:.2f}')
+    return ET.tostring(root, encoding='unicode')
+
+
 def _split_lines_for_rows(
     verse_text: str,
     note_counts: list[int],
@@ -2363,7 +2509,7 @@ def generate_score_files_from_svg_path(
     if not svg_path.exists():
         return []
 
-    svg_text = svg_path.read_text()
+    svg_text = _compact_system_gaps(svg_path.read_text())
     override = _score_override(target_song_number)
     score_block, footer_block = detect_svg_lyric_blocks(
         svg_text, lyric_top=override.get('lyric_top', 48.0)
