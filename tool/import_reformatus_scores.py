@@ -1208,8 +1208,9 @@ def _underlay_fill_order(
 # Inter-system pitch above this multiple of the page median means the band
 # is a stitched page break, not print spacing.
 _SYSTEM_GAP_RATIO = 1.6
-# Compacted pitch — the printed book's modest system-break proportion.
-_SYSTEM_GAP_TARGET = 1.5
+# Compacted pitch — the app's continuous page needs no page-turn seam, so
+# the stitched break closes to the same spacing as any other system.
+_SYSTEM_GAP_TARGET = 1.0
 
 
 def _top_group_y(group: ET.Element, ns: str) -> float | None:
@@ -1251,13 +1252,13 @@ def _compact_system_gaps(svg_text: str) -> str:
 
     Sources stitched from consecutive publisher pages keep the next
     page's top margin as a tall empty band mid-score (e.g. 88 spanning
-    pages 184-185) where the book shows only a ~1.5x system break.  When
-    an inter-system pitch exceeds the page median by _SYSTEM_GAP_RATIO,
-    elements below the gap shift up until the pitch reaches
-    _SYSTEM_GAP_TARGET.  The cut is placed in the widest element-free
-    band inside the gap so underlay rows stay with their own staff and
-    next-system furniture (clefs, key signatures) travels with the
-    lower system.
+    pages 184-185).  The app renders one continuous page, so the seam
+    closes to the normal inter-system pitch.  When an inter-system
+    pitch exceeds the page median by _SYSTEM_GAP_RATIO, elements below
+    the gap shift up until the pitch reaches _SYSTEM_GAP_TARGET.  The
+    cut is placed in the widest element-free band inside the gap so
+    underlay rows stay with their own staff and next-system furniture
+    (clefs, key signatures) travels with the lower system.
     """
     bands = _staff_clusters(svg_text)
     if len(bands) < 3:

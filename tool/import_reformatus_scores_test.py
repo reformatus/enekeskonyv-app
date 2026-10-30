@@ -1100,7 +1100,7 @@ class CompactSystemGapsTest(unittest.TestCase):
         pitches = [
             bands[i + 1][0] - bands[i][0] for i in range(len(bands) - 1)
         ]
-        self.assertAlmostEqual(pitches[1], 66.75, places=2)
+        self.assertAlmostEqual(pitches[1], 44.5, places=2)
         self.assertAlmostEqual(pitches[0], 44.5, places=2)
         self.assertAlmostEqual(pitches[2], 44.5, places=2)
         uses = [
@@ -1108,9 +1108,9 @@ class CompactSystemGapsTest(unittest.TestCase):
             for m in re.finditer(r'<use y="([\d.-]+)"', out)
         ]
         # Underlay at 110 belongs to the upper system (stays); the note
-        # at 270 rides up with the lower system by delta = 180 - 66.75.
+        # at 270 rides up with the lower system by delta = 180 - 44.5.
         self.assertAlmostEqual(uses[0], 110.0, places=2)
-        self.assertAlmostEqual(uses[1], 270.0 - 113.25, places=2)
+        self.assertAlmostEqual(uses[1], 270.0 - 135.5, places=2)
 
     def test_cut_keeps_clef_with_lower_system(self):
         # Clef at 250 sits just above the lower staff — the widest
@@ -1127,7 +1127,7 @@ class CompactSystemGapsTest(unittest.TestCase):
             for m in re.finditer(r'<use y="([\d.-]+)"', out)
         ]
         self.assertAlmostEqual(uses[0], 110.0, places=2)
-        self.assertAlmostEqual(uses[1], 250.0 - 113.25, places=2)
+        self.assertAlmostEqual(uses[1], 250.0 - 135.5, places=2)
 
     def test_bare_top_level_path_shifts_via_matrix(self):
         # Song 004/209/256 shape: stems/beams are bare paths under root.
@@ -1142,7 +1142,7 @@ class CompactSystemGapsTest(unittest.TestCase):
             r'matrix\(0.9975,0,0,-0.9975,82,([\d.-]+)\)', out
         )
         self.assertIsNotNone(m)
-        self.assertAlmostEqual(float(m.group(1)), 270.0 - 113.25, places=2)
+        self.assertAlmostEqual(float(m.group(1)), 270.0 - 135.5, places=2)
 
     def test_referenced_clip_rect_shifts(self):
         extra = (
@@ -1154,8 +1154,8 @@ class CompactSystemGapsTest(unittest.TestCase):
         out = _compact_system_gaps(
             self._page([40.0, 84.5, 264.5, 309.0], extra)
         )
-        self.assertIn('M 0 126.75', out)
-        self.assertIn('L 400 166.75', out)
+        self.assertIn('M 0 104.5', out)
+        self.assertIn('L 400 144.5', out)
 
     def test_multiple_gaps_accumulate(self):
         svg = self._page([40.0, 84.5, 264.5, 309.0, 489.5, 534.0])
@@ -1166,7 +1166,7 @@ class CompactSystemGapsTest(unittest.TestCase):
         ]
         self.assertEqual(
             [round(p, 2) for p in pitches],
-            [44.5, 66.75, 44.5, 66.75, 44.5],
+            [44.5, 44.5, 44.5, 44.5, 44.5],
         )
 
     def test_viewbox_height_shrinks_by_total_delta(self):
@@ -1175,7 +1175,7 @@ class CompactSystemGapsTest(unittest.TestCase):
         )
         m = re.search(r'viewBox="0 0 400 ([\d.-]+)"', out)
         self.assertIsNotNone(m)
-        self.assertAlmostEqual(float(m.group(1)), 800.0 - 113.25, places=2)
+        self.assertAlmostEqual(float(m.group(1)), 800.0 - 135.5, places=2)
 
 
 if __name__ == '__main__':
